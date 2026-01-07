@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OGL Auction App with Background & Logo</title>
+<title>OGL Auction App with Firebase</title>
 <style>
   /* Background & Logo */
   body {
@@ -56,12 +56,16 @@
   .highlight { background: #ffd700; font-weight: bold; padding: 0 4px; border-radius: 3px; }
 </style>
 
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#ff4500">
-
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 </head>
 <body>
+
+<header>
+  <img src="C:/temp/OGL/logo.png" alt="Logo">
+  <h1>🏏 Original GOAT League 2026 🏏</h1>
+</header>
 
 <nav>
   <button class="active" onclick="showScreen('retained')">Retained Players</button>
@@ -99,7 +103,20 @@
 </div>
 
 <script>
-// --- INITIAL DATA ---
+// ------------------- FIREBASE CONFIG -------------------
+const firebaseConfig = {
+  apiKey: "AIzaSyBy0sIQw74accRCg_YSzQ-j-4JrcDllSko",
+  authDomain: "ogl-auction.firebaseapp.com",
+  databaseURL: "https://ogl-auction-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "ogl-auction",
+  storageBucket: "ogl-auction.firebasestorage.app",
+  messagingSenderId: "264400657848",
+  appId: "1:264400657848:web:4a473e87bc5e696998c34d"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// ------------------- DEFAULT DATA -------------------
 let defaultTeams = [
   { name: "Golden Era Legends", wallet: 14000, squad: ["Muthu Kamal", "Srini", "Sateesh", "Arun T", "Muzeeb", "Pavan", "Manju", "Velu", "Kishore", "Babu", "Bharath"] },
   { name: "The Wall Warriors", wallet: 14000, squad: ["Srikanth", "Karthik", "Sunil", "Venu", "Lawrence"] },
@@ -116,19 +133,33 @@ let defaultPlayers = [
   { name: "Sandeep", basePrice: 1000 }
 ];
 
-// --- LOAD OR INIT ---
-let teams = JSON.parse(localStorage.getItem('teams')) || defaultTeams;
-let availablePlayers = JSON.parse(localStorage.getItem('availablePlayers')) || defaultPlayers;
-let bidLog = JSON.parse(localStorage.getItem('bidLog')) || [];
+// ------------------- SYNC WITH FIREBASE -------------------
+let teams = [], availablePlayers = [], bidLog = [];
 
-// --- SAVE ---
-function saveData(){
-  localStorage.setItem('teams', JSON.stringify(teams));
-  localStorage.setItem('availablePlayers', JSON.stringify(availablePlayers));
-  localStorage.setItem('bidLog', JSON.stringify(bidLog));
+function loadFromFirebase(){
+  db.ref('/auctionData').on('value', snapshot => {
+    const data = snapshot.val();
+    if(data){
+      teams = data.teams || JSON.parse(JSON.stringify(defaultTeams));
+      availablePlayers = data.availablePlayers || JSON.parse(JSON.stringify(defaultPlayers));
+      bidLog = data.bidLog || [];
+    } else {
+      // Initialize if first time
+      teams = JSON.parse(JSON.stringify(defaultTeams));
+      availablePlayers = JSON.parse(JSON.stringify(defaultPlayers));
+      bidLog = [];
+      saveToFirebase();
+    }
+    renderRetained();
+    updateAuctionScreen();
+  });
 }
 
-// --- SCREEN SWITCH ---
+function saveToFirebase(){
+  db.ref('/auctionData').set({teams, availablePlayers, bidLog});
+}
+
+// ------------------- UI FUNCTIONS -------------------
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -138,7 +169,6 @@ function showScreen(id){
   if(id==='report') updateReport();
 }
 
-// --- RENDER RETAINED ---
 function renderRetained(){
   let html = '';
   teams.forEach(team=>{
@@ -147,9 +177,7 @@ function renderRetained(){
       let parts = p.split('(');
       if(parts.length>1){
         html += `<li><span class="highlight">${parts[0].trim()}</span> (${parts[1]}`;
-      } else {
-        html += `<li>${p}</li>`;
-      }
+      } else { html += `<li>${p}</li>`; }
       html += `</li>`;
     });
     html += `</ul>`;
@@ -157,7 +185,6 @@ function renderRetained(){
   document.getElementById('retainedList').innerHTML = html;
 }
 
-// --- AUCTION ---
 function updateAuctionScreen(){
   let walletsHtml = '';
   teams.forEach(t=> walletsHtml += `<div>${t.name}: ${t.wallet} points</div>`);
@@ -177,7 +204,7 @@ function updateAuctionScreen(){
   document.getElementById('bidLog').innerHTML = bidLog.map(b=>`${b.team} bid ${b.amount} on ${b.player}`).join('<br>');
 }
 
-// --- PLACE BID ---
+// ------------------- BIDDING -------------------
 function placeBid(teamIndex, playerIndex){
   let team = teams[teamIndex];
   let player = availablePlayers[playerIndex];
@@ -192,28 +219,21 @@ function placeBid(teamIndex, playerIndex){
     team.squad.push(`${player.name} (${bidAmount})`);
     bidLog.push({team: team.name, player: player.name, amount: bidAmount});
     availablePlayers.splice(playerIndex,1);
-    saveData();
-    updateAuctionScreen();
-    renderRetained();
+    saveToFirebase();
   }
 }
 
-// --- RESET AUCTION ---
+// ------------------- RESET -------------------
 function resetAuction(){
   if(confirm("This will reset all bids and restore initial data. Are you sure?")){
-    localStorage.removeItem('teams');
-    localStorage.removeItem('availablePlayers');
-    localStorage.removeItem('bidLog');
     teams = JSON.parse(JSON.stringify(defaultTeams));
     availablePlayers = JSON.parse(JSON.stringify(defaultPlayers));
     bidLog = [];
-    saveData();
-    renderRetained();
-    updateAuctionScreen();
+    saveToFirebase();
   }
 }
 
-// --- REPORT ---
+// ------------------- REPORT -------------------
 function updateReport(){
   let html = '';
   teams.forEach(team=>{
@@ -232,7 +252,7 @@ function updateReport(){
   document.getElementById('reportContent').innerHTML = html;
 }
 
-// --- EXPORT REPORT ---
+// ------------------- EXPORT -------------------
 function exportReport(){
   let data = {teams,bidLog};
   const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
@@ -242,9 +262,8 @@ function exportReport(){
   a.click();
 }
 
-// --- INIT ---
-renderRetained();
-updateAuctionScreen();
+// ------------------- INIT -------------------
+loadFromFirebase();
 </script>
 
 </body>
