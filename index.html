@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OGL Auction App with Firebase</title>
 <style>
-  /* Background & Logo */
   body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -14,30 +13,13 @@
     background-size: cover;
     color: #333;
   }
-  header {
-    text-align: center;
-    position: relative;
-    padding: 80px 15px 15px 15px;
-  }
-  header img {
-    position: absolute;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    height: 60px;
-  }
-  header h1 {
-    color: #ff4500;
-    font-size: 2em;
-    margin: 0;
-  }
 
   /* Navigation */
-  nav { display: flex; justify-content: space-around; background: rgba(230, 57, 70, 0.9); }
+  nav { display: flex; justify-content: space-around; background: rgba(230,57,70,0.9); }
   nav button { flex: 1; padding: 12px; border: none; background: none; color: white; font-size: 1em; cursor: pointer; transition: 0.2s; }
-  nav button.active, nav button:hover { background: rgba(214, 40, 40, 0.9); }
+  nav button.active, nav button:hover { background: rgba(214,40,40,0.9); }
 
-  /* Screens */
+  /* Screens with transparent/light view */
   .screen { display: none; padding: 15px; }
   .screen.active { display: block; background: rgba(255,255,255,0.85); border-radius: 10px; margin: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
 
@@ -58,14 +40,8 @@
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
 </head>
 <body>
-
-<header>
-  <img src="C:/temp/OGL/logo.png" alt="Logo">
-  <h1>🏏 Original GOAT League 2026 🏏</h1>
-</header>
 
 <nav>
   <button class="active" onclick="showScreen('retained')">Retained Players</button>
@@ -73,13 +49,11 @@
   <button onclick="showScreen('report')">Auction Report</button>
 </nav>
 
-<!-- Retained Players Screen -->
 <div id="retained" class="screen active">
   <h2>Retained Players</h2>
   <div id="retainedList"></div>
 </div>
 
-<!-- Auction Screen -->
 <div id="auction" class="screen">
   <h2>Auction</h2>
   <div>
@@ -95,7 +69,6 @@
   </div>
 </div>
 
-<!-- Auction Report Screen -->
 <div id="report" class="screen">
   <h2>Auction Report</h2>
   <button onclick="exportReport()" class="end-btn">💾 Export Report</button>
@@ -118,33 +91,31 @@ const db = firebase.database();
 
 // ------------------- DEFAULT DATA -------------------
 let defaultTeams = [
-  { name: "Golden Era Legends", wallet: 14000, squad: ["Muthu Kamal", "Srini", "Sateesh", "Arun T", "Muzeeb", "Pavan", "Manju", "Velu", "Kishore", "Babu", "Bharath"] },
-  { name: "The Wall Warriors", wallet: 14000, squad: ["Srikanth", "Karthik", "Sunil", "Venu", "Lawrence"] },
-  { name: "Sunny Stroke Legends", wallet: 14000, squad: ["Ananda", "Danny", "Rakesh", "Theertha", "Imran", "Prashanth"] },
-  { name: "Master Blasters", wallet: 14000, squad: ["Rohan", "Nilesh", "Bharat", "Rakesh", "Prashant H", "Sachin S"] },
+  { name: "Golden Era Legends", wallet: 14000, squad: ["Muthu Kamal","Srini","Sateesh","Arun T","Muzeeb","Pavan","Manju","Velu","Kishore","Babu","Bharath"] },
+  { name: "The Wall Warriors", wallet: 14000, squad: ["Srikanth","Karthik","Sunil","Venu","Lawrence"] },
+  { name: "Sunny Stroke Legends", wallet: 14000, squad: ["Ananda","Danny","Rakesh","Theertha","Imran","Prashanth"] },
+  { name: "Master Blasters", wallet: 14000, squad: ["Rohan","Nilesh","Bharat","Rakesh","Prashant H","Sachin S"] },
   { name: "Hitman Heritage", wallet: 14000, squad: ["Abhishek"] },
-  { name: "Run Machine Royals", wallet: 14000, squad: ["Saro", "Arun"] },
-  { name: "Sehwag Sixers", wallet: 14000, squad: ["Shantkumar", "Rudresh", "Shashi"] },
+  { name: "Run Machine Royals", wallet: 14000, squad: ["Saro","Arun"] },
+  { name: "Sehwag Sixers", wallet: 14000, squad: ["Shantkumar","Rudresh","Shashi"] },
   { name: "Kapil Devils", wallet: 14000, squad: ["Naresh"] }
 ];
-
 let defaultPlayers = [
   { name: "Deepu", basePrice: 2000 },
   { name: "Sandeep", basePrice: 1000 }
 ];
 
-// ------------------- SYNC WITH FIREBASE -------------------
 let teams = [], availablePlayers = [], bidLog = [];
 
+// ------------------- FIREBASE SYNC -------------------
 function loadFromFirebase(){
-  db.ref('/auctionData').on('value', snapshot => {
+  db.ref('/auctionData').on('value', snapshot=>{
     const data = snapshot.val();
     if(data){
       teams = data.teams || JSON.parse(JSON.stringify(defaultTeams));
       availablePlayers = data.availablePlayers || JSON.parse(JSON.stringify(defaultPlayers));
       bidLog = data.bidLog || [];
     } else {
-      // Initialize if first time
       teams = JSON.parse(JSON.stringify(defaultTeams));
       availablePlayers = JSON.parse(JSON.stringify(defaultPlayers));
       bidLog = [];
@@ -177,7 +148,7 @@ function renderRetained(){
       let parts = p.split('(');
       if(parts.length>1){
         html += `<li><span class="highlight">${parts[0].trim()}</span> (${parts[1]}`;
-      } else { html += `<li>${p}</li>`; }
+      } else html += `<li>${p}</li>`;
       html += `</li>`;
     });
     html += `</ul>`;
@@ -193,7 +164,7 @@ function updateAuctionScreen(){
   let playersHtml = '';
   availablePlayers.forEach((p,i)=>{
     playersHtml += `<div class="match-card">
-      <strong>${p.name}</strong> (Base Price: ${p.basePrice}) 
+      <strong>${p.name}</strong> (Base Price: ${p.basePrice})
       <div class="flex">
         ${teams.map((t,j)=>`<button class="bid-btn" onclick="placeBid(${j},${i})">${t.name} Bid</button>`).join('')}
       </div>
@@ -208,7 +179,6 @@ function updateAuctionScreen(){
 function placeBid(teamIndex, playerIndex){
   let team = teams[teamIndex];
   let player = availablePlayers[playerIndex];
-
   let bidAmount = prompt(`${team.name} bid for ${player.name} (Base: ${player.basePrice})`, player.basePrice);
   if(!bidAmount) return;
   bidAmount = parseInt(bidAmount);
@@ -242,7 +212,7 @@ function updateReport(){
       let parts = p.split('(');
       if(parts.length>1){
         html += `<li><span class="highlight">${parts[0].trim()}</span> (${parts[1]}`;
-      } else { html += `<li>${p}</li>`; }
+      } else html += `<li>${p}</li>`;
       html += `</li>`;
     });
     html += `</ul>Remaining Wallet: ${team.wallet}`;
@@ -254,7 +224,7 @@ function updateReport(){
 
 // ------------------- EXPORT -------------------
 function exportReport(){
-  let data = {teams,bidLog};
+  const data = {teams,bidLog};
   const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -265,6 +235,5 @@ function exportReport(){
 // ------------------- INIT -------------------
 loadFromFirebase();
 </script>
-
 </body>
 </html>
