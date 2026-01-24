@@ -267,16 +267,17 @@ th { background:#e63946; color:white; }
 }
 .sold-stamp {
   position:absolute;
-  top:5px;
-  right:5px;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%) rotate(-15deg);
   background:#dc3545;
   color:white;
-  padding:3px 6px;
+  padding:8px 15px;
   border-radius:10px;
   font-weight:bold;
-  font-size:10px;
-  transform:rotate(15deg);
+  font-size:16px;
   z-index:10;
+  opacity:0.9;
 }
 .unsold-stamp {
   position:absolute;
@@ -290,6 +291,22 @@ th { background:#e63946; color:white; }
   font-size:10px;
   transform:rotate(15deg);
   z-index:10;
+}
+.pre-assigned-badge { background:#6f42c1; color:#fff; }
+.pre-assigned-row { background:#f3e5f5; opacity:0.7; }
+.pre-assigned-stamp {
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  background:#6f42c1;
+  color:white;
+  padding:5px 10px;
+  border-radius:8px;
+  font-weight:bold;
+  font-size:12px;
+  z-index:10;
+  opacity:0.85;
 }
 </style>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -315,6 +332,14 @@ th { background:#e63946; color:white; }
   <input type="file" id="csvFile" accept=".csv">
   <button onclick="uploadCSV()">Upload CSV</button>
   <button class="reset-btn" onclick="resetCSV()">Reset CSV</button>
+  <h3 style="margin-top:20px;color:#6f42c1;">🔒 Pre-Assigned Players (Not for Auction)</h3>
+  <table>
+    <thead>
+      <tr><th>Photo</th><th>Name & Rank</th><th>Team</th></tr>
+    </thead>
+    <tbody id="preAssignedTable"></tbody>
+  </table>
+  <h3 style="margin-top:20px;color:#e63946;">🎯 Available for Auction</h3>
   <table>
     <thead>
       <tr><th>Photo</th><th>Name & Rank</th><th>Base Price</th></tr>
@@ -450,6 +475,8 @@ function uploadCSV(){
         var isIcon = (p.Icon && (p.Icon.toLowerCase() === 'yes' || p.Icon.toLowerCase() === 'y')) || false;
         var isOwner = (p.Owner && (p.Owner.toLowerCase() === 'yes' || p.Owner.toLowerCase() === 'y')) || false;
         
+        var isPreAssigned = (p.PreAssigned && (p.PreAssigned.toLowerCase() === 'yes' || p.PreAssigned.toLowerCase() === 'y')) || false;
+        
         var player = {
           name: (p.FirstName || '') + ' ' + (p.LastName || ''),
           basePrice: basePrice,
@@ -457,20 +484,22 @@ function uploadCSV(){
           rank: rank,
           isIcon: isIcon,
           isOwner: isOwner,
-          teamName: p.Team || null
+          teamName: p.Team || null,
+          isPreAssigned: isPreAssigned
         };
         
         console.log('Icon value:', p.Icon, 'isIcon result:', isIcon);
         return player;
       });
       
-      // Reset team owners and wallets
+      // Reset team owners, wallets, and squads
       teams.forEach(function(t) {
         t.ownerName = null;
         t.wallet = 14000;
+        t.squad = [];
       });
       
-      // Assign team owners
+      // Assign team owners and pre-assigned players
       availablePlayers.forEach(function(player) {
         if(player.isOwner && player.teamName) {
           console.log('Processing team owner:', player.name, 'Team:', player.teamName);
@@ -489,9 +518,35 @@ function uploadCSV(){
             console.log('WARNING: Could not find team for', player.name, 'with team name', player.teamName);
           }
         }
+        
+        // Add pre-assigned players to their teams
+        if(player.isPreAssigned && player.teamName) {
+          console.log('Processing pre-assigned player:', player.name, 'Team:', player.teamName);
+          var normalizedTeamName = player.teamName.replace(/_/g, ' ').toLowerCase();
+          var targetTeam = teams.find(function(t) { 
+            var normalizedTName = t.name.replace(/ /g, '_').toLowerCase();
+            return t.name.toLowerCase() === normalizedTeamName || 
+                   normalizedTName === player.teamName.toLowerCase() ||
+                   t.name.toLowerCase().includes(normalizedTeamName) || 
+                   normalizedTeamName.includes(t.name.toLowerCase());
+          });
+          if(targetTeam) {
+            if(!targetTeam.squad) targetTeam.squad = [];
+            targetTeam.squad.push({name:player.name, amount:0, photo:player.photo, isPreAssigned:true});
+            console.log('Pre-assigned', player.name, 'to', targetTeam.name);
+          } else {
+            console.log('WARNING: Could not find team for pre-assigned player', player.name, 'with team name', player.teamName);
+          }
+        }
       });
       
-      originalPlayers = JSON.parse(JSON.stringify(availablePlayers));
+      // Store all players including pre-assigned for reference
+      var allPlayers = JSON.parse(JSON.stringify(availablePlayers));
+      
+      // Remove pre-assigned players from availablePlayers for auction
+      availablePlayers = availablePlayers.filter(function(p){ return !p.isPreAssigned; });
+      
+      originalPlayers = allPlayers;
       db.ref('registeredPlayers').set(availablePlayers);
       saveAuction();
       renderAll();
@@ -576,7 +631,12 @@ function placeBid(ti,pi){
 function resetAuction(){
   if(!isAdmin) return alert('Admin access required!');
   if(confirm("Reset auction?")){
-    teams.forEach(function(t){t.wallet=14000;t.squad=[];});
+    // Reset teams but keep pre-assigned players
+    teams.forEach(function(t){
+      t.wallet=14000;
+      var preAssigned = t.squad.filter(function(p){return p.isPreAssigned;});
+      t.squad = preAssigned;
+    });
     bidLog=[];
     availablePlayers = JSON.parse(JSON.stringify(originalPlayers));
     saveAuction();
@@ -630,7 +690,25 @@ function renderAll(){
     '<div onclick="showRankPlayers(3)"><span class="rank-badge rank-3">Rank 3</span><br><b>' + rank3 + '/' + totalRank3 + '</b><br>Available</div>' +
     '<div onclick="showIconPlayers()"><span class="rank-badge icon-badge">ICON</span><br><b>' + icons + '/' + totalIcons + '</b><br>Available</div>';
 
-  document.getElementById('playersTable').innerHTML = originalPlayers.map(function(p){
+  // Pre-assigned players table
+  document.getElementById('preAssignedTable').innerHTML = originalPlayers.filter(function(p){
+    return p.isPreAssigned;
+  }).map(function(p){
+    var badges = '<span class="rank-badge rank-' + p.rank + '">Rank ' + p.rank + '</span>';
+    if(p.isIcon) {
+      badges += '<span class="rank-badge icon-badge">ICON</span>';
+    }
+    if(p.isOwner) {
+      badges += '<span class="rank-badge team-owner-badge">TEAM OWNER</span>';
+    }
+    badges += '<span class="rank-badge pre-assigned-badge">PRE-ASSIGNED</span>';
+    return '<tr class="pre-assigned-row" style="position:relative;"><td><img class="player-photo" src="' + p.photo + '"><span class="pre-assigned-stamp">🔒</span></td><td>' + p.name + badges + '</td><td>' + (p.teamName || 'N/A') + '</td></tr>';
+  }).join('');
+
+  // Auction players table
+  document.getElementById('playersTable').innerHTML = originalPlayers.filter(function(p){
+    return !p.isPreAssigned;
+  }).map(function(p){
     var isSold = !availablePlayers.find(function(ap){ return ap.name === p.name; });
     var badges = '<span class="rank-badge rank-' + p.rank + '">Rank ' + p.rank + '</span>';
     if(p.isIcon) {
@@ -692,15 +770,24 @@ function renderAll(){
 
   document.getElementById('auctionedList').innerHTML = teams.map(function(t){
     if(!t.squad) t.squad = [];
+    var preAssigned = t.squad.filter(function(p){return p.isPreAssigned;});
+    var auctioned = t.squad.filter(function(p){return !p.isPreAssigned;});
     return '<div class="auction-team-card">' +
       '<img class="team-logo-watermark" src="' + t.logo + '" alt="' + t.name + '">' +
       '<div class="team-content">' +
         '<div class="team-name-highlight">' + t.name + '</div>' +
         '<div style="text-align:left;">' + 
-          (t.squad.length > 0 ? 
-            t.squad.map(function(p){ return '<div class="sold-player">✓ ' + p.name + '</div>'; }).join('') : 
-            '<div style="color:#999;font-style:italic;text-align:center;">No players yet</div>'
+          (preAssigned.length > 0 ? 
+            '<div style="font-weight:bold;color:#6f42c1;margin:5px 0;">Pre-Assigned (' + preAssigned.length + '):</div>' +
+            preAssigned.map(function(p){ return '<div class="sold-player" style="border-left-color:#6f42c1;">🔒 ' + p.name + '</div>'; }).join('') : 
+            ''
           ) +
+          (auctioned.length > 0 ? 
+            '<div style="font-weight:bold;color:#dc3545;margin:5px 0;margin-top:10px;">Auctioned (' + auctioned.length + '):</div>' +
+            auctioned.map(function(p){ return '<div class="sold-player">✓ ' + p.name + ' (' + p.amount + ')</div>'; }).join('') : 
+            ''
+          ) +
+          (t.squad.length === 0 ? '<div style="color:#999;font-style:italic;text-align:center;">No players yet</div>' : '') +
         '</div>' +
       '</div>' +
     '</div>';
