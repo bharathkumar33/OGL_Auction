@@ -681,7 +681,7 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
 <nav>
   <button onclick="showScreen('players',this)">Registered Players</button>
   <button class="active" onclick="showScreen('auction',this)">Auction</button>
-  <button onclick="showScreen('auctioned',this)">Playing Squad</button>
+  <button onclick="showScreen('auctioned',this)">Auctioned Teams</button>
 </nav>
 <div id="players" class="screen">
   <div class="news-ticker">
@@ -691,10 +691,6 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
     </div>
   </div>
   <div class="auction-stats" id="auctionStats2"></div>
-  <div class="wallet-highlight">
-    <div class="wallet-title">TEAM OWNER / WALLET</div>
-    <div id="teamWallets2"></div>
-  </div>
   <h2>Registered Players</h2>
   <input type="file" id="csvFile" accept=".csv">
   <button onclick="uploadCSV()">Upload CSV</button>
@@ -735,7 +731,7 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   <button class="reset-btn" onclick="resetAuction()">Reset Auction</button>
 </div>
 <div id="auctioned" class="screen">
-  <h2>Playing Squad</h2>
+  <h2>Auctioned Teams</h2>
   <div id="auctionedList"></div>
 </div>
 <script>
@@ -1132,18 +1128,6 @@ function renderAll(){
       '<div style="position:relative;z-index:2;"><b>' + t.name + status + '</b>' + ownerInfo + '<br>Wallet: ' + t.wallet + '</div>' +
     '</div>';
   }).join('');
-
-  if(document.getElementById('teamWallets2')) {
-    document.getElementById('teamWallets2').innerHTML = teams.map(function(t){
-      if(!t.squad) t.squad = [];
-      var status = t.squad.length >= 14 ? ' - SQUAD COMPLETE!' : '';
-      var ownerInfo = t.ownerName ? '<br>Owner: ' + t.ownerName : '';
-      return '<div class="team-card">' +
-        '<img class="team-logo-bg" src="' + t.logo + '" alt="' + t.name + '">' +
-        '<div style="position:relative;z-index:2;"><b>' + t.name + status + '</b>' + ownerInfo + '<br>Wallet: ' + t.wallet + '</div>' +
-      '</div>';
-    }).join('');
-  }
 
   document.getElementById('availablePlayers').innerHTML = availablePlayers.map(function(p,i){
     var badges = '<span class="rank-badge rank-' + p.rank + '">Rank ' + p.rank + '</span>';
