@@ -11,6 +11,30 @@ body {
   background: url('background.png') no-repeat center center fixed;
   background-size: cover;
 }
+.header {
+  background:linear-gradient(135deg, #1a1a2e, #16213e);
+  padding:20px;
+  text-align:center;
+  box-shadow:0 4px 6px rgba(0,0,0,0.3);
+}
+.header-content {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:20px;
+}
+.header-logo {
+  width:80px;
+  height:80px;
+  object-fit:contain;
+}
+.header-title {
+  color:#ffd700;
+  font-size:48px;
+  font-weight:bold;
+  text-shadow:2px 2px 4px rgba(0,0,0,0.5);
+  margin:0;
+}
 nav {
   display:flex;
   background:#e63946;
@@ -23,6 +47,10 @@ nav button {
   color:white;
   font-size:16px;
   cursor:pointer;
+  transition:background 0.3s;
+}
+nav button:hover {
+  background:rgba(255,255,255,0.1);
 }
 nav button.active { background:#c62828; }
 .screen { display:none; padding:15px; }
@@ -42,6 +70,15 @@ th { background:#e63946; color:white; }
   padding:10px;
   box-shadow:0 2px 5px rgba(0,0,0,.2);
   margin:10px 0;
+  position:relative;
+  overflow:hidden;
+}
+.team-card .team-logo-bg {
+  float:left;
+  width:60px;
+  height:60px;
+  margin-right:10px;
+  object-fit:contain;
 }
 .bid-btn {
   background:#2a9d8f;
@@ -120,6 +157,53 @@ th { background:#e63946; color:white; }
   display:flex;
   justify-content:space-around;
   text-align:center;
+}
+.rank-counter > div {
+  cursor:pointer;
+  padding:10px;
+  border-radius:8px;
+  transition:background 0.3s;
+}
+.rank-counter > div:hover {
+  background:#f0f0f0;
+}
+.rank-modal {
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.7);
+  z-index:1000;
+  overflow:auto;
+}
+.rank-modal-content {
+  background:white;
+  margin:50px auto;
+  padding:20px;
+  border-radius:10px;
+  max-width:800px;
+  max-height:80vh;
+  overflow-y:auto;
+}
+.rank-modal-close {
+  float:right;
+  font-size:28px;
+  font-weight:bold;
+  cursor:pointer;
+  color:#999;
+}
+.rank-modal-close:hover {
+  color:#000;
+}
+.rank-player-item {
+  display:flex;
+  align-items:center;
+  padding:10px;
+  margin:5px 0;
+  background:#f9f9f9;
+  border-radius:8px;
 }
 #auctionedList {
   display:grid;
@@ -213,6 +297,12 @@ th { background:#e63946; color:white; }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 </head>
 <body>
+<div class="header">
+  <div class="header-content">
+    <img class="header-logo" src="OG_Logo.jpg" alt="OGL Logo">
+    <h1 class="header-title">OGL 2026</h1>
+  </div>
+</div>
 <nav>
   <button onclick="showScreen('players',this)">Registered Players</button>
   <button class="active" onclick="showScreen('auction',this)">Auction</button>
@@ -236,6 +326,13 @@ th { background:#e63946; color:white; }
     <div id="teamWallets"></div>
   </div>
   <div id="rankCounter" class="rank-counter"></div>
+  <div id="rankModal" class="rank-modal" onclick="if(event.target===this) this.style.display='none'">
+    <div class="rank-modal-content">
+      <span class="rank-modal-close" onclick="document.getElementById('rankModal').style.display='none'">&times;</span>
+      <h2 id="rankModalTitle"></h2>
+      <div id="rankModalPlayers"></div>
+    </div>
+  </div>
   <h3>Available Players</h3>
   <div id="availablePlayers"></div>
   <h3>Bid History</h3>
@@ -274,6 +371,7 @@ function showScreen(id,btn){
   document.getElementById(id).classList.add('active');
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
+  localStorage.setItem('currentScreen', id);
 }
 
 function uploadCSV(){
@@ -383,6 +481,12 @@ function placeBid(ti,pi){
     return;
   }
   
+  // Check if player is a team owner and trying to bid for wrong team
+  if(player.isOwner && team.ownerName !== player.name) {
+    alert('Team owners can only play for their own team!');
+    return;
+  }
+  
   if(!team.squad) team.squad = [];
   
   if(team.squad.length>=14) {
@@ -431,6 +535,32 @@ function saveAuction(){
   db.ref('auctionState').set({teams:teams,availablePlayers:availablePlayers,bidLog:bidLog});
 }
 
+function showRankPlayers(rank){
+  var players = availablePlayers.filter(function(p){return p.rank===rank;});
+  var title = 'Rank ' + rank + ' Players (' + players.length + ')';
+  document.getElementById('rankModalTitle').textContent = title;
+  document.getElementById('rankModalPlayers').innerHTML = players.map(function(p){
+    return '<div class="rank-player-item">' +
+      '<img class="player-photo" src="' + p.photo + '" style="margin-right:15px;">' +
+      '<div><b>' + p.name + '</b><br>Base Price: ' + p.basePrice + '</div>' +
+    '</div>';
+  }).join('');
+  document.getElementById('rankModal').style.display = 'block';
+}
+
+function showIconPlayers(){
+  var players = availablePlayers.filter(function(p){return p.isIcon;});
+  var title = 'ICON Players (' + players.length + ')';
+  document.getElementById('rankModalTitle').textContent = title;
+  document.getElementById('rankModalPlayers').innerHTML = players.map(function(p){
+    return '<div class="rank-player-item">' +
+      '<img class="player-photo" src="' + p.photo + '" style="margin-right:15px;">' +
+      '<div><b>' + p.name + '</b><br>Base Price: ' + p.basePrice + '</div>' +
+    '</div>';
+  }).join('');
+  document.getElementById('rankModal').style.display = 'block';
+}
+
 function renderAll(){
   var rank1 = availablePlayers.filter(function(p){return p.rank===1;}).length;
   var rank2 = availablePlayers.filter(function(p){return p.rank===2;}).length;
@@ -442,10 +572,10 @@ function renderAll(){
   var totalIcons = originalPlayers.filter(function(p){return p.isIcon;}).length;
 
   document.getElementById('rankCounter').innerHTML = 
-    '<div><span class="rank-badge rank-1">Rank 1</span><br><b>' + rank1 + '/' + totalRank1 + '</b><br>Available</div>' +
-    '<div><span class="rank-badge rank-2">Rank 2</span><br><b>' + rank2 + '/' + totalRank2 + '</b><br>Available</div>' +
-    '<div><span class="rank-badge rank-3">Rank 3</span><br><b>' + rank3 + '/' + totalRank3 + '</b><br>Available</div>' +
-    '<div><span class="rank-badge icon-badge">ICON</span><br><b>' + icons + '/' + totalIcons + '</b><br>Available</div>';
+    '<div onclick="showRankPlayers(1)"><span class="rank-badge rank-1">Rank 1</span><br><b>' + rank1 + '/' + totalRank1 + '</b><br>Available</div>' +
+    '<div onclick="showRankPlayers(2)"><span class="rank-badge rank-2">Rank 2</span><br><b>' + rank2 + '/' + totalRank2 + '</b><br>Available</div>' +
+    '<div onclick="showRankPlayers(3)"><span class="rank-badge rank-3">Rank 3</span><br><b>' + rank3 + '/' + totalRank3 + '</b><br>Available</div>' +
+    '<div onclick="showIconPlayers()"><span class="rank-badge icon-badge">ICON</span><br><b>' + icons + '/' + totalIcons + '</b><br>Available</div>';
 
   document.getElementById('playersTable').innerHTML = originalPlayers.map(function(p){
     var isSold = !availablePlayers.find(function(ap){ return ap.name === p.name; });
@@ -467,7 +597,10 @@ function renderAll(){
     if(!t.squad) t.squad = [];
     var status = t.squad.length >= 14 ? ' - SQUAD COMPLETE!' : '';
     var ownerInfo = t.ownerName ? '<br>Owner: ' + t.ownerName : '';
-    return '<div class="team-card"><b>' + t.name + status + '</b>' + ownerInfo + '<br>Wallet: ' + t.wallet + '</div>';
+    return '<div class="team-card">' +
+      '<img class="team-logo-bg" src="' + t.logo + '" alt="' + t.name + '">' +
+      '<div style="position:relative;z-index:2;"><b>' + t.name + status + '</b>' + ownerInfo + '<br>Wallet: ' + t.wallet + '</div>' +
+    '</div>';
   }).join('');
 
   document.getElementById('availablePlayers').innerHTML = availablePlayers.map(function(p,i){
@@ -488,7 +621,7 @@ function renderAll(){
       '<div>' +
         teams.map(function(t,j){
           if(!t.squad) t.squad = [];
-          var isDisabled = t.squad.length >= 14;
+          var isDisabled = t.squad.length >= 14 || (p.isOwner && t.ownerName !== p.name);
           var btnClass = isDisabled ? 'bid-btn' : 'bid-btn';
           var onclick = isDisabled ? '' : 'onclick="placeBid(' + j + ',' + i + ')"';
           return '<button class="' + btnClass + '" ' + onclick + (isDisabled ? ' disabled' : '') + '>' + t.name + '</button>';
@@ -536,6 +669,19 @@ db.ref('auctionState').on('value',function(s){
   availablePlayers=d.availablePlayers||availablePlayers;
   bidLog=d.bidLog||[];
   renderAll();
+});
+
+// Restore last viewed screen on page load
+window.addEventListener('DOMContentLoaded', function(){
+  var savedScreen = localStorage.getItem('currentScreen') || 'auction';
+  var screenEl = document.getElementById(savedScreen);
+  var btnEl = document.querySelector('nav button[onclick*="' + savedScreen + '"]');
+  if(screenEl && btnEl) {
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    screenEl.classList.add('active');
+    document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+    btnEl.classList.add('active');
+  }
 });
 </script>
 </body>
