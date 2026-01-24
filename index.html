@@ -549,6 +549,121 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
 .collapsible-content.collapsed {
   max-height:0;
 }
+.bid-form {
+  display:none;
+  margin-top:15px;
+  padding:15px;
+  background:linear-gradient(135deg, #f0fdf4, #dcfce7);
+  border-radius:8px;
+  border:2px solid #10b981;
+  animation:slideDown 0.3s ease;
+}
+@keyframes slideDown {
+  from { opacity:0; transform:translateY(-10px); }
+  to { opacity:1; transform:translateY(0); }
+}
+.bid-form.active {
+  display:block;
+}
+.team-select-grid {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin:10px 0;
+}
+.team-select-btn {
+  padding:10px;
+  border:2px solid #e2e8f0;
+  background:white;
+  border-radius:8px;
+  cursor:pointer;
+  transition:all 0.3s;
+  font-size:12px;
+  font-weight:500;
+}
+.team-select-btn:hover:not(:disabled) {
+  border-color:#10b981;
+  background:#f0fdf4;
+  transform:scale(1.05);
+}
+.team-select-btn.selected {
+  border-color:#10b981;
+  background:#10b981;
+  color:white;
+}
+.team-select-btn:disabled {
+  opacity:0.5;
+  cursor:not-allowed;
+}
+.bid-input-group {
+  margin:10px 0;
+}
+.bid-input-group label {
+  display:block;
+  font-weight:600;
+  margin-bottom:5px;
+  color:#2d3748;
+}
+.bid-input-group input {
+  width:100%;
+  padding:10px;
+  border:2px solid #e2e8f0;
+  border-radius:6px;
+  font-size:16px;
+  box-sizing:border-box;
+}
+.bid-input-group input:focus {
+  outline:none;
+  border-color:#10b981;
+}
+.bid-actions {
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+}
+.confirm-bid-btn {
+  flex:1;
+  background:#10b981;
+  color:white;
+  border:none;
+  padding:12px;
+  border-radius:6px;
+  cursor:pointer;
+  font-weight:600;
+  transition:all 0.3s;
+}
+.confirm-bid-btn:hover {
+  background:#059669;
+}
+.cancel-bid-btn {
+  flex:1;
+  background:#ef4444;
+  color:white;
+  border:none;
+  padding:12px;
+  border-radius:6px;
+  cursor:pointer;
+  font-weight:600;
+  transition:all 0.3s;
+}
+.cancel-bid-btn:hover {
+  background:#dc2626;
+}
+.place-bid-toggle {
+  background:#10b981;
+  color:white;
+  border:none;
+  padding:10px 20px;
+  border-radius:6px;
+  cursor:pointer;
+  font-weight:600;
+  width:100%;
+  transition:all 0.3s;
+}
+.place-bid-toggle:hover {
+  background:#059669;
+  transform:translateY(-2px);
+}
 </style>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -834,7 +949,6 @@ function placeBid(ti,pi){
     return;
   }
   
-  // Check if player is a team owner and trying to bid for wrong team
   if(player.isOwner && team.ownerName !== player.name) {
     alert('Team owners can only play for their own team!');
     return;
@@ -847,9 +961,8 @@ function placeBid(ti,pi){
     return;
   }
 
-  const amt=prompt('Enter bid amount for ' + player.name + '\nBase Price: ' + player.basePrice + '\nTeam: ' + team.name + '\nWallet: ' + team.wallet, player.basePrice);
+  const amt = document.getElementById('bidAmount_' + pi).value;
   
-  if(amt === null) return;
   if(!amt || isNaN(amt) || parseInt(amt) <= 0) {
     alert("Invalid bid amount");
     return;
@@ -870,11 +983,32 @@ function placeBid(ti,pi){
   bidLog.push({team:team.name,player:player.name,amount:parseInt(amt),timestamp:new Date().toLocaleTimeString()});
   availablePlayers.splice(pi,1);
 
-  // Update news ticker
   updateNewsTicker(team.name + ' signs ' + player.name + ' for ' + amt + '!');
 
   saveAuction();
   renderAll();
+}
+
+function toggleBidForm(pi){
+  var form = document.getElementById('bidForm_' + pi);
+  var isActive = form.classList.contains('active');
+  
+  document.querySelectorAll('.bid-form').forEach(f => f.classList.remove('active'));
+  document.querySelectorAll('.team-select-btn').forEach(b => b.classList.remove('selected'));
+  
+  if(!isActive) {
+    form.classList.add('active');
+    document.getElementById('bidAmount_' + pi).value = availablePlayers[pi].basePrice;
+  }
+}
+
+function selectTeam(pi, ti){
+  document.querySelectorAll('#bidForm_' + pi + ' .team-select-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('teamBtn_' + pi + '_' + ti).classList.add('selected');
+  
+  var selectedTeam = teams[ti];
+  document.getElementById('selectedTeam_' + pi).value = ti;
+  document.getElementById('teamWalletInfo_' + pi).textContent = 'Wallet: ' + selectedTeam.wallet;
 }
 
 function resetAuction(){
@@ -992,14 +1126,29 @@ function renderAll(){
       '<img class="player-photo" src="' + p.photo + '" style="float:left;margin-right:10px;">' +
       '<b>' + p.name + '</b>' + badges + '<br>' +
       'Base Price: ' + p.basePrice + '<br><br>' +
-      '<div>' +
-        teams.map(function(t,j){
-          if(!t.squad) t.squad = [];
-          var isDisabled = t.squad.length >= 14 || (p.isOwner && t.ownerName !== p.name);
-          var btnClass = isDisabled ? 'bid-btn' : 'bid-btn';
-          var onclick = isDisabled ? '' : 'onclick="placeBid(' + j + ',' + i + ')"';
-          return '<button class="' + btnClass + '" ' + onclick + (isDisabled ? ' disabled' : '') + '>' + t.name + '</button>';
-        }).join('') +
+      '<button class="place-bid-toggle" onclick="toggleBidForm(' + i + ')" style="display:' + (isAdmin ? 'block' : 'none') + '">💰 Place Bid</button>' +
+      '<div id="bidForm_' + i + '" class="bid-form">' +
+        '<div style="font-weight:bold;margin-bottom:10px;color:#2d3748;">Select Team:</div>' +
+        '<div class="team-select-grid">' +
+          teams.map(function(t,j){
+            if(!t.squad) t.squad = [];
+            var isDisabled = t.squad.length >= 14 || (p.isOwner && t.ownerName !== p.name);
+            return '<button id="teamBtn_' + i + '_' + j + '" class="team-select-btn" ' + 
+              (isDisabled ? 'disabled' : 'onclick="selectTeam(' + i + ',' + j + ')"') + '>' +
+              t.name + '<br><small>(' + t.squad.length + '/14)</small>' +
+            '</button>';
+          }).join('') +
+        '</div>' +
+        '<div id="teamWalletInfo_' + i + '" style="text-align:center;color:#64748b;font-size:13px;margin:5px 0;">Select a team to see wallet</div>' +
+        '<div class="bid-input-group">' +
+          '<label>Bid Amount:</label>' +
+          '<input type="number" id="bidAmount_' + i + '" min="' + p.basePrice + '" value="' + p.basePrice + '" placeholder="Enter bid amount">' +
+        '</div>' +
+        '<input type="hidden" id="selectedTeam_' + i + '" value="">' +
+        '<div class="bid-actions">' +
+          '<button class="confirm-bid-btn" onclick="var ti=document.getElementById(\'selectedTeam_' + i + '\').value; if(ti===\'\'){alert(\'Please select a team\');return;} placeBid(ti,' + i + ')">✓ Confirm Bid</button>' +
+          '<button class="cancel-bid-btn" onclick="toggleBidForm(' + i + ')">✗ Cancel</button>' +
+        '</div>' +
       '</div>' +
     '</div>';
   }).join('');
