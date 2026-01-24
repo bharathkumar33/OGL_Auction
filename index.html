@@ -10,6 +10,18 @@ body {
   margin:0; padding:0;
   background: url('background.png') no-repeat center center fixed;
   background-size: cover;
+  position:relative;
+}
+body::before {
+  content:'';
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:linear-gradient(45deg, rgba(251,191,36,0.05) 0%, rgba(16,185,129,0.05) 100%);
+  pointer-events:none;
+  z-index:-1;
 }
 .header {
   background:linear-gradient(135deg, #2d3748, #1a202c);
@@ -19,6 +31,21 @@ body {
   position:relative;
   border-bottom:4px solid #fbbf24;
   animation: headerGlow 3s ease-in-out infinite;
+  overflow:hidden;
+}
+.header::after {
+  content:'';
+  position:absolute;
+  top:-50%;
+  left:-50%;
+  width:200%;
+  height:200%;
+  background:linear-gradient(45deg, transparent 30%, rgba(251,191,36,0.1) 50%, transparent 70%);
+  animation:header-sweep 8s linear infinite;
+}
+@keyframes header-sweep {
+  0% { transform:translateX(-100%) translateY(-100%) rotate(45deg); }
+  100% { transform:translateX(100%) translateY(100%) rotate(45deg); }
 }
 @keyframes headerGlow {
   0%, 100% { box-shadow:0 4px 20px rgba(0,0,0,0.3), 0 0 40px rgba(251,191,36,0.1); }
@@ -78,6 +105,22 @@ nav {
   display:flex;
   background:#1a202c;
   box-shadow:0 2px 8px rgba(0,0,0,0.1);
+  position:relative;
+}
+nav::before {
+  content:'';
+  position:absolute;
+  bottom:0;
+  left:0;
+  width:100%;
+  height:3px;
+  background:linear-gradient(90deg, #fbbf24, #10b981, #8b5cf6, #fbbf24);
+  background-size:200% 100%;
+  animation:nav-gradient 3s linear infinite;
+}
+@keyframes nav-gradient {
+  0% { background-position:0% 50%; }
+  100% { background-position:200% 50%; }
 }
 nav button {
   flex:1;
@@ -113,7 +156,18 @@ nav button.active {
 table { width:100%; border-collapse:collapse; margin-top:10px; }
 th,td { border:1px solid #e2e8f0; padding:12px 8px; text-align:center; position:relative; }
 th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase; font-size:12px; letter-spacing:0.5px; }
-.player-photo { width:50px; height:50px; border-radius:50%; }
+.player-photo { 
+  width:50px; 
+  height:50px; 
+  border-radius:50%; 
+  border:3px solid transparent;
+  background:linear-gradient(white, white) padding-box, linear-gradient(135deg, #fbbf24, #10b981) border-box;
+  transition:all 0.3s;
+}
+.player-photo:hover {
+  transform:scale(1.1) rotate(5deg);
+  box-shadow:0 0 20px rgba(251,191,36,0.6);
+}
 .team-card {
   background:white;
   border-radius:10px;
@@ -122,6 +176,24 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   margin:10px 0;
   position:relative;
   overflow:hidden;
+  transition:all 0.3s;
+}
+.team-card:hover {
+  transform:scale(1.02);
+  box-shadow:0 8px 20px rgba(251,191,36,0.3);
+}
+.team-card::before {
+  content:'';
+  position:absolute;
+  top:0;
+  left:-100%;
+  width:100%;
+  height:100%;
+  background:linear-gradient(90deg, transparent, rgba(251,191,36,0.2), transparent);
+  transition:left 0.5s;
+}
+.team-card:hover::before {
+  left:100%;
 }
 .team-card .team-logo-bg {
   float:left;
@@ -313,8 +385,8 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   border:2px solid transparent;
 }
 .auction-team-card:hover {
-  transform:translateY(-5px);
-  box-shadow:0 12px 32px rgba(0,0,0,0.2);
+  transform:translateY(-5px) scale(1.02);
+  box-shadow:0 12px 32px rgba(0,0,0,0.2), 0 0 30px rgba(251,191,36,0.3);
   border:2px solid #fbbf24;
 }
 .team-logo-watermark {
@@ -664,6 +736,104 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   background:#059669;
   transform:translateY(-2px);
 }
+.confetti {
+  position:fixed;
+  width:10px;
+  height:10px;
+  background:#fbbf24;
+  position:fixed;
+  top:-10px;
+  z-index:9999;
+  animation:confetti-fall 3s linear forwards;
+  pointer-events:none;
+}
+@keyframes confetti-fall {
+  to {
+    transform:translateY(100vh) rotate(360deg);
+    opacity:0;
+  }
+}
+.pulse-ring {
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  width:100px;
+  height:100px;
+  border:3px solid #fbbf24;
+  border-radius:50%;
+  animation:pulse-ring 2s ease-out infinite;
+  pointer-events:none;
+}
+@keyframes pulse-ring {
+  0% {
+    transform:translate(-50%, -50%) scale(0.8);
+    opacity:1;
+  }
+  100% {
+    transform:translate(-50%, -50%) scale(2);
+    opacity:0;
+  }
+}
+.stat-card {
+  position:relative;
+  overflow:hidden;
+}
+.stat-card::before {
+  content:'';
+  position:absolute;
+  top:-50%;
+  left:-50%;
+  width:200%;
+  height:200%;
+  background:linear-gradient(45deg, transparent, rgba(251,191,36,0.1), transparent);
+  animation:stat-shimmer 3s infinite;
+  pointer-events:none;
+}
+@keyframes stat-shimmer {
+  0% { transform:translateX(-100%) translateY(-100%) rotate(45deg); }
+  100% { transform:translateX(100%) translateY(100%) rotate(45deg); }
+}
+.player-card::after {
+  content:'';
+  position:absolute;
+  top:0;
+  left:-100%;
+  width:100%;
+  height:100%;
+  background:linear-gradient(90deg, transparent, rgba(251,191,36,0.3), transparent);
+  transition:left 0.5s;
+}
+.player-card:hover::after {
+  left:100%;
+}
+.floating-particles {
+  position:fixed;
+  width:4px;
+  height:4px;
+  background:#fbbf24;
+  border-radius:50%;
+  pointer-events:none;
+  z-index:1;
+  animation:float-up 15s linear infinite;
+  opacity:0.6;
+}
+@keyframes float-up {
+  0% {
+    transform:translateY(100vh) translateX(0);
+    opacity:0;
+  }
+  10% {
+    opacity:0.6;
+  }
+  90% {
+    opacity:0.6;
+  }
+  100% {
+    transform:translateY(-100px) translateX(100px);
+    opacity:0;
+  }
+}
 </style>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -674,14 +844,17 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
 <div class="header">
   <button onclick="toggleAdmin()" class="admin-btn-corner" id="adminBtn">🔒 Admin Login</button>
   <div class="header-content">
-    <img class="header-logo" src="OG_Logo.jpg" alt="OGL Logo">
+    <div style="position:relative;">
+      <img class="header-logo" src="OG_Logo.jpg" alt="OGL Logo">
+      <div class="pulse-ring"></div>
+    </div>
     <h1 class="header-title">OGL 2026</h1>
   </div>
 </div>
 <nav>
   <button onclick="showScreen('players',this)">Registered Players</button>
   <button class="active" onclick="showScreen('auction',this)">Auction</button>
-  <button onclick="showScreen('auctioned',this)">Playing Squad</button>
+  <button onclick="showScreen('auctioned',this)">Auctioned Teams</button>
 </nav>
 <div id="players" class="screen">
   <div class="news-ticker">
@@ -730,7 +903,7 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   <button class="reset-btn" onclick="resetAuction()">Reset Auction</button>
 </div>
 <div id="auctioned" class="screen">
-  <h2>Playing Squad</h2>
+  <h2>Auctioned Teams</h2>
   <div id="auctionedList"></div>
 </div>
 <script>
@@ -990,9 +1163,87 @@ function placeBid(ti,pi){
   availablePlayers.splice(pi,1);
 
   updateNewsTicker(team.name + ' signs ' + player.name + ' for ' + amt + '!');
+  createConfetti();
+  playCelebrationSound();
 
   saveAuction();
   renderAll();
+}
+
+function createConfetti(){
+  var colors = ['#fbbf24','#10b981','#ef4444','#8b5cf6','#06b6d4'];
+  for(var i=0; i<30; i++){
+    setTimeout(function(){
+      var confetti = document.createElement('div');
+      confetti.className = 'confetti';
+      confetti.style.left = Math.random() * 100 + '%';
+      confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+      confetti.style.animationDelay = Math.random() * 0.5 + 's';
+      document.body.appendChild(confetti);
+      setTimeout(function(){ confetti.remove(); }, 3000);
+    }, i * 50);
+  }
+}
+
+function playCelebrationSound(){
+  var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  var startTime = audioContext.currentTime;
+  
+  // Triumphant fanfare melody: C-E-G-C (higher octave)
+  var melody = [
+    {freq: 523.25, start: 0, duration: 0.2},      // C
+    {freq: 659.25, start: 0.15, duration: 0.2},   // E
+    {freq: 783.99, start: 0.3, duration: 0.25},   // G
+    {freq: 1046.50, start: 0.5, duration: 0.4}    // C (high)
+  ];
+  
+  melody.forEach(function(note){
+    var oscillator = audioContext.createOscillator();
+    var gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.value = note.freq;
+    oscillator.type = 'triangle';
+    
+    var attackTime = startTime + note.start;
+    var releaseTime = attackTime + note.duration;
+    
+    gainNode.gain.setValueAtTime(0, attackTime);
+    gainNode.gain.linearRampToValueAtTime(0.3, attackTime + 0.05);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, releaseTime);
+    
+    oscillator.start(attackTime);
+    oscillator.stop(releaseTime);
+  });
+  
+  // Add harmony for richness
+  var harmony = [
+    {freq: 392.00, start: 0.5, duration: 0.4},    // G (harmony)
+    {freq: 659.25, start: 0.5, duration: 0.4}     // E (harmony)
+  ];
+  
+  harmony.forEach(function(note){
+    var oscillator = audioContext.createOscillator();
+    var gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.value = note.freq;
+    oscillator.type = 'sine';
+    
+    var attackTime = startTime + note.start;
+    var releaseTime = attackTime + note.duration;
+    
+    gainNode.gain.setValueAtTime(0, attackTime);
+    gainNode.gain.linearRampToValueAtTime(0.15, attackTime + 0.05);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, releaseTime);
+    
+    oscillator.start(attackTime);
+    oscillator.stop(releaseTime);
+  });
 }
 
 function toggleBidForm(pi){
@@ -1250,7 +1501,19 @@ window.addEventListener('DOMContentLoaded', function(){
     document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
     btnEl.classList.add('active');
   }
+  createFloatingParticles();
 });
+
+function createFloatingParticles(){
+  for(var i=0; i<15; i++){
+    var particle = document.createElement('div');
+    particle.className = 'floating-particles';
+    particle.style.left = Math.random() * 100 + '%';
+    particle.style.animationDelay = Math.random() * 15 + 's';
+    particle.style.animationDuration = (10 + Math.random() * 10) + 's';
+    document.body.appendChild(particle);
+  }
+}
 </script>
 </body>
 </html>
