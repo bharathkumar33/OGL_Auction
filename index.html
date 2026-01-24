@@ -326,6 +326,28 @@ th { background:#e63946; color:white; }
   z-index:10;
   opacity:0.85;
 }
+.collapsible-header {
+  cursor:pointer;
+  padding:10px;
+  background:#f0f0f0;
+  border-radius:8px;
+  margin-top:20px;
+  user-select:none;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.collapsible-header:hover {
+  background:#e0e0e0;
+}
+.collapsible-content {
+  max-height:1000px;
+  overflow:hidden;
+  transition:max-height 0.3s ease;
+}
+.collapsible-content.collapsed {
+  max-height:0;
+}
 </style>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -350,20 +372,32 @@ th { background:#e63946; color:white; }
   <input type="file" id="csvFile" accept=".csv">
   <button onclick="uploadCSV()">Upload CSV</button>
   <button class="reset-btn" onclick="resetCSV()">Reset CSV</button>
-  <h3 style="margin-top:20px;color:#6f42c1;">🔒 Pre-Assigned Players (Not for Auction)</h3>
-  <table>
-    <thead>
-      <tr><th>Photo</th><th>Name & Rank</th><th>Team</th></tr>
-    </thead>
-    <tbody id="preAssignedTable"></tbody>
-  </table>
-  <h3 style="margin-top:20px;color:#e63946;">🎯 Available for Auction</h3>
-  <table>
-    <thead>
-      <tr><th>Photo</th><th>Name & Rank</th><th>Base Price</th></tr>
-    </thead>
-    <tbody id="playersTable"></tbody>
-  </table>
+  
+  <div class="collapsible-header" onclick="toggleCollapse('preAssignedSection')">
+    <span style="color:#6f42c1;font-weight:bold;">🔒 Pre-Assigned Players (Not for Auction)</span>
+    <span id="preAssignedToggle">▼</span>
+  </div>
+  <div id="preAssignedSection" class="collapsible-content">
+    <table>
+      <thead>
+        <tr><th>Photo</th><th>Name & Rank</th><th>Team</th></tr>
+      </thead>
+      <tbody id="preAssignedTable"></tbody>
+    </table>
+  </div>
+  
+  <div class="collapsible-header" onclick="toggleCollapse('auctionSection')">
+    <span style="color:#e63946;font-weight:bold;">🎯 Available for Auction</span>
+    <span id="auctionToggle">▼</span>
+  </div>
+  <div id="auctionSection" class="collapsible-content">
+    <table>
+      <thead>
+        <tr><th>Photo</th><th>Name & Rank</th><th>Base Price</th></tr>
+      </thead>
+      <tbody id="playersTable"></tbody>
+    </table>
+  </div>
 </div>
 <div id="auction" class="screen active">
   <div class="wallet-highlight">
@@ -420,6 +454,18 @@ let teams = [
 let availablePlayers = [];
 let bidLog = [];
 let originalPlayers = [];
+
+function toggleCollapse(sectionId){
+  var section = document.getElementById(sectionId);
+  var toggle = document.getElementById(sectionId === 'preAssignedSection' ? 'preAssignedToggle' : 'auctionToggle');
+  if(section.classList.contains('collapsed')){
+    section.classList.remove('collapsed');
+    toggle.innerHTML = '▼';
+  } else {
+    section.classList.add('collapsed');
+    toggle.innerHTML = '▶';
+  }
+}
 
 function toggleAdmin(){
   if(isAdmin) {
@@ -671,7 +717,7 @@ function saveAuction(){
 }
 
 function showRankPlayers(rank){
-  var players = availablePlayers.filter(function(p){return p.rank===rank;});
+  var players = availablePlayers.filter(function(p){return p.rank===rank && !p.isIcon;});
   var title = 'Rank ' + rank + ' Players (' + players.length + ')';
   document.getElementById('rankModalTitle').textContent = title;
   document.getElementById('rankModalPlayers').innerHTML = players.map(function(p){
@@ -697,13 +743,13 @@ function showIconPlayers(){
 }
 
 function renderAll(){
-  var rank1 = availablePlayers.filter(function(p){return p.rank===1;}).length;
-  var rank2 = availablePlayers.filter(function(p){return p.rank===2;}).length;
-  var rank3 = availablePlayers.filter(function(p){return p.rank===3;}).length;
+  var rank1 = availablePlayers.filter(function(p){return p.rank===1 && !p.isIcon;}).length;
+  var rank2 = availablePlayers.filter(function(p){return p.rank===2 && !p.isIcon;}).length;
+  var rank3 = availablePlayers.filter(function(p){return p.rank===3 && !p.isIcon;}).length;
   var icons = availablePlayers.filter(function(p){return p.isIcon;}).length;
-  var totalRank1 = originalPlayers.filter(function(p){return p.rank===1;}).length;
-  var totalRank2 = originalPlayers.filter(function(p){return p.rank===2;}).length;
-  var totalRank3 = originalPlayers.filter(function(p){return p.rank===3;}).length;
+  var totalRank1 = originalPlayers.filter(function(p){return p.rank===1 && !p.isIcon && !p.isPreAssigned;}).length;
+  var totalRank2 = originalPlayers.filter(function(p){return p.rank===2 && !p.isIcon && !p.isPreAssigned;}).length;
+  var totalRank3 = originalPlayers.filter(function(p){return p.rank===3 && !p.isIcon && !p.isPreAssigned;}).length;
   var totalIcons = originalPlayers.filter(function(p){return p.isIcon;}).length;
 
   document.getElementById('rankCounter').innerHTML = 
@@ -732,7 +778,10 @@ function renderAll(){
     return !p.isPreAssigned;
   }).map(function(p){
     var isSold = !availablePlayers.find(function(ap){ return ap.name === p.name; });
-    var badges = '<span class="rank-badge rank-' + p.rank + '">Rank ' + p.rank + '</span>';
+    var badges = '';
+    if(!p.isIcon) {
+      badges += '<span class="rank-badge rank-' + p.rank + '">Rank ' + p.rank + '</span>';
+    }
     if(p.isIcon) {
       badges += '<span class="rank-badge icon-badge">ICON</span>';
     }
