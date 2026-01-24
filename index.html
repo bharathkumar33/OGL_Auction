@@ -299,6 +299,7 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
 .rank-1 { background:#fbbf24; color:#1a202c; }
 .rank-2 { background:#94a3b8; color:#1e293b; }
 .rank-3 { background:#fb923c; color:#fff; }
+.young-badge { background:#10b981; color:#fff; }
 .icon-badge { background:#8b5cf6; color:#fff; }
 .owner-badge { background:#06b6d4; color:#fff; }
 .team-owner-badge { background:#6366f1; color:#fff; }
@@ -911,7 +912,7 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
 <nav>
   <button onclick="showScreen('players',this)">Registered Players</button>
   <button class="active" onclick="showScreen('auction',this)">Auction</button>
-  <button onclick="showScreen('auctioned',this)">Playing Squad</button>
+  <button onclick="showScreen('auctioned',this)">Auctioned Teams</button>
 </nav>
 <div id="players" class="screen">
   <div class="news-ticker">
@@ -960,7 +961,7 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   <button class="reset-btn" onclick="resetAuction()">Reset Auction</button>
 </div>
 <div id="auctioned" class="screen">
-  <h2>Playing Squad</h2>
+  <h2>Auctioned Teams</h2>
   <div id="auctionedList"></div>
 </div>
 <script>
@@ -1064,6 +1065,7 @@ function uploadCSV(){
       availablePlayers=res.data.map(function(p, index){
         console.log('Processing row', index + 1, ':', p);
         var basePrice = parseInt(p.BasePrice) || 1000;
+        var age = parseInt(p.Age) || 40;
         var rank = basePrice >= 600 ? 1 : (basePrice >= 400 ? 2 : 3);
         var isIcon = (p.Icon && (p.Icon.toLowerCase() === 'yes' || p.Icon.toLowerCase() === 'y')) || false;
         var isOwner = (p.Owner && (p.Owner.toLowerCase() === 'yes' || p.Owner.toLowerCase() === 'y')) || false;
@@ -1076,6 +1078,8 @@ function uploadCSV(){
           basePrice: basePrice,
           photo: p.Photo || "default.png",
           rank: rank,
+          age: age,
+          isYoung: age < 40,
           isIcon: isIcon,
           isOwner: isOwner,
           ownerPlays: ownerPlays,
@@ -1368,13 +1372,26 @@ function updateNewsTicker(message){
 }
 
 function showRankPlayers(rank){
-  var players = availablePlayers.filter(function(p){return p.rank===rank && !p.isIcon;});
-  var title = 'Rank ' + rank + ' Players (' + players.length + ')';
+  var players = availablePlayers.filter(function(p){return p.rank===rank && !p.isIcon && !p.isYoung;});
+  var title = 'Group ' + rank + ' Players (' + players.length + ')';
   document.getElementById('rankModalTitle').textContent = title;
   document.getElementById('rankModalPlayers').innerHTML = players.map(function(p){
     return '<div class="rank-player-item">' +
       '<img class="player-photo" src="' + p.photo + '" style="margin-right:15px;">' +
-      '<div><b>' + p.name + '</b><br>Base Price: ' + p.basePrice + '</div>' +
+      '<div><b>' + p.name + '</b><br>Base Price: ' + p.basePrice + ' | Age: ' + (p.age || 'N/A') + '</div>' +
+    '</div>';
+  }).join('');
+  document.getElementById('rankModal').style.display = 'block';
+}
+
+function showYoungPlayers(){
+  var players = availablePlayers.filter(function(p){return p.isYoung && !p.isIcon;});
+  var title = 'Young Players (<40 years) (' + players.length + ')';
+  document.getElementById('rankModalTitle').textContent = title;
+  document.getElementById('rankModalPlayers').innerHTML = players.map(function(p){
+    return '<div class="rank-player-item">' +
+      '<img class="player-photo" src="' + p.photo + '" style="margin-right:15px;">' +
+      '<div><b>' + p.name + '</b><br>Base Price: ' + p.basePrice + ' | Age: ' + p.age + '</div>' +
     '</div>';
   }).join('');
   document.getElementById('rankModal').style.display = 'block';
@@ -1394,12 +1411,14 @@ function showIconPlayers(){
 }
 
 function renderAll(){
-  var rank1 = availablePlayers.filter(function(p){return p.rank===1 && !p.isIcon;}).length;
-  var rank2 = availablePlayers.filter(function(p){return p.rank===2 && !p.isIcon;}).length;
-  var rank3 = availablePlayers.filter(function(p){return p.rank===3 && !p.isIcon;}).length;
-  var totalRank1 = originalPlayers.filter(function(p){return p.rank===1 && !p.isIcon && !p.isPreAssigned;}).length;
-  var totalRank2 = originalPlayers.filter(function(p){return p.rank===2 && !p.isIcon && !p.isPreAssigned;}).length;
-  var totalRank3 = originalPlayers.filter(function(p){return p.rank===3 && !p.isIcon && !p.isPreAssigned;}).length;
+  var rank1 = availablePlayers.filter(function(p){return p.rank===1 && !p.isIcon && !p.isYoung;}).length;
+  var rank2 = availablePlayers.filter(function(p){return p.rank===2 && !p.isIcon && !p.isYoung;}).length;
+  var rank3 = availablePlayers.filter(function(p){return p.rank===3 && !p.isIcon && !p.isYoung;}).length;
+  var youngPlayers = availablePlayers.filter(function(p){return p.isYoung && !p.isIcon;}).length;
+  var totalRank1 = originalPlayers.filter(function(p){return p.rank===1 && !p.isIcon && !p.isPreAssigned && !p.isYoung;}).length;
+  var totalRank2 = originalPlayers.filter(function(p){return p.rank===2 && !p.isIcon && !p.isPreAssigned && !p.isYoung;}).length;
+  var totalRank3 = originalPlayers.filter(function(p){return p.rank===3 && !p.isIcon && !p.isPreAssigned && !p.isYoung;}).length;
+  var totalYoung = originalPlayers.filter(function(p){return p.isYoung && !p.isIcon && !p.isPreAssigned;}).length;
 
   // Render auction stats
   var totalSold = bidLog.length;
@@ -1414,9 +1433,10 @@ function renderAll(){
     '<div class="stat-card"><div class="stat-number">' + avgPrice.toLocaleString() + '</div><div class="stat-label">📈 Avg Price</div></div>';
 
   document.getElementById('rankCounter').innerHTML = 
-    '<div onclick="showRankPlayers(1)"><span class="rank-badge rank-1">Rank 1</span><br><b>' + rank1 + '/' + totalRank1 + '</b><br>Available</div>' +
-    '<div onclick="showRankPlayers(2)"><span class="rank-badge rank-2">Rank 2</span><br><b>' + rank2 + '/' + totalRank2 + '</b><br>Available</div>' +
-    '<div onclick="showRankPlayers(3)"><span class="rank-badge rank-3">Rank 3</span><br><b>' + rank3 + '/' + totalRank3 + '</b><br>Available</div>';
+    '<div onclick="showRankPlayers(1)"><span class="rank-badge rank-1">Group 1</span><br><b>' + rank1 + '/' + totalRank1 + '</b><br>Available</div>' +
+    '<div onclick="showRankPlayers(2)"><span class="rank-badge rank-2">Group 2</span><br><b>' + rank2 + '/' + totalRank2 + '</b><br>Available</div>' +
+    '<div onclick="showRankPlayers(3)"><span class="rank-badge rank-3">Group 3</span><br><b>' + rank3 + '/' + totalRank3 + '</b><br>Available</div>' +
+    '<div onclick="showYoungPlayers()"><span class="rank-badge young-badge">Young Players</span><br><b>' + youngPlayers + '/' + totalYoung + '</b><br>Available</div>';
 
   // Auction players table (exclude pre-assigned, ICON, and owner-players)
   document.getElementById('playersTable').innerHTML = originalPlayers.filter(function(p){
@@ -1440,7 +1460,10 @@ function renderAll(){
   }).join('');
 
   document.getElementById('availablePlayers').innerHTML = availablePlayers.map(function(p,i){
-    var badges = '<span class="rank-badge rank-' + p.rank + '">Rank ' + p.rank + '</span>';
+    var badges = '<span class="rank-badge rank-' + p.rank + '">Group ' + p.rank + '</span>';
+    if(p.isYoung) {
+      badges += '<span class="rank-badge young-badge">YOUNG (<40)</span>';
+    }
     if(p.isIcon) {
       badges += '<span class="rank-badge icon-badge">ICON</span>';
     }
