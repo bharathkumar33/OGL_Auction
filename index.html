@@ -684,6 +684,17 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   <button onclick="showScreen('auctioned',this)">Auctioned Teams</button>
 </nav>
 <div id="players" class="screen">
+  <div class="news-ticker">
+    <div class="news-ticker-label">📢 LIVE</div>
+    <div class="news-ticker-content" id="newsTicker2">
+      🏆 Welcome to OGL 2026 Auction! • Get ready for exciting bids! • 14 players per team • 14,000 wallet per team • Let the bidding begin!
+    </div>
+  </div>
+  <div class="auction-stats" id="auctionStats2"></div>
+  <div class="wallet-highlight">
+    <div class="wallet-title">TEAM OWNER / WALLET</div>
+    <div id="teamWallets2"></div>
+  </div>
   <h2>Registered Players</h2>
   <input type="file" id="csvFile" accept=".csv">
   <button onclick="uploadCSV()">Upload CSV</button>
@@ -1032,9 +1043,13 @@ function saveAuction(){
 
 function updateNewsTicker(message){
   var ticker = document.getElementById('newsTicker');
+  var ticker2 = document.getElementById('newsTicker2');
+  var newText = '🔥 ' + message + ' • ';
   if(ticker) {
-    var currentText = ticker.textContent;
-    ticker.textContent = '🔥 ' + message + ' • ' + currentText;
+    ticker.textContent = newText + ticker.textContent;
+  }
+  if(ticker2) {
+    ticker2.textContent = newText + ticker2.textContent;
   }
 }
 
@@ -1084,6 +1099,14 @@ function renderAll(){
     '<div class="stat-card"><div class="stat-number">' + totalSpent.toLocaleString() + '</div><div class="stat-label">💰 Total Spent</div></div>' +
     '<div class="stat-card"><div class="stat-number">' + avgPrice.toLocaleString() + '</div><div class="stat-label">📈 Avg Price</div></div>';
 
+  if(document.getElementById('auctionStats2')) {
+    document.getElementById('auctionStats2').innerHTML = 
+      '<div class="stat-card"><div class="stat-number">' + totalSold + '</div><div class="stat-label">✅ Players Sold</div></div>' +
+      '<div class="stat-card"><div class="stat-number">' + totalRemaining + '</div><div class="stat-label">📊 Remaining</div></div>' +
+      '<div class="stat-card"><div class="stat-number">' + totalSpent.toLocaleString() + '</div><div class="stat-label">💰 Total Spent</div></div>' +
+      '<div class="stat-card"><div class="stat-number">' + avgPrice.toLocaleString() + '</div><div class="stat-label">📈 Avg Price</div></div>';
+  }
+
   document.getElementById('rankCounter').innerHTML = 
     '<div onclick="showRankPlayers(1)"><span class="rank-badge rank-1">Rank 1</span><br><b>' + rank1 + '/' + totalRank1 + '</b><br>Available</div>' +
     '<div onclick="showRankPlayers(2)"><span class="rank-badge rank-2">Rank 2</span><br><b>' + rank2 + '/' + totalRank2 + '</b><br>Available</div>' +
@@ -1109,6 +1132,18 @@ function renderAll(){
       '<div style="position:relative;z-index:2;"><b>' + t.name + status + '</b>' + ownerInfo + '<br>Wallet: ' + t.wallet + '</div>' +
     '</div>';
   }).join('');
+
+  if(document.getElementById('teamWallets2')) {
+    document.getElementById('teamWallets2').innerHTML = teams.map(function(t){
+      if(!t.squad) t.squad = [];
+      var status = t.squad.length >= 14 ? ' - SQUAD COMPLETE!' : '';
+      var ownerInfo = t.ownerName ? '<br>Owner: ' + t.ownerName : '';
+      return '<div class="team-card">' +
+        '<img class="team-logo-bg" src="' + t.logo + '" alt="' + t.name + '">' +
+        '<div style="position:relative;z-index:2;"><b>' + t.name + status + '</b>' + ownerInfo + '<br>Wallet: ' + t.wallet + '</div>' +
+      '</div>';
+    }).join('');
+  }
 
   document.getElementById('availablePlayers').innerHTML = availablePlayers.map(function(p,i){
     var badges = '<span class="rank-badge rank-' + p.rank + '">Rank ' + p.rank + '</span>';
