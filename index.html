@@ -690,7 +690,6 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
       🏆 Welcome to OGL 2026 Auction! • Get ready for exciting bids! • 14 players per team • 14,000 wallet per team • Let the bidding begin!
     </div>
   </div>
-  <div class="auction-stats" id="auctionStats2"></div>
   <h2>Registered Players</h2>
   <input type="file" id="csvFile" accept=".csv">
   <button onclick="uploadCSV()">Upload CSV</button>
@@ -1094,14 +1093,6 @@ function renderAll(){
     '<div class="stat-card"><div class="stat-number">' + totalRemaining + '</div><div class="stat-label">📊 Remaining</div></div>' +
     '<div class="stat-card"><div class="stat-number">' + totalSpent.toLocaleString() + '</div><div class="stat-label">💰 Total Spent</div></div>' +
     '<div class="stat-card"><div class="stat-number">' + avgPrice.toLocaleString() + '</div><div class="stat-label">📈 Avg Price</div></div>';
-
-  if(document.getElementById('auctionStats2')) {
-    document.getElementById('auctionStats2').innerHTML = 
-      '<div class="stat-card"><div class="stat-number">' + totalSold + '</div><div class="stat-label">✅ Players Sold</div></div>' +
-      '<div class="stat-card"><div class="stat-number">' + totalRemaining + '</div><div class="stat-label">📊 Remaining</div></div>' +
-      '<div class="stat-card"><div class="stat-number">' + totalSpent.toLocaleString() + '</div><div class="stat-label">💰 Total Spent</div></div>' +
-      '<div class="stat-card"><div class="stat-number">' + avgPrice.toLocaleString() + '</div><div class="stat-label">📈 Avg Price</div></div>';
-  }
 
   document.getElementById('rankCounter').innerHTML = 
     '<div onclick="showRankPlayers(1)"><span class="rank-badge rank-1">Rank 1</span><br><b>' + rank1 + '/' + totalRank1 + '</b><br>Available</div>' +
