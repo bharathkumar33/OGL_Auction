@@ -423,6 +423,27 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   border-left:3px solid #10b981;
   font-size:13px;
 }
+.team-owner-player {
+  background:linear-gradient(135deg, rgba(251,191,36,0.2), rgba(251,191,36,0.1));
+  padding:8px 10px;
+  border-radius:8px;
+  margin:5px 0;
+  border-left:4px solid #fbbf24;
+  font-size:14px;
+  font-weight:bold;
+  box-shadow:0 2px 8px rgba(251,191,36,0.3);
+  position:relative;
+  overflow:hidden;
+}
+.team-owner-player::before {
+  content:'👑';
+  position:absolute;
+  right:10px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:20px;
+  opacity:0.6;
+}
 .wallet-highlight {
   background:linear-gradient(135deg, #2d3748, #1a202c);
   padding:25px;
@@ -854,7 +875,7 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
 <nav>
   <button onclick="showScreen('players',this)">Registered Players</button>
   <button class="active" onclick="showScreen('auction',this)">Auction</button>
-  <button onclick="showScreen('auctioned',this)">Playing Squad</button>
+  <button onclick="showScreen('auctioned',this)">Auctioned Teams</button>
 </nav>
 <div id="players" class="screen">
   <div class="news-ticker">
@@ -903,7 +924,7 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   <button class="reset-btn" onclick="resetAuction()">Reset Auction</button>
 </div>
 <div id="auctioned" class="screen">
-  <h2>Playing Squad</h2>
+  <h2>Auctioned Teams</h2>
   <div id="auctionedList"></div>
 </div>
 <script>
@@ -1010,6 +1031,7 @@ function uploadCSV(){
         var rank = basePrice >= 600 ? 1 : (basePrice >= 400 ? 2 : 3);
         var isIcon = (p.Icon && (p.Icon.toLowerCase() === 'yes' || p.Icon.toLowerCase() === 'y')) || false;
         var isOwner = (p.Owner && (p.Owner.toLowerCase() === 'yes' || p.Owner.toLowerCase() === 'y')) || false;
+        var ownerPlays = (p.OwnerPlays && (p.OwnerPlays.toLowerCase() === 'yes' || p.OwnerPlays.toLowerCase() === 'y')) || false;
         
         var isPreAssigned = (p.PreAssigned && (p.PreAssigned.toLowerCase() === 'yes' || p.PreAssigned.toLowerCase() === 'y')) || false;
         
@@ -1020,6 +1042,7 @@ function uploadCSV(){
           rank: rank,
           isIcon: isIcon,
           isOwner: isOwner,
+          ownerPlays: ownerPlays,
           teamName: p.Team || null,
           isPreAssigned: isPreAssigned
         };
@@ -1035,10 +1058,10 @@ function uploadCSV(){
         t.squad = [];
       });
       
-      // Assign team owners and pre-assigned players
+      // Assign team owners and add owner-players to their squads if OwnerPlays=yes
       availablePlayers.forEach(function(player) {
         if(player.isOwner && player.teamName) {
-          console.log('Processing team owner:', player.name, 'Team:', player.teamName);
+          console.log('Processing team owner:', player.name, 'Team:', player.teamName, 'ownerPlays:', player.ownerPlays);
           var normalizedTeamName = player.teamName.replace(/_/g, ' ').toLowerCase();
           var targetTeam = teams.find(function(t) { 
             var normalizedTName = t.name.replace(/ /g, '_').toLowerCase();
@@ -1049,15 +1072,23 @@ function uploadCSV(){
           });
           if(targetTeam) {
             targetTeam.ownerName = player.name;
-            console.log('Assigned', player.name, 'to', targetTeam.name);
+            // Add owner as player to squad only if OwnerPlays=yes
+            if(player.ownerPlays) {
+              if(!targetTeam.squad) targetTeam.squad = [];
+              var squadMember = {name:player.name, amount:0, photo:player.photo, isPreAssigned:true, isOwner:true};
+              targetTeam.squad.push(squadMember);
+              console.log('Assigned', player.name, 'to', targetTeam.name, 'as owner and player');
+            } else {
+              console.log('Assigned', player.name, 'to', targetTeam.name, 'as owner only');
+            }
           } else {
             console.log('WARNING: Could not find team for', player.name, 'with team name', player.teamName);
           }
         }
         
-        // Add pre-assigned and ICON players to their teams
-        if((player.isPreAssigned || player.isIcon) && player.teamName) {
-          console.log('Processing pre-assigned/ICON player:', player.name, 'Team:', player.teamName);
+        // Add pre-assigned and ICON players to their teams (excluding owners already added)
+        if((player.isPreAssigned || player.isIcon) && player.teamName && !player.isOwner) {
+          console.log('Processing pre-assigned/ICON player:', player.name, 'Team:', player.teamName, 'isPreAssigned:', player.isPreAssigned);
           var normalizedTeamName = player.teamName.replace(/_/g, ' ').toLowerCase();
           var targetTeam = teams.find(function(t) { 
             var normalizedTName = t.name.replace(/ /g, '_').toLowerCase();
@@ -1068,8 +1099,9 @@ function uploadCSV(){
           });
           if(targetTeam) {
             if(!targetTeam.squad) targetTeam.squad = [];
-            targetTeam.squad.push({name:player.name, amount:0, photo:player.photo, isPreAssigned:true});
-            console.log('Pre-assigned/ICON', player.name, 'to', targetTeam.name);
+            var squadMember = {name:player.name, amount:0, photo:player.photo, isPreAssigned:true, isOwner:false};
+            targetTeam.squad.push(squadMember);
+            console.log('Added to squad:', squadMember, 'Team:', targetTeam.name);
           } else {
             console.log('WARNING: Could not find team for pre-assigned/ICON player', player.name, 'with team name', player.teamName);
           }
@@ -1079,8 +1111,8 @@ function uploadCSV(){
       // Store all players including pre-assigned for reference
       var allPlayers = JSON.parse(JSON.stringify(availablePlayers));
       
-      // Remove pre-assigned, ICON, and team owner players from availablePlayers for auction
-      availablePlayers = availablePlayers.filter(function(p){ return !p.isPreAssigned && !p.isIcon && !p.isOwner; });
+      // Remove pre-assigned, ICON, and owner-players from availablePlayers for auction
+      availablePlayers = availablePlayers.filter(function(p){ return !p.isPreAssigned && !p.isIcon && !(p.isOwner && p.ownerPlays); });
       
       originalPlayers = allPlayers;
       db.ref('registeredPlayers').set(availablePlayers);
@@ -1277,7 +1309,7 @@ function resetAuction(){
       t.squad = preAssigned;
     });
     bidLog=[];
-    availablePlayers = originalPlayers.filter(function(p){return !p.isPreAssigned && !p.isIcon && !p.isOwner;});
+    availablePlayers = originalPlayers.filter(function(p){return !p.isPreAssigned && !p.isIcon && !(p.isOwner && p.ownerPlays);});
     saveAuction();
     renderAll();
   }
@@ -1350,9 +1382,9 @@ function renderAll(){
     '<div onclick="showRankPlayers(2)"><span class="rank-badge rank-2">Rank 2</span><br><b>' + rank2 + '/' + totalRank2 + '</b><br>Available</div>' +
     '<div onclick="showRankPlayers(3)"><span class="rank-badge rank-3">Rank 3</span><br><b>' + rank3 + '/' + totalRank3 + '</b><br>Available</div>';
 
-  // Auction players table (exclude pre-assigned, ICON, and team owners)
+  // Auction players table (exclude pre-assigned, ICON, and owner-players)
   document.getElementById('playersTable').innerHTML = originalPlayers.filter(function(p){
-    return !p.isPreAssigned && !p.isIcon && !p.isOwner;
+    return !p.isPreAssigned && !p.isIcon && !(p.isOwner && p.ownerPlays);
   }).map(function(p){
     var isSold = !availablePlayers.find(function(ap){ return ap.name === p.name; });
     var badges = '<span class="rank-badge rank-' + p.rank + '">Rank ' + p.rank + '</span>';
@@ -1378,6 +1410,9 @@ function renderAll(){
     }
     if(p.isOwner) {
       badges += '<span class="rank-badge team-owner-badge">TEAM OWNER</span>';
+    }
+    if(p.isOwner && !p.ownerPlays) {
+      badges += '<span class="rank-badge team-owner-badge">TEAM OWNER (Non-Playing)</span>';
     }
     if(!p.isIcon && !p.isOwner) {
       badges += '<span class="rank-badge owner-badge">Owner/Player</span>';
@@ -1430,14 +1465,39 @@ function renderAll(){
     if(!t.squad) t.squad = [];
     var preAssigned = t.squad.filter(function(p){return p.isPreAssigned;});
     var auctioned = t.squad.filter(function(p){return !p.isPreAssigned;});
+    
+    // Check if owner is in squad as a player
+    var ownerPlayer = null;
+    var otherPreAssigned = [];
+    preAssigned.forEach(function(p){
+      if(p.isOwner || p.name === t.ownerName){
+        ownerPlayer = p;
+      } else {
+        otherPreAssigned.push(p);
+      }
+    });
+    
+    // Check if owner exists but not as a player
+    var ownerOnlyDisplay = t.ownerName && !ownerPlayer;
+    
     return '<div class="auction-team-card">' +
       '<img class="team-logo-watermark" src="' + t.logo + '" alt="' + t.name + '">' +
       '<div class="team-content">' +
         '<div class="team-name-highlight">' + t.name + '</div>' +
         '<div style="text-align:left;">' + 
-          (preAssigned.length > 0 ? 
-            '<div style="font-weight:bold;color:#8b5cf6;margin:5px 0;font-size:13px;text-transform:uppercase;letter-spacing:0.5px;">🔒 Core Team Members (' + preAssigned.length + '):</div>' +
-            preAssigned.map(function(p){ return '<div class="sold-player" style="border-left-color:#8b5cf6;background:rgba(139,92,246,0.1);">🔒 ' + p.name + '</div>'; }).join('') : 
+          (ownerOnlyDisplay ? 
+            '<div style="font-weight:bold;color:#fbbf24;margin:5px 0;font-size:13px;text-transform:uppercase;letter-spacing:0.5px;">👑 Team Owner:</div>' +
+            '<div class="team-owner-player">👑 ' + t.ownerName + ' (OWNER ONLY)</div>' : 
+            ''
+          ) +
+          (ownerPlayer ? 
+            '<div style="font-weight:bold;color:#fbbf24;margin:5px 0;font-size:13px;text-transform:uppercase;letter-spacing:0.5px;">👑 Team Owner & Player:</div>' +
+            '<div class="team-owner-player">👑 ' + ownerPlayer.name + ' (OWNER + PLAYER)</div>' : 
+            ''
+          ) +
+          (otherPreAssigned.length > 0 ? 
+            '<div style="font-weight:bold;color:#8b5cf6;margin:5px 0;margin-top:10px;font-size:13px;text-transform:uppercase;letter-spacing:0.5px;">🔒 Core Team Members (' + otherPreAssigned.length + '):</div>' +
+            otherPreAssigned.map(function(p){ return '<div class="sold-player" style="border-left-color:#8b5cf6;background:rgba(139,92,246,0.1);">🔒 ' + p.name + '</div>'; }).join('') : 
             ''
           ) +
           (auctioned.length > 0 ? 
@@ -1445,7 +1505,7 @@ function renderAll(){
             auctioned.map(function(p){ return '<div class="sold-player">✓ ' + p.name + ' (' + p.amount + ')</div>'; }).join('') : 
             ''
           ) +
-          (t.squad.length === 0 ? '<div style="color:#999;font-style:italic;text-align:center;">No players yet</div>' : '') +
+          (t.squad.length === 0 && !t.ownerName ? '<div style="color:#999;font-style:italic;text-align:center;">No players yet</div>' : '') +
         '</div>' +
       '</div>' +
     '</div>';
@@ -1468,7 +1528,7 @@ function renderAll(){
 
 db.ref('registeredPlayers').once('value').then(function(s){
   if(s.exists()) {
-    availablePlayers=s.val().filter(function(p){return !p.isPreAssigned && !p.isIcon && !p.isOwner;});
+    availablePlayers=s.val().filter(function(p){return !p.isPreAssigned && !p.isIcon && !(p.isOwner && p.ownerPlays);});
   }
   return db.ref('allPlayers').once('value');
 }).then(function(s){
@@ -1484,7 +1544,7 @@ db.ref('auctionState').on('value',function(s){
   if(!s.exists()) return;
   var d=s.val();
   teams=d.teams||teams;
-  availablePlayers=(d.availablePlayers||[]).filter(function(p){return !p.isPreAssigned && !p.isIcon && !p.isOwner;});
+  availablePlayers=(d.availablePlayers||[]).filter(function(p){return !p.isPreAssigned && !p.isIcon && !(p.isOwner && p.ownerPlays);});
   bidLog=d.bidLog||[];
   renderAll();
 });
