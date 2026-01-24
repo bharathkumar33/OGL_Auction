@@ -33,7 +33,7 @@ nav button.active { background:#c62828; }
   border-radius:10px;
 }
 table { width:100%; border-collapse:collapse; }
-th,td { border:1px solid #ccc; padding:8px; text-align:center; }
+th,td { border:1px solid #ccc; padding:8px; text-align:center; position:relative; }
 th { background:#e63946; color:white; }
 .player-photo { width:50px; height:50px; border-radius:50%; }
 .team-card {
@@ -51,6 +51,22 @@ th { background:#e63946; color:white; }
   margin:3px;
   border-radius:6px;
   cursor:pointer;
+}
+.bid-btn:disabled {
+  background:#ccc;
+  cursor:not-allowed;
+}
+.complete-team {
+  background:#28a745;
+  color:white;
+  text-align:center;
+  padding:20px;
+  border-radius:10px;
+  margin:10px 0;
+}
+.trophy {
+  font-size:30px;
+  margin:10px;
 }
 .player-card {
   position:relative;
@@ -74,6 +90,123 @@ th { background:#e63946; color:white; }
   padding:10px;
   border-radius:6px;
 }
+.rank-badge {
+  display:inline-block;
+  padding:2px 8px;
+  border-radius:12px;
+  font-size:12px;
+  font-weight:bold;
+  margin-left:10px;
+}
+.rank-1 { background:#ffd700; color:#000; }
+.rank-2 { background:#c0c0c0; color:#000; }
+.rank-3 { background:#cd7f32; color:#fff; }
+.icon-badge { background:#e74c3c; color:#fff; }
+.owner-badge { background:#17a2b8; color:#fff; }
+.team-owner-badge { background:#6f42c1; color:#fff; }
+#teamWallets {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+#teamWallets .team-card {
+  margin:0;
+}
+.rank-counter {
+  background:white;
+  border-radius:10px;
+  padding:15px;
+  margin:10px 0;
+  display:flex;
+  justify-content:space-around;
+  text-align:center;
+}
+#auctionedList {
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:10px;
+}
+.auction-team-card {
+  background:white;
+  border-radius:10px;
+  padding:10px;
+  box-shadow:0 2px 5px rgba(0,0,0,.2);
+  position:relative;
+  overflow:hidden;
+  min-height:400px;
+}
+.team-logo-watermark {
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  opacity:0.1;
+  object-fit:contain;
+  z-index:1;
+}
+.team-content {
+  position:relative;
+  z-index:2;
+}
+.team-name-highlight {
+  background:#e63946;
+  color:white;
+  padding:8px;
+  border-radius:8px;
+  font-weight:bold;
+  text-align:center;
+  margin-bottom:10px;
+}
+.sold-player {
+  background:rgba(220,53,69,0.1);
+  padding:3px 5px;
+  border-radius:5px;
+  margin:2px 0;
+  border-left:3px solid #dc3545;
+}
+.wallet-highlight {
+  background:linear-gradient(45deg, #dc3545, #ffed4e);
+  padding:15px;
+  border-radius:10px;
+  margin:10px 0;
+  box-shadow:0 4px 8px rgba(255,215,0,0.3);
+  border:2px solid #dc3545;
+}
+.wallet-title {
+  text-align:center;
+  font-size:20px;
+  font-weight:bold;
+  color:#b8860b;
+  margin-bottom:15px;
+  text-shadow:1px 1px 2px rgba(0,0,0,0.1);
+}
+.sold-stamp {
+  position:absolute;
+  top:5px;
+  right:5px;
+  background:#dc3545;
+  color:white;
+  padding:3px 6px;
+  border-radius:10px;
+  font-weight:bold;
+  font-size:10px;
+  transform:rotate(15deg);
+  z-index:10;
+}
+.unsold-stamp {
+  position:absolute;
+  top:5px;
+  right:5px;
+  background:#6c757d;
+  color:white;
+  padding:3px 6px;
+  border-radius:10px;
+  font-weight:bold;
+  font-size:10px;
+  transform:rotate(15deg);
+  z-index:10;
+}
 </style>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -92,15 +225,17 @@ th { background:#e63946; color:white; }
   <button class="reset-btn" onclick="resetCSV()">Reset CSV</button>
   <table>
     <thead>
-      <tr><th>Photo</th><th>Name</th><th>Base Price</th></tr>
+      <tr><th>Photo</th><th>Name & Rank</th><th>Base Price</th></tr>
     </thead>
     <tbody id="playersTable"></tbody>
   </table>
 </div>
 <div id="auction" class="screen active">
-  <h2>Auction</h2>
-  <h3>Team Wallets</h3>
-  <div id="teamWallets"></div>
+  <div class="wallet-highlight">
+    <div class="wallet-title">TEAM OWNER / WALLET</div>
+    <div id="teamWallets"></div>
+  </div>
+  <div id="rankCounter" class="rank-counter"></div>
   <h3>Available Players</h3>
   <div id="availablePlayers"></div>
   <h3>Bid History</h3>
@@ -122,16 +257,17 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 let teams = [
-  { name:"Charging Bulls", wallet:14000, squad:[], logo:"ChargingBulls.png" },
-  { name:"Mighty Tuskers", wallet:14000, squad:[], logo:"MightyTuskers.png" },
-  { name:"Royal Tigers", wallet:14000, squad:[], logo:"RoyalTigers.png" },
-  { name:"Blazing Phoenix", wallet:14000, squad:[], logo:"BlazingPhoenix.png" },
-  { name:"Golden Eagle", wallet:14000, squad:[], logo:"GoldenEagle.png" },
-  { name:"Power Panthers", wallet:14000, squad:[], logo:"PowerPanthers.png" }
+  { name:"Charging Bulls", wallet:14000, squad:[], logo:"ChargingBulls.png", ownerName:null },
+  { name:"Mighty Tuskers", wallet:14000, squad:[], logo:"MightyTuskers.png", ownerName:null },
+  { name:"Royal Tigers", wallet:14000, squad:[], logo:"RoyalTigers.png", ownerName:null },
+  { name:"Blazing Phoenix", wallet:14000, squad:[], logo:"BlazingPhoenix.png", ownerName:null },
+  { name:"Golden Eagle", wallet:14000, squad:[], logo:"GoldenEagle.png", ownerName:null },
+  { name:"Power Panthers", wallet:14000, squad:[], logo:"PowerPanthers.png", ownerName:null }
 ];
 
 let availablePlayers = [];
 let bidLog = [];
+let originalPlayers = [];
 
 function showScreen(id,btn){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -142,21 +278,80 @@ function showScreen(id,btn){
 
 function uploadCSV(){
   const file=document.getElementById('csvFile').files[0];
-  if(!file) return alert("Select CSV");
+  if(!file) return alert("Please select a CSV file first");
+  
+  console.log('File selected:', file.name, 'Size:', file.size);
+  
   Papa.parse(file,{
     header:true,
     skipEmptyLines:true,
     complete:function(res){
-      availablePlayers=res.data.map(function(p){
-        return {
-          name: p.FirstName + ' ' + p.LastName,
-          basePrice: parseInt(p.BasePrice) || 1000,
-          photo: p.Photo || "default.png"
+      console.log('Raw CSV parsing result:', res);
+      console.log('CSV headers found:', res.meta.fields);
+      console.log('Number of rows:', res.data.length);
+      
+      if(res.data.length === 0) {
+        alert('CSV file appears to be empty or invalid');
+        return;
+      }
+      
+      availablePlayers=res.data.map(function(p, index){
+        console.log('Processing row', index + 1, ':', p);
+        var basePrice = parseInt(p.BasePrice) || 1000;
+        var rank = basePrice >= 600 ? 1 : (basePrice >= 400 ? 2 : 3);
+        var isIcon = (p.Icon && (p.Icon.toLowerCase() === 'yes' || p.Icon.toLowerCase() === 'y')) || false;
+        var isOwner = (p.Owner && (p.Owner.toLowerCase() === 'yes' || p.Owner.toLowerCase() === 'y')) || false;
+        
+        var player = {
+          name: (p.FirstName || '') + ' ' + (p.LastName || ''),
+          basePrice: basePrice,
+          photo: p.Photo || "default.png",
+          rank: rank,
+          isIcon: isIcon,
+          isOwner: isOwner,
+          teamName: p.Team || null
         };
+        
+        console.log('Icon value:', p.Icon, 'isIcon result:', isIcon);
+        return player;
       });
+      
+      // Reset team owners and wallets
+      teams.forEach(function(t) {
+        t.ownerName = null;
+        t.wallet = 14000;
+      });
+      
+      // Assign team owners
+      availablePlayers.forEach(function(player) {
+        if(player.isOwner && player.teamName) {
+          console.log('Processing team owner:', player.name, 'Team:', player.teamName);
+          var normalizedTeamName = player.teamName.replace(/_/g, ' ').toLowerCase();
+          var targetTeam = teams.find(function(t) { 
+            var normalizedTName = t.name.replace(/ /g, '_').toLowerCase();
+            return t.name.toLowerCase() === normalizedTeamName || 
+                   normalizedTName === player.teamName.toLowerCase() ||
+                   t.name.toLowerCase().includes(normalizedTeamName) || 
+                   normalizedTeamName.includes(t.name.toLowerCase());
+          });
+          if(targetTeam) {
+            targetTeam.ownerName = player.name;
+            console.log('Assigned', player.name, 'to', targetTeam.name);
+          } else {
+            console.log('WARNING: Could not find team for', player.name, 'with team name', player.teamName);
+          }
+        }
+      });
+      
+      originalPlayers = JSON.parse(JSON.stringify(availablePlayers));
       db.ref('registeredPlayers').set(availablePlayers);
       saveAuction();
       renderAll();
+      alert('CSV uploaded successfully! ' + availablePlayers.length + ' players loaded.');
+    },
+    error:function(err){
+      console.error('CSV parsing error:', err);
+      alert('CSV parsing error: ' + err.message);
     }
   });
 }
@@ -164,6 +359,7 @@ function uploadCSV(){
 function resetCSV(){
   if(confirm("Clear players?")){
     availablePlayers=[];
+    originalPlayers=[];
     db.ref('registeredPlayers').remove();
     saveAuction();
     renderAll();
@@ -194,7 +390,7 @@ function placeBid(ti,pi){
     return;
   }
 
-  const amt=prompt('Enter bid amount for ' + player.name + '\nBase Price: ₹' + player.basePrice + '\nTeam: ' + team.name + '\nWallet: ₹' + team.wallet, player.basePrice);
+  const amt=prompt('Enter bid amount for ' + player.name + '\nBase Price: ' + player.basePrice + '\nTeam: ' + team.name + '\nWallet: ' + team.wallet, player.basePrice);
   
   if(amt === null) return;
   if(!amt || isNaN(amt) || parseInt(amt) <= 0) {
@@ -206,11 +402,11 @@ function placeBid(ti,pi){
     return;
   }
   if(parseInt(amt) < player.basePrice) {
-    alert('Bid must be at least ₹' + player.basePrice);
+    alert('Bid must be at least ' + player.basePrice);
     return;
   }
 
-  if(!confirm('Confirm bid:\n' + team.name + ' bids ₹' + amt + ' for ' + player.name + '?')) return;
+  if(!confirm('Confirm bid:\n' + team.name + ' bids ' + amt + ' for ' + player.name + '?')) return;
 
   team.wallet -= parseInt(amt);
   team.squad.push({name:player.name, amount:parseInt(amt), photo:player.photo});
@@ -225,6 +421,7 @@ function resetAuction(){
   if(confirm("Reset auction?")){
     teams.forEach(function(t){t.wallet=14000;t.squad=[];});
     bidLog=[];
+    availablePlayers = JSON.parse(JSON.stringify(originalPlayers));
     saveAuction();
     renderAll();
   }
@@ -235,22 +432,66 @@ function saveAuction(){
 }
 
 function renderAll(){
-  document.getElementById('playersTable').innerHTML = availablePlayers.map(function(p){
-    return '<tr><td><img class="player-photo" src="' + p.photo + '"></td><td>' + p.name + '</td><td>₹' + p.basePrice + '</td></tr>';
+  var rank1 = availablePlayers.filter(function(p){return p.rank===1;}).length;
+  var rank2 = availablePlayers.filter(function(p){return p.rank===2;}).length;
+  var rank3 = availablePlayers.filter(function(p){return p.rank===3;}).length;
+  var icons = availablePlayers.filter(function(p){return p.isIcon;}).length;
+  var totalRank1 = originalPlayers.filter(function(p){return p.rank===1;}).length;
+  var totalRank2 = originalPlayers.filter(function(p){return p.rank===2;}).length;
+  var totalRank3 = originalPlayers.filter(function(p){return p.rank===3;}).length;
+  var totalIcons = originalPlayers.filter(function(p){return p.isIcon;}).length;
+
+  document.getElementById('rankCounter').innerHTML = 
+    '<div><span class="rank-badge rank-1">Rank 1</span><br><b>' + rank1 + '/' + totalRank1 + '</b><br>Available</div>' +
+    '<div><span class="rank-badge rank-2">Rank 2</span><br><b>' + rank2 + '/' + totalRank2 + '</b><br>Available</div>' +
+    '<div><span class="rank-badge rank-3">Rank 3</span><br><b>' + rank3 + '/' + totalRank3 + '</b><br>Available</div>' +
+    '<div><span class="rank-badge icon-badge">ICON</span><br><b>' + icons + '/' + totalIcons + '</b><br>Available</div>';
+
+  document.getElementById('playersTable').innerHTML = originalPlayers.map(function(p){
+    var isSold = !availablePlayers.find(function(ap){ return ap.name === p.name; });
+    var badges = '<span class="rank-badge rank-' + p.rank + '">Rank ' + p.rank + '</span>';
+    if(p.isIcon) {
+      badges += '<span class="rank-badge icon-badge">ICON</span>';
+    }
+    if(p.isOwner) {
+      badges += '<span class="rank-badge team-owner-badge">TEAM OWNER</span>';
+    }
+    if(!p.isIcon && !p.isOwner) {
+      badges += '<span class="rank-badge owner-badge">Owner/Player</span>';
+    }
+    var stamp = isSold ? '<span class="sold-stamp">SOLD</span>' : '';
+    return '<tr style="position:relative;"><td><img class="player-photo" src="' + p.photo + '">' + stamp + '</td><td>' + p.name + badges + '</td><td>' + p.basePrice + '</td></tr>';
   }).join('');
 
   document.getElementById('teamWallets').innerHTML = teams.map(function(t){
-    return '<div class="team-card"><b>' + t.name + '</b><br>Wallet: ₹' + t.wallet + '</div>';
+    if(!t.squad) t.squad = [];
+    var status = t.squad.length >= 14 ? ' - SQUAD COMPLETE!' : '';
+    var ownerInfo = t.ownerName ? '<br>Owner: ' + t.ownerName : '';
+    return '<div class="team-card"><b>' + t.name + status + '</b>' + ownerInfo + '<br>Wallet: ' + t.wallet + '</div>';
   }).join('');
 
   document.getElementById('availablePlayers').innerHTML = availablePlayers.map(function(p,i){
+    var badges = '<span class="rank-badge rank-' + p.rank + '">Rank ' + p.rank + '</span>';
+    if(p.isIcon) {
+      badges += '<span class="rank-badge icon-badge">ICON</span>';
+    }
+    if(p.isOwner) {
+      badges += '<span class="rank-badge team-owner-badge">TEAM OWNER</span>';
+    }
+    if(!p.isIcon && !p.isOwner) {
+      badges += '<span class="rank-badge owner-badge">Owner/Player</span>';
+    }
     return '<div class="player-card">' +
       '<img class="player-photo" src="' + p.photo + '" style="float:left;margin-right:10px;">' +
-      '<b>' + p.name + '</b><br>' +
-      'Base Price: ₹' + p.basePrice + '<br><br>' +
+      '<b>' + p.name + '</b>' + badges + '<br>' +
+      'Base Price: ' + p.basePrice + '<br><br>' +
       '<div>' +
         teams.map(function(t,j){
-          return '<button class="bid-btn" onclick="placeBid(' + j + ',' + i + ')">' + t.name + '</button>';
+          if(!t.squad) t.squad = [];
+          var isDisabled = t.squad.length >= 14;
+          var btnClass = isDisabled ? 'bid-btn' : 'bid-btn';
+          var onclick = isDisabled ? '' : 'onclick="placeBid(' + j + ',' + i + ')"';
+          return '<button class="' + btnClass + '" ' + onclick + (isDisabled ? ' disabled' : '') + '>' + t.name + '</button>';
         }).join('') +
       '</div>' +
     '</div>';
@@ -258,23 +499,33 @@ function renderAll(){
 
   document.getElementById('bidLog').innerHTML = bidLog.map(function(b){
     return '<div style="margin:5px 0;padding:5px;background:white;border-radius:5px;">' +
-      '<strong>' + b.team + '</strong> bought <strong>' + b.player + '</strong> for <strong>₹' + b.amount + '</strong>' +
+      '<strong>' + b.team + '</strong> bought <strong>' + b.player + '</strong> for <strong>' + b.amount + '</strong>' +
       (b.timestamp ? '<span style="float:right;color:#666;font-size:12px;">' + b.timestamp + '</span>' : '') +
     '</div>';
   }).join('');
 
   document.getElementById('auctionedList').innerHTML = teams.map(function(t){
     if(!t.squad) t.squad = [];
-    return '<div class="team-card">' +
-      '<h3>' + t.name + '</h3>' +
-      '<p>Wallet: ₹' + t.wallet + ' | Squad: ' + t.squad.length + '/14</p>' +
-      '<ul>' + t.squad.map(function(p){ return '<li>' + p.name + ' - ₹' + p.amount + '</li>'; }).join('') + '</ul>' +
+    return '<div class="auction-team-card">' +
+      '<img class="team-logo-watermark" src="' + t.logo + '" alt="' + t.name + '">' +
+      '<div class="team-content">' +
+        '<div class="team-name-highlight">' + t.name + '</div>' +
+        '<div style="text-align:left;">' + 
+          (t.squad.length > 0 ? 
+            t.squad.map(function(p){ return '<div class="sold-player">✓ ' + p.name + '</div>'; }).join('') : 
+            '<div style="color:#999;font-style:italic;text-align:center;">No players yet</div>'
+          ) +
+        '</div>' +
+      '</div>' +
     '</div>';
   }).join('');
 }
 
 db.ref('registeredPlayers').once('value').then(function(s){
-  if(s.exists()) availablePlayers=s.val();
+  if(s.exists()) {
+    availablePlayers=s.val();
+    originalPlayers = JSON.parse(JSON.stringify(availablePlayers));
+  }
   renderAll();
 });
 
