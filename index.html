@@ -16,6 +16,24 @@ body {
   padding:20px;
   text-align:center;
   box-shadow:0 4px 6px rgba(0,0,0,0.3);
+  position:relative;
+}
+.admin-btn-corner {
+  position:absolute;
+  top:10px;
+  right:10px;
+  background:#ffd700;
+  color:#000;
+  font-weight:bold;
+  padding:8px 15px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:14px;
+  box-shadow:0 2px 4px rgba(0,0,0,0.2);
+}
+.admin-btn-corner:hover {
+  background:#ffed4e;
 }
 .header-content {
   display:flex;
@@ -316,6 +334,7 @@ th { background:#e63946; color:white; }
 </head>
 <body>
 <div class="header">
+  <button onclick="toggleAdmin()" class="admin-btn-corner" id="adminBtn">🔒 Admin Login</button>
   <div class="header-content">
     <img class="header-logo" src="OG_Logo.jpg" alt="OGL Logo">
     <h1 class="header-title">OGL 2026</h1>
@@ -325,7 +344,6 @@ th { background:#e63946; color:white; }
   <button onclick="showScreen('players',this)">Registered Players</button>
   <button class="active" onclick="showScreen('auction',this)">Auction</button>
   <button onclick="showScreen('auctioned',this)">Auctioned Teams</button>
-  <button onclick="toggleAdmin()" style="margin-left:auto;background:#ffd700;color:#000;font-weight:bold;" id="adminBtn">🔒 Admin Login</button>
 </nav>
 <div id="players" class="screen">
   <h2>Registered Players</h2>
