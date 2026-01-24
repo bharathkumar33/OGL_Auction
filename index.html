@@ -293,6 +293,7 @@ th { background:#e63946; color:white; }
 }
 </style>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 </head>
@@ -307,6 +308,7 @@ th { background:#e63946; color:white; }
   <button onclick="showScreen('players',this)">Registered Players</button>
   <button class="active" onclick="showScreen('auction',this)">Auction</button>
   <button onclick="showScreen('auctioned',this)">Auctioned Teams</button>
+  <button onclick="toggleAdmin()" style="margin-left:auto;background:#ffd700;color:#000;font-weight:bold;" id="adminBtn">🔒 Admin Login</button>
 </nav>
 <div id="players" class="screen">
   <h2>Registered Players</h2>
@@ -352,6 +354,16 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
+const auth = firebase.auth();
+
+let isAdmin = false;
+const ADMIN_PASSWORD = 'OGL2026Admin';
+
+// Check admin status on load
+if(localStorage.getItem('isAdmin') === 'true') {
+  isAdmin = true;
+  updateUIForRole();
+}
 
 let teams = [
   { name:"Charging Bulls", wallet:14000, squad:[], logo:"ChargingBulls.png", ownerName:null },
@@ -366,6 +378,43 @@ let availablePlayers = [];
 let bidLog = [];
 let originalPlayers = [];
 
+function toggleAdmin(){
+  if(isAdmin) {
+    isAdmin = false;
+    localStorage.removeItem('isAdmin');
+    document.getElementById('adminBtn').innerHTML = '🔒 Admin Login';
+    updateUIForRole();
+  } else {
+    const pwd = prompt('Enter admin password:');
+    if(pwd === ADMIN_PASSWORD) {
+      isAdmin = true;
+      localStorage.setItem('isAdmin', 'true');
+      document.getElementById('adminBtn').innerHTML = '🔓 Admin Logout';
+      updateUIForRole();
+    } else if(pwd !== null) {
+      alert('Incorrect password!');
+    }
+  }
+}
+
+function updateUIForRole(){
+  const adminOnly = document.querySelectorAll('#csvFile, button[onclick="uploadCSV()"], button[onclick="resetCSV()"], button[onclick="resetAuction()"], .bid-btn');
+  adminOnly.forEach(el => {
+    if(isAdmin) {
+      el.disabled = false;
+      el.style.display = '';
+    } else {
+      el.disabled = true;
+      if(el.tagName === 'BUTTON' && el.classList.contains('bid-btn')) {
+        el.style.display = 'none';
+      } else if(el.tagName === 'INPUT' || el.onclick) {
+        el.style.display = 'none';
+      }
+    }
+  });
+  document.getElementById('adminBtn').innerHTML = isAdmin ? '🔓 Admin Logout' : '🔒 Admin Login';
+}
+
 function showScreen(id,btn){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -375,6 +424,7 @@ function showScreen(id,btn){
 }
 
 function uploadCSV(){
+  if(!isAdmin) return alert('Admin access required!');
   const file=document.getElementById('csvFile').files[0];
   if(!file) return alert("Please select a CSV file first");
   
@@ -455,6 +505,7 @@ function uploadCSV(){
 }
 
 function resetCSV(){
+  if(!isAdmin) return alert('Admin access required!');
   if(confirm("Clear players?")){
     availablePlayers=[];
     originalPlayers=[];
@@ -465,6 +516,7 @@ function resetCSV(){
 }
 
 function placeBid(ti,pi){
+  if(!isAdmin) return alert('Admin access required!');
   ti = parseInt(ti);
   pi = parseInt(pi);
   
@@ -522,6 +574,7 @@ function placeBid(ti,pi){
 }
 
 function resetAuction(){
+  if(!isAdmin) return alert('Admin access required!');
   if(confirm("Reset auction?")){
     teams.forEach(function(t){t.wallet=14000;t.squad=[];});
     bidLog=[];
@@ -673,6 +726,7 @@ db.ref('auctionState').on('value',function(s){
 
 // Restore last viewed screen on page load
 window.addEventListener('DOMContentLoaded', function(){
+  updateUIForRole();
   var savedScreen = localStorage.getItem('currentScreen') || 'auction';
   var screenEl = document.getElementById(savedScreen);
   var btnEl = document.querySelector('nav button[onclick*="' + savedScreen + '"]');
