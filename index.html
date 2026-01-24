@@ -390,6 +390,102 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   margin-bottom:20px;
   text-transform:uppercase;
   letter-spacing:2px;
+  position:relative;
+  z-index:2;
+}
+.news-ticker {
+  background:linear-gradient(90deg, #dc3545, #e63946, #dc3545);
+  color:white;
+  padding:12px 0;
+  overflow:hidden;
+  position:relative;
+  box-shadow:0 2px 8px rgba(0,0,0,0.2);
+  border-top:2px solid #fbbf24;
+  border-bottom:2px solid #fbbf24;
+}
+.news-ticker-content {
+  display:inline-block;
+  white-space:nowrap;
+  animation:tickerScroll 30s linear infinite;
+  font-weight:600;
+  font-size:15px;
+  letter-spacing:1px;
+}
+@keyframes tickerScroll {
+  0% { transform:translateX(100%); }
+  100% { transform:translateX(-100%); }
+}
+.news-ticker-label {
+  position:absolute;
+  left:0;
+  top:0;
+  bottom:0;
+  background:#fbbf24;
+  color:#1a202c;
+  padding:12px 20px;
+  font-weight:bold;
+  z-index:10;
+  text-transform:uppercase;
+  font-size:13px;
+  letter-spacing:1px;
+}
+.bid-log-item {
+  margin:8px 0;
+  padding:12px;
+  background:linear-gradient(135deg, #ffffff, #f8fafc);
+  border-radius:8px;
+  border-left:4px solid #10b981;
+  animation:slideIn 0.5s ease;
+  box-shadow:0 2px 8px rgba(0,0,0,0.08);
+  transition:all 0.3s;
+}
+.bid-log-item:hover {
+  transform:translateX(5px);
+  box-shadow:0 4px 12px rgba(0,0,0,0.15);
+}
+.bid-log-item.new {
+  animation:flashGreen 1s ease;
+}
+@keyframes slideIn {
+  from { opacity:0; transform:translateX(-20px); }
+  to { opacity:1; transform:translateX(0); }
+}
+@keyframes flashGreen {
+  0%, 100% { background:linear-gradient(135deg, #ffffff, #f8fafc); }
+  50% { background:linear-gradient(135deg, #d1fae5, #a7f3d0); }
+}
+.auction-stats {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:15px;
+  margin:15px 0;
+}
+.stat-card {
+  background:linear-gradient(135deg, #ffffff, #f8fafc);
+  padding:20px;
+  border-radius:12px;
+  text-align:center;
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+  border:2px solid rgba(251,191,36,0.2);
+  transition:all 0.3s;
+}
+.stat-card:hover {
+  transform:translateY(-5px);
+  border-color:#fbbf24;
+  box-shadow:0 8px 20px rgba(0,0,0,0.15);
+}
+.stat-number {
+  font-size:32px;
+  font-weight:bold;
+  color:#2d3748;
+  margin:5px 0;
+}
+.stat-label {
+  font-size:12px;
+  color:#64748b;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  font-weight:600;
 }
 .sold-stamp {
   position:absolute;
@@ -494,6 +590,13 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   </table>
 </div>
 <div id="auction" class="screen active">
+  <div class="news-ticker">
+    <div class="news-ticker-label">📢 LIVE</div>
+    <div class="news-ticker-content" id="newsTicker">
+      🏆 Welcome to OGL 2026 Auction! • Get ready for exciting bids! • 14 players per team • 14,000 wallet per team • Let the bidding begin!
+    </div>
+  </div>
+  <div class="auction-stats" id="auctionStats"></div>
   <div class="wallet-highlight">
     <div class="wallet-title">TEAM OWNER / WALLET</div>
     <div id="teamWallets"></div>
@@ -508,7 +611,7 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   </div>
   <h3>Available Players</h3>
   <div id="availablePlayers"></div>
-  <h3>Bid History</h3>
+  <h3>📊 Bid History</h3>
   <div id="bidLog" class="log"></div>
   <button class="reset-btn" onclick="resetAuction()">Reset Auction</button>
 </div>
@@ -774,6 +877,9 @@ function placeBid(ti,pi){
   bidLog.push({team:team.name,player:player.name,amount:parseInt(amt),timestamp:new Date().toLocaleTimeString()});
   availablePlayers.splice(pi,1);
 
+  // Update news ticker
+  updateNewsTicker(team.name + ' signs ' + player.name + ' for ' + amt + '!');
+
   saveAuction();
   renderAll();
 }
@@ -796,6 +902,14 @@ function resetAuction(){
 
 function saveAuction(){
   db.ref('auctionState').set({teams:teams,availablePlayers:availablePlayers,bidLog:bidLog});
+}
+
+function updateNewsTicker(message){
+  var ticker = document.getElementById('newsTicker');
+  if(ticker) {
+    var currentText = ticker.textContent;
+    ticker.textContent = '🔥 ' + message + ' • ' + currentText;
+  }
 }
 
 function showRankPlayers(rank){
@@ -831,6 +945,18 @@ function renderAll(){
   var totalRank1 = originalPlayers.filter(function(p){return p.rank===1 && !p.isIcon && !p.isPreAssigned;}).length;
   var totalRank2 = originalPlayers.filter(function(p){return p.rank===2 && !p.isIcon && !p.isPreAssigned;}).length;
   var totalRank3 = originalPlayers.filter(function(p){return p.rank===3 && !p.isIcon && !p.isPreAssigned;}).length;
+
+  // Render auction stats
+  var totalSold = bidLog.length;
+  var totalRemaining = availablePlayers.length;
+  var totalSpent = bidLog.reduce(function(sum, b){ return sum + b.amount; }, 0);
+  var avgPrice = totalSold > 0 ? Math.round(totalSpent / totalSold) : 0;
+  
+  document.getElementById('auctionStats').innerHTML = 
+    '<div class="stat-card"><div class="stat-number">' + totalSold + '</div><div class="stat-label">✅ Players Sold</div></div>' +
+    '<div class="stat-card"><div class="stat-number">' + totalRemaining + '</div><div class="stat-label">📊 Remaining</div></div>' +
+    '<div class="stat-card"><div class="stat-number">' + totalSpent.toLocaleString() + '</div><div class="stat-label">💰 Total Spent</div></div>' +
+    '<div class="stat-card"><div class="stat-number">' + avgPrice.toLocaleString() + '</div><div class="stat-label">📈 Avg Price</div></div>';
 
   document.getElementById('rankCounter').innerHTML = 
     '<div onclick="showRankPlayers(1)"><span class="rank-badge rank-1">Rank 1</span><br><b>' + rank1 + '/' + totalRank1 + '</b><br>Available</div>' +
@@ -885,10 +1011,16 @@ function renderAll(){
     '</div>';
   }).join('');
 
-  document.getElementById('bidLog').innerHTML = bidLog.map(function(b){
-    return '<div style="margin:5px 0;padding:5px;background:white;border-radius:5px;">' +
-      '<strong>' + b.team + '</strong> bought <strong>' + b.player + '</strong> for <strong>' + b.amount + '</strong>' +
-      (b.timestamp ? '<span style="float:right;color:#666;font-size:12px;">' + b.timestamp + '</span>' : '') +
+  document.getElementById('bidLog').innerHTML = bidLog.slice().reverse().map(function(b, index){
+    var newClass = index < 3 ? ' new' : '';
+    return '<div class="bid-log-item' + newClass + '">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+        '<div><strong style="color:#10b981;font-size:15px;">' + b.team + '</strong> signed <strong style="color:#2d3748;">' + b.player + '</strong></div>' +
+        '<div style="display:flex;align-items:center;gap:10px;">' +
+          '<span style="background:#fbbf24;color:#1a202c;padding:4px 12px;border-radius:20px;font-weight:bold;font-size:14px;">₹ ' + b.amount.toLocaleString() + '</span>' +
+          (b.timestamp ? '<span style="color:#64748b;font-size:12px;">' + b.timestamp + '</span>' : '') +
+        '</div>' +
+      '</div>' +
     '</div>';
   }).join('');
 
@@ -916,6 +1048,20 @@ function renderAll(){
       '</div>' +
     '</div>';
   }).join('');
+
+  // Update stats section
+  if(document.getElementById('auctionStats')) {
+    var totalSold = bidLog.length;
+    var totalRemaining = availablePlayers.length;
+    var totalSpent = bidLog.reduce(function(sum, b){ return sum + b.amount; }, 0);
+    var avgPrice = totalSold > 0 ? Math.round(totalSpent / totalSold) : 0;
+    
+    document.getElementById('auctionStats').innerHTML = 
+      '<div class="stat-card"><div class="stat-number">' + totalSold + '</div><div class="stat-label">✅ Players Sold</div></div>' +
+      '<div class="stat-card"><div class="stat-number">' + totalRemaining + '</div><div class="stat-label">📊 Remaining</div></div>' +
+      '<div class="stat-card"><div class="stat-number">' + totalSpent.toLocaleString() + '</div><div class="stat-label">💰 Total Spent</div></div>' +
+      '<div class="stat-card"><div class="stat-number">' + avgPrice.toLocaleString() + '</div><div class="stat-label">📈 Avg Price</div></div>';
+  }
 }
 
 db.ref('registeredPlayers').once('value').then(function(s){
