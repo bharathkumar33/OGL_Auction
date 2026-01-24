@@ -1207,7 +1207,7 @@ function renderAll(){
 
 db.ref('registeredPlayers').once('value').then(function(s){
   if(s.exists()) {
-    availablePlayers=s.val();
+    availablePlayers=s.val().filter(function(p){return !p.isPreAssigned && !p.isIcon && !p.isOwner;});
   }
   return db.ref('allPlayers').once('value');
 }).then(function(s){
@@ -1223,7 +1223,7 @@ db.ref('auctionState').on('value',function(s){
   if(!s.exists()) return;
   var d=s.val();
   teams=d.teams||teams;
-  availablePlayers=d.availablePlayers||availablePlayers;
+  availablePlayers=(d.availablePlayers||[]).filter(function(p){return !p.isPreAssigned && !p.isIcon && !p.isOwner;});
   bidLog=d.bidLog||[];
   renderAll();
 });
