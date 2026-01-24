@@ -1014,14 +1014,13 @@ function selectTeam(pi, ti){
 function resetAuction(){
   if(!isAdmin) return alert('Admin access required!');
   if(confirm("Reset auction?")){
-    // Reset teams but keep pre-assigned players
     teams.forEach(function(t){
       t.wallet=14000;
       var preAssigned = t.squad.filter(function(p){return p.isPreAssigned;});
       t.squad = preAssigned;
     });
     bidLog=[];
-    availablePlayers = JSON.parse(JSON.stringify(originalPlayers));
+    availablePlayers = originalPlayers.filter(function(p){return !p.isPreAssigned && !p.isIcon && !p.isOwner;});
     saveAuction();
     renderAll();
   }
