@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#fbbf24">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="OGL Auction">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="OG_Logo.jpg">
 <title>OGL 2026 Auction App</title>
 <style>
 body {
@@ -1573,6 +1579,15 @@ function createFloatingParticles(){
     particle.style.animationDuration = (10 + Math.random() * 10) + 's';
     document.body.appendChild(particle);
   }
+}
+
+// Register service worker for PWA
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').then(function(){
+    console.log('Service Worker registered');
+  }).catch(function(err){
+    console.log('Service Worker registration failed:', err);
+  });
 }
 </script>
 </body>
