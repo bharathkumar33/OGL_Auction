@@ -548,6 +548,7 @@ function uploadCSV(){
       
       originalPlayers = allPlayers;
       db.ref('registeredPlayers').set(availablePlayers);
+      db.ref('allPlayers').set(allPlayers);
       saveAuction();
       renderAll();
       alert('CSV uploaded successfully! ' + availablePlayers.length + ' players loaded.');
@@ -564,7 +565,10 @@ function resetCSV(){
   if(confirm("Clear players?")){
     availablePlayers=[];
     originalPlayers=[];
+    teams.forEach(function(t){t.wallet=14000;t.squad=[];t.ownerName=null;});
+    bidLog=[];
     db.ref('registeredPlayers').remove();
+    db.ref('allPlayers').remove();
     saveAuction();
     renderAll();
   }
@@ -797,6 +801,12 @@ function renderAll(){
 db.ref('registeredPlayers').once('value').then(function(s){
   if(s.exists()) {
     availablePlayers=s.val();
+  }
+  return db.ref('allPlayers').once('value');
+}).then(function(s){
+  if(s.exists()) {
+    originalPlayers = s.val();
+  } else {
     originalPlayers = JSON.parse(JSON.stringify(availablePlayers));
   }
   renderAll();
