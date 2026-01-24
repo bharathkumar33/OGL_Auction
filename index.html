@@ -6,34 +6,38 @@
 <title>OGL 2026 Auction App</title>
 <style>
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin:0; padding:0;
-  background: url('background.png') no-repeat center center fixed;
-  background-size: cover;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height:100vh;
 }
 .header {
-  background:linear-gradient(135deg, #1a1a2e, #16213e);
-  padding:20px;
+  background:linear-gradient(135deg, #2d3748, #1a202c);
+  padding:25px;
   text-align:center;
-  box-shadow:0 4px 6px rgba(0,0,0,0.3);
+  box-shadow:0 4px 12px rgba(0,0,0,0.15);
   position:relative;
+  border-bottom:3px solid #fbbf24;
 }
 .admin-btn-corner {
   position:absolute;
-  top:10px;
-  right:10px;
-  background:#ffd700;
-  color:#000;
+  top:15px;
+  right:15px;
+  background:#fbbf24;
+  color:#1a202c;
   font-weight:bold;
-  padding:8px 15px;
+  padding:10px 18px;
   border:none;
-  border-radius:6px;
+  border-radius:8px;
   cursor:pointer;
-  font-size:14px;
-  box-shadow:0 2px 4px rgba(0,0,0,0.2);
+  font-size:13px;
+  box-shadow:0 2px 8px rgba(251,191,36,0.3);
+  transition:all 0.3s;
 }
 .admin-btn-corner:hover {
-  background:#ffed4e;
+  background:#f59e0b;
+  transform:translateY(-2px);
+  box-shadow:0 4px 12px rgba(251,191,36,0.4);
 }
 .header-content {
   display:flex;
@@ -47,40 +51,50 @@ body {
   object-fit:contain;
 }
 .header-title {
-  color:#ffd700;
+  color:#fbbf24;
   font-size:48px;
   font-weight:bold;
-  text-shadow:2px 2px 4px rgba(0,0,0,0.5);
+  text-shadow:2px 2px 8px rgba(0,0,0,0.3);
   margin:0;
+  letter-spacing:2px;
 }
 nav {
   display:flex;
-  background:#e63946;
+  background:#1a202c;
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
 }
 nav button {
   flex:1;
-  padding:12px;
+  padding:14px;
   border:none;
   background:none;
-  color:white;
-  font-size:16px;
+  color:#e2e8f0;
+  font-size:15px;
   cursor:pointer;
-  transition:background 0.3s;
+  transition:all 0.3s;
+  font-weight:500;
+  border-bottom:3px solid transparent;
 }
 nav button:hover {
-  background:rgba(255,255,255,0.1);
+  background:rgba(251,191,36,0.1);
+  color:#fbbf24;
 }
-nav button.active { background:#c62828; }
-.screen { display:none; padding:15px; }
+nav button.active { 
+  background:#2d3748;
+  color:#fbbf24;
+  border-bottom:3px solid #fbbf24;
+}
+.screen { display:none; padding:20px; }
 .screen.active {
   display:block;
-  background:rgba(255,255,255,0.9);
-  margin:15px;
-  border-radius:10px;
+  background:rgba(255,255,255,0.95);
+  margin:20px;
+  border-radius:12px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.1);
 }
-table { width:100%; border-collapse:collapse; }
-th,td { border:1px solid #ccc; padding:8px; text-align:center; position:relative; }
-th { background:#e63946; color:white; }
+table { width:100%; border-collapse:collapse; margin-top:10px; }
+th,td { border:1px solid #e2e8f0; padding:12px 8px; text-align:center; position:relative; }
+th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase; font-size:12px; letter-spacing:0.5px; }
 .player-photo { width:50px; height:50px; border-radius:50%; }
 .team-card {
   background:white;
@@ -99,17 +113,26 @@ th { background:#e63946; color:white; }
   object-fit:contain;
 }
 .bid-btn {
-  background:#2a9d8f;
+  background:#10b981;
   color:white;
   border:none;
-  padding:6px 10px;
+  padding:8px 14px;
   margin:3px;
   border-radius:6px;
   cursor:pointer;
+  font-weight:500;
+  transition:all 0.3s;
+  font-size:13px;
+}
+.bid-btn:hover {
+  background:#059669;
+  transform:translateY(-1px);
+  box-shadow:0 4px 8px rgba(16,185,129,0.3);
 }
 .bid-btn:disabled {
-  background:#ccc;
+  background:#cbd5e0;
   cursor:not-allowed;
+  transform:none;
 }
 .complete-team {
   background:#28a745;
@@ -132,11 +155,19 @@ th { background:#e63946; color:white; }
   box-shadow:0 2px 5px rgba(0,0,0,.2);
 }
 .reset-btn {
-  background:#f4a261;
+  background:#ef4444;
   color:white;
-  padding:6px 12px;
+  padding:8px 16px;
   border:none;
   border-radius:6px;
+  cursor:pointer;
+  font-weight:500;
+  transition:all 0.3s;
+}
+.reset-btn:hover {
+  background:#dc2626;
+  transform:translateY(-1px);
+  box-shadow:0 4px 8px rgba(239,68,68,0.3);
 }
 .log {
   max-height:200px;
@@ -147,18 +178,20 @@ th { background:#e63946; color:white; }
 }
 .rank-badge {
   display:inline-block;
-  padding:2px 8px;
-  border-radius:12px;
-  font-size:12px;
-  font-weight:bold;
-  margin-left:10px;
+  padding:4px 10px;
+  border-radius:16px;
+  font-size:11px;
+  font-weight:600;
+  margin-left:8px;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
 }
-.rank-1 { background:#ffd700; color:#000; }
-.rank-2 { background:#c0c0c0; color:#000; }
-.rank-3 { background:#cd7f32; color:#fff; }
-.icon-badge { background:#e74c3c; color:#fff; }
-.owner-badge { background:#17a2b8; color:#fff; }
-.team-owner-badge { background:#6f42c1; color:#fff; }
+.rank-1 { background:#fbbf24; color:#1a202c; }
+.rank-2 { background:#94a3b8; color:#1e293b; }
+.rank-3 { background:#fb923c; color:#fff; }
+.icon-badge { background:#8b5cf6; color:#fff; }
+.owner-badge { background:#06b6d4; color:#fff; }
+.team-owner-badge { background:#6366f1; color:#fff; }
 #teamWallets {
   display:grid;
   grid-template-columns:repeat(3,1fr);
@@ -169,21 +202,26 @@ th { background:#e63946; color:white; }
 }
 .rank-counter {
   background:white;
-  border-radius:10px;
-  padding:15px;
-  margin:10px 0;
+  border-radius:12px;
+  padding:20px;
+  margin:15px 0;
   display:flex;
   justify-content:space-around;
   text-align:center;
+  box-shadow:0 2px 8px rgba(0,0,0,0.05);
 }
 .rank-counter > div {
   cursor:pointer;
-  padding:10px;
-  border-radius:8px;
-  transition:background 0.3s;
+  padding:15px;
+  border-radius:10px;
+  transition:all 0.3s;
+  flex:1;
+  margin:0 5px;
 }
 .rank-counter > div:hover {
-  background:#f0f0f0;
+  background:#f3f4f6;
+  transform:translateY(-2px);
+  box-shadow:0 4px 12px rgba(0,0,0,0.1);
 }
 .rank-modal {
   display:none;
@@ -252,36 +290,41 @@ th { background:#e63946; color:white; }
   z-index:2;
 }
 .team-name-highlight {
-  background:#e63946;
-  color:white;
-  padding:8px;
+  background:linear-gradient(135deg, #2d3748, #1a202c);
+  color:#fbbf24;
+  padding:10px;
   border-radius:8px;
   font-weight:bold;
   text-align:center;
   margin-bottom:10px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  font-size:14px;
 }
 .sold-player {
-  background:rgba(220,53,69,0.1);
-  padding:3px 5px;
-  border-radius:5px;
-  margin:2px 0;
-  border-left:3px solid #dc3545;
+  background:rgba(16,185,129,0.1);
+  padding:5px 8px;
+  border-radius:6px;
+  margin:3px 0;
+  border-left:3px solid #10b981;
+  font-size:13px;
 }
 .wallet-highlight {
-  background:linear-gradient(45deg, #dc3545, #ffed4e);
-  padding:15px;
-  border-radius:10px;
+  background:linear-gradient(135deg, #2d3748, #1a202c);
+  padding:20px;
+  border-radius:12px;
   margin:10px 0;
-  box-shadow:0 4px 8px rgba(255,215,0,0.3);
-  border:2px solid #dc3545;
+  box-shadow:0 4px 16px rgba(0,0,0,0.1);
+  border:2px solid #fbbf24;
 }
 .wallet-title {
   text-align:center;
-  font-size:20px;
+  font-size:22px;
   font-weight:bold;
-  color:#b8860b;
-  margin-bottom:15px;
-  text-shadow:1px 1px 2px rgba(0,0,0,0.1);
+  color:#fbbf24;
+  margin-bottom:20px;
+  text-transform:uppercase;
+  letter-spacing:2px;
 }
 .sold-stamp {
   position:absolute;
@@ -310,35 +353,39 @@ th { background:#e63946; color:white; }
   transform:rotate(15deg);
   z-index:10;
 }
-.pre-assigned-badge { background:#6f42c1; color:#fff; }
+.pre-assigned-badge { background:#8b5cf6; color:#fff; }
 .pre-assigned-row { background:#f3e5f5; opacity:0.7; }
 .pre-assigned-stamp {
   position:absolute;
   top:50%;
   left:50%;
   transform:translate(-50%, -50%);
-  background:#6f42c1;
+  background:#8b5cf6;
   color:white;
-  padding:5px 10px;
+  padding:6px 12px;
   border-radius:8px;
   font-weight:bold;
   font-size:12px;
   z-index:10;
-  opacity:0.85;
+  opacity:0.9;
+  box-shadow:0 2px 8px rgba(139,92,246,0.3);
 }
 .collapsible-header {
   cursor:pointer;
-  padding:10px;
-  background:#f0f0f0;
+  padding:12px 15px;
+  background:linear-gradient(135deg, #f3f4f6, #e5e7eb);
   border-radius:8px;
   margin-top:20px;
   user-select:none;
   display:flex;
   justify-content:space-between;
   align-items:center;
+  transition:all 0.3s;
+  border-left:4px solid #6366f1;
 }
 .collapsible-header:hover {
-  background:#e0e0e0;
+  background:linear-gradient(135deg, #e5e7eb, #d1d5db);
+  transform:translateX(2px);
 }
 .collapsible-content {
   max-height:1000px;
