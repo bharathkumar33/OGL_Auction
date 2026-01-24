@@ -911,7 +911,7 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
 <nav>
   <button onclick="showScreen('players',this)">Registered Players</button>
   <button class="active" onclick="showScreen('auction',this)">Auction</button>
-  <button onclick="showScreen('auctioned',this)">Playing Squad</button>
+  <button onclick="showScreen('auctioned',this)">Auctioned Teams</button>
 </nav>
 <div id="players" class="screen">
   <div class="news-ticker">
@@ -960,7 +960,7 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   <button class="reset-btn" onclick="resetAuction()">Reset Auction</button>
 </div>
 <div id="auctioned" class="screen">
-  <h2>Playing Squad</h2>
+  <h2>Auctioned Teams</h2>
   <div id="auctionedList"></div>
 </div>
 <script>
@@ -1583,6 +1583,15 @@ db.ref('auctionState').on('value',function(s){
   availablePlayers=(d.availablePlayers||[]).filter(function(p){return !p.isPreAssigned && !p.isIcon && !(p.isOwner && p.ownerPlays);});
   bidLog=d.bidLog||[];
   renderAll();
+});
+
+// Keep connection alive and reconnect if needed
+db.ref('.info/connected').on('value', function(snapshot){
+  if(snapshot.val() === true){
+    console.log('Connected to Firebase');
+  } else {
+    console.log('Disconnected from Firebase');
+  }
 });
 
 // Restore last viewed screen on page load
