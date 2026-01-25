@@ -36,7 +36,6 @@ body::before {
   box-shadow:0 4px 20px rgba(0,0,0,0.3), 0 0 40px rgba(251,191,36,0.1);
   position:relative;
   border-bottom:4px solid #fbbf24;
-  animation: headerGlow 3s ease-in-out infinite;
   overflow:hidden;
 }
 .header::after {
@@ -47,7 +46,8 @@ body::before {
   width:200%;
   height:200%;
   background:linear-gradient(45deg, transparent 30%, rgba(251,191,36,0.1) 50%, transparent 70%);
-  animation:header-sweep 8s linear infinite;
+  pointer-events:none;
+  z-index:0;
 }
 @keyframes header-sweep {
   0% { transform:translateX(-100%) translateY(-100%) rotate(45deg); }
@@ -83,13 +83,16 @@ body::before {
   justify-content:center;
   gap:15px;
   flex-wrap:wrap;
+  position:relative;
+  z-index:1;
 }
 .header-logo {
   width:60px;
   height:60px;
   object-fit:contain;
-  animation: logoFloat 3s ease-in-out infinite;
   filter: drop-shadow(0 0 20px rgba(251,191,36,0.7));
+  position:relative;
+  z-index:2;
 }
 @keyframes logoFloat {
   0%, 100% { transform: translateY(0px) scale(1); }
@@ -102,7 +105,6 @@ body::before {
   text-shadow:3px 3px 12px rgba(0,0,0,0.4), 0 0 30px rgba(251,191,36,0.6);
   margin:0;
   letter-spacing:3px;
-  animation: titlePulse 2s ease-in-out infinite;
 }
 @keyframes titlePulse {
   0%, 100% { text-shadow:3px 3px 12px rgba(0,0,0,0.4), 0 0 30px rgba(251,191,36,0.6); }
@@ -172,8 +174,8 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   transition:all 0.3s;
 }
 .player-photo:hover {
-  transform:scale(1.1) rotate(5deg);
   box-shadow:0 0 20px rgba(251,191,36,0.6);
+  filter:brightness(1.1);
 }
 .team-card {
   background:white;
@@ -299,10 +301,87 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
 .rank-1 { background:#fbbf24; color:#1a202c; }
 .rank-2 { background:#94a3b8; color:#1e293b; }
 .rank-3 { background:#fb923c; color:#fff; }
+.rank-4 { background:#10b981; color:#fff; }
 .young-badge { background:#10b981; color:#fff; }
 .icon-badge { background:#8b5cf6; color:#fff; }
 .owner-badge { background:#06b6d4; color:#fff; }
 .team-owner-badge { background:#6366f1; color:#fff; }
+.player-type-badge { background:#ec4899; color:#fff; }
+.player-card.current-bid {
+  background:linear-gradient(135deg, #fef3c7, #fde68a);
+  border:3px solid #fbbf24;
+  box-shadow:0 0 30px rgba(251,191,36,0.6);
+  transform:scale(1.05);
+  animation:pulse-highlight 2s infinite;
+}
+@keyframes pulse-highlight {
+  0%, 100% { box-shadow:0 0 30px rgba(251,191,36,0.6); }
+  50% { box-shadow:0 0 50px rgba(251,191,36,0.9); }
+}
+.player-card.current-bid .player-photo {
+  width:100px;
+  height:100px;
+  border:4px solid #fbbf24;
+  box-shadow:0 0 25px rgba(251,191,36,0.8);
+}
+}
+@keyframes fadeInScale {
+  from { opacity:0; transform:translate(-50%, -50%) scale(0.8); }
+  to { opacity:1; transform:translate(-50%, -50%) scale(1); }
+}
+.current-player-display .player-photo {
+  width:300px !important;
+  height:300px !important;
+  border:8px solid #fbbf24 !important;
+  box-shadow:0 0 60px rgba(251,191,36,1) !important;
+  animation:pulse-photo 2s infinite !important;
+}
+@keyframes pulse-photo {
+  0%, 100% { box-shadow:0 0 60px rgba(251,191,36,1); }
+  50% { box-shadow:0 0 100px rgba(251,191,36,1), 0 0 150px rgba(251,191,36,0.5); }
+}
+.current-player-display h2 {
+  color:#fbbf24 !important;
+  font-size:48px !important;
+  margin:20px 0 !important;
+  text-shadow:0 0 30px rgba(251,191,36,0.8) !important;
+}
+.current-player-display .player-info {
+  color:white !important;
+  font-size:32px !important;
+  margin:15px 0 !important;
+}
+.current-player-display .rank-badge {
+  font-size:24px !important;
+  padding:10px 20px !important;
+  margin:10px !important;
+}-display .player-photo {
+  width:300px;
+  height:300px;
+  border:8px solid #fbbf24;
+  box-shadow:0 0 60px rgba(251,191,36,1);
+  animation:pulse-photo 2s infinite;
+}
+@keyframes pulse-photo {
+  0%, 100% { box-shadow:0 0 60px rgba(251,191,36,1); }
+  50% { box-shadow:0 0 100px rgba(251,191,36,1), 0 0 150px rgba(251,191,36,0.5); }
+}
+.current-player-display h2 {
+  color:#fbbf24;
+  font-size:48px;
+  margin:20px 0;
+  text-shadow:0 0 30px rgba(251,191,36,0.8);
+}
+.current-player-display .player-info {
+  color:white;
+  font-size:32px;
+  margin:15px 0;
+}
+.current-player-display .rank-badge {
+  font-size:24px;
+  padding:10px 20px;
+  margin:10px;
+}
 #teamWallets {
   display:grid;
   grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
@@ -551,10 +630,7 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   50% { background:linear-gradient(135deg, #d1fae5, #a7f3d0); }
 }
 .auction-stats {
-  display:grid;
-  grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));
-  gap:10px;
-  margin:15px 0;
+  display:none;
 }
 .stat-card {
   background:linear-gradient(135deg, #ffffff, #f8fafc);
@@ -918,7 +994,7 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   <div class="news-ticker">
     <div class="news-ticker-label">📢 LIVE</div>
     <div class="news-ticker-content" id="newsTicker2">
-      🏆 Welcome to OGL 2026 Auction! • Get ready for exciting bids! • 14 players per team • 14,000 wallet per team • Let the bidding begin!
+      🏆 Welcome to OGL 2026 Auction! • Get ready for exciting bids! • 14 players per team • 140,000 wallet per team • Let the bidding begin!
     </div>
   </div>
   <h2>Registered Players</h2>
@@ -938,7 +1014,7 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   <div class="news-ticker">
     <div class="news-ticker-label">📢 LIVE</div>
     <div class="news-ticker-content" id="newsTicker">
-      🏆 Welcome to OGL 2026 Auction! • Get ready for exciting bids! • 14 players per team • 14,000 wallet per team • Let the bidding begin!
+      🏆 Welcome to OGL 2026 Auction! • Get ready for exciting bids! • 14 players per team • 140,000 wallet per team • Let the bidding begin!
     </div>
   </div>
   <div class="auction-stats" id="auctionStats"></div>
@@ -954,7 +1030,6 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
       <div id="rankModalPlayers"></div>
     </div>
   </div>
-  <h3>Available Players</h3>
   <div id="availablePlayers"></div>
   <h3>📊 Bid History</h3>
   <div id="bidLog" class="log"></div>
@@ -985,17 +1060,18 @@ if(localStorage.getItem('isAdmin') === 'true') {
 }
 
 let teams = [
-  { name:"Charging Bulls", wallet:14000, squad:[], logo:"ChargingBulls.png", ownerName:null },
-  { name:"Mighty Tuskers", wallet:14000, squad:[], logo:"MightyTuskers.png", ownerName:null },
-  { name:"Royal Tigers", wallet:14000, squad:[], logo:"RoyalTigers.png", ownerName:null },
-  { name:"Blazing Phoenix", wallet:14000, squad:[], logo:"BlazingPhoenix.png", ownerName:null },
-  { name:"Golden Eagle", wallet:14000, squad:[], logo:"GoldenEagle.png", ownerName:null },
-  { name:"Power Panthers", wallet:14000, squad:[], logo:"PowerPanthers.png", ownerName:null }
+  { name:"Charging Bulls", wallet:140000, squad:[], logo:"ChargingBulls.png", ownerName:null },
+  { name:"Mighty Tuskers", wallet:140000, squad:[], logo:"MightyTuskers.png", ownerName:null },
+  { name:"Royal Tigers", wallet:140000, squad:[], logo:"RoyalTigers.png", ownerName:null },
+  { name:"Blazing Phoenix", wallet:140000, squad:[], logo:"BlazingPhoenix.png", ownerName:null },
+  { name:"Golden Eagle", wallet:140000, squad:[], logo:"GoldenEagle.png", ownerName:null },
+  { name:"Power Panthers", wallet:140000, squad:[], logo:"PowerPanthers.png", ownerName:null }
 ];
 
 let availablePlayers = [];
 let bidLog = [];
 let originalPlayers = [];
+let unsoldPlayers = [];
 
 function toggleAdmin(){
   if(isAdmin) {
@@ -1040,6 +1116,7 @@ function showScreen(id,btn){
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   localStorage.setItem('currentScreen', id);
+  renderAll();
 }
 
 function uploadCSV(){
@@ -1066,20 +1143,20 @@ function uploadCSV(){
         console.log('Processing row', index + 1, ':', p);
         var basePrice = parseInt(p.BasePrice) || 1000;
         var age = parseInt(p.Age) || 40;
-        var rank = basePrice >= 600 ? 1 : (basePrice >= 400 ? 2 : 3);
         var isIcon = (p.Icon && (p.Icon.toLowerCase() === 'yes' || p.Icon.toLowerCase() === 'y')) || false;
         var isOwner = (p.Owner && (p.Owner.toLowerCase() === 'yes' || p.Owner.toLowerCase() === 'y')) || false;
         var ownerPlays = (p.OwnerPlays && (p.OwnerPlays.toLowerCase() === 'yes' || p.OwnerPlays.toLowerCase() === 'y')) || false;
         
-        var isPreAssigned = (p.PreAssigned && (p.PreAssigned.toLowerCase() === 'yes' || p.PreAssigned.toLowerCase() === 'y')) || false;
+        var isPreAssigned = (p.Preassigned && (p.Preassigned.toLowerCase() === 'yes' || p.Preassigned.toLowerCase() === 'y')) || false;
         
         var player = {
           name: (p.FirstName || '') + ' ' + (p.LastName || ''),
           basePrice: basePrice,
           photo: p.Photo || "default.png",
-          rank: rank,
+          rank: 0,
           age: age,
           isYoung: age < 40,
+          playerType: p.PlayerType || null,
           isIcon: isIcon,
           isOwner: isOwner,
           ownerPlays: ownerPlays,
@@ -1087,14 +1164,27 @@ function uploadCSV(){
           isPreAssigned: isPreAssigned
         };
         
-        console.log('Icon value:', p.Icon, 'isIcon result:', isIcon);
+        console.log('Player:', player.name, 'Age:', age, 'isYoung:', age < 40);
         return player;
       });
+      
+      // Sort by base price and assign ranks for equal distribution
+      var auctionablePlayers = availablePlayers.filter(function(p){return !p.isPreAssigned && !p.isIcon && !(p.isOwner && p.ownerPlays);});
+      var nonYoungPlayers = auctionablePlayers.filter(function(p){return !p.isYoung;});
+      var youngPlayersList = auctionablePlayers.filter(function(p){return p.isYoung;});
+      nonYoungPlayers.sort(function(a,b){return b.basePrice - a.basePrice;});
+      var groupSize = Math.ceil(nonYoungPlayers.length / 3);
+      nonYoungPlayers.forEach(function(p, idx){
+        if(idx < groupSize) p.rank = 1;
+        else if(idx < groupSize * 2) p.rank = 2;
+        else p.rank = 3;
+      });
+      youngPlayersList.forEach(function(p){p.rank = 4;});
       
       // Reset team owners, wallets, and squads
       teams.forEach(function(t) {
         t.ownerName = null;
-        t.wallet = 14000;
+        t.wallet = 140000;
         t.squad = [];
       });
       
@@ -1112,12 +1202,14 @@ function uploadCSV(){
           });
           if(targetTeam) {
             targetTeam.ownerName = player.name;
-            // Add owner as player to squad only if OwnerPlays=yes
+            // Add owner as player to squad and deduct base price
             if(player.ownerPlays) {
               if(!targetTeam.squad) targetTeam.squad = [];
-              var squadMember = {name:player.name, amount:0, photo:player.photo, isPreAssigned:true, isOwner:true};
+              var ownerAmount = player.basePrice;
+              var squadMember = {name:player.name, amount:ownerAmount, photo:player.photo, isPreAssigned:true, isOwner:true};
               targetTeam.squad.push(squadMember);
-              console.log('Assigned', player.name, 'to', targetTeam.name, 'as owner and player');
+              targetTeam.wallet -= ownerAmount;
+              console.log('Assigned', player.name, 'to', targetTeam.name, 'as owner and player, amount:', ownerAmount);
             } else {
               console.log('Assigned', player.name, 'to', targetTeam.name, 'as owner only');
             }
@@ -1139,9 +1231,11 @@ function uploadCSV(){
           });
           if(targetTeam) {
             if(!targetTeam.squad) targetTeam.squad = [];
-            var squadMember = {name:player.name, amount:0, photo:player.photo, isPreAssigned:true, isOwner:false};
+            var preAssignedAmount = player.isIcon ? player.basePrice : 0;
+            var squadMember = {name:player.name, amount:preAssignedAmount, photo:player.photo, isPreAssigned:true, isOwner:false};
             targetTeam.squad.push(squadMember);
-            console.log('Added to squad:', squadMember, 'Team:', targetTeam.name);
+            if(player.isIcon) targetTeam.wallet -= player.basePrice;
+            console.log('Added to squad:', squadMember, 'Team:', targetTeam.name, 'Wallet deducted:', preAssignedAmount);
           } else {
             console.log('WARNING: Could not find team for pre-assigned/ICON player', player.name, 'with team name', player.teamName);
           }
@@ -1153,6 +1247,10 @@ function uploadCSV(){
       
       // Remove pre-assigned, ICON, and owner-players from availablePlayers for auction
       availablePlayers = availablePlayers.filter(function(p){ return !p.isPreAssigned && !p.isIcon && !(p.isOwner && p.ownerPlays); });
+      
+      console.log('Total players loaded:', allPlayers.length);
+      console.log('Players available for auction:', availablePlayers.length);
+      console.log('Owner-players excluded from auction:', allPlayers.filter(function(p){return p.isOwner && p.ownerPlays;}).length);
       
       originalPlayers = allPlayers;
       db.ref('registeredPlayers').set(availablePlayers);
@@ -1173,7 +1271,7 @@ function resetCSV(){
   if(confirm("Clear players?")){
     availablePlayers=[];
     originalPlayers=[];
-    teams.forEach(function(t){t.wallet=14000;t.squad=[];t.ownerName=null;});
+    teams.forEach(function(t){t.wallet=140000;t.squad=[];t.ownerName=null;});
     bidLog=[];
     db.ref('registeredPlayers').remove();
     db.ref('allPlayers').remove();
@@ -1182,13 +1280,40 @@ function resetCSV(){
   }
 }
 
+function markUnsold(pi){
+  if(!isAdmin) return alert('Admin access required!');
+  var sortedPlayers = availablePlayers.slice().sort(function(a, b){
+    if(a.rank !== b.rank) return a.rank - b.rank;
+    return b.basePrice - a.basePrice;
+  });
+  var player = sortedPlayers[pi];
+  if(!player) return;
+  if(!confirm('Mark ' + player.name + ' as unsold?')) return;
+  var actualIndex = availablePlayers.findIndex(function(p){ return p.name === player.name; });
+  if(actualIndex !== -1) {
+    player.isUnsold = true;
+    player.rank = 5;
+    availablePlayers[actualIndex] = player;
+    unsoldPlayers.push(player);
+  }
+  updateNewsTicker(player.name + ' marked as UNSOLD - moved to end of queue');
+  saveAuction();
+  renderAll();
+}
+
 function placeBid(ti,pi){
   if(!isAdmin) return alert('Admin access required!');
   ti = parseInt(ti);
   pi = parseInt(pi);
   
+  // Get sorted players to find the correct player
+  var sortedPlayers = availablePlayers.slice().sort(function(a, b){
+    if(a.rank !== b.rank) return a.rank - b.rank;
+    return b.basePrice - a.basePrice;
+  });
+  
   const team=teams[ti];
-  const player=availablePlayers[pi];
+  const player=sortedPlayers[pi];
   
   if(!team) {
     alert('Error: Team not found');
@@ -1232,14 +1357,29 @@ function placeBid(ti,pi){
   team.wallet -= parseInt(amt);
   team.squad.push({name:player.name, amount:parseInt(amt), photo:player.photo});
   bidLog.push({team:team.name,player:player.name,amount:parseInt(amt),timestamp:new Date().toLocaleTimeString()});
-  availablePlayers.splice(pi,1);
+  
+  // Remove player from availablePlayers by finding the actual index
+  var actualIndex = availablePlayers.findIndex(function(p){ return p.name === player.name; });
+  if(actualIndex !== -1) {
+    availablePlayers.splice(actualIndex,1);
+  }
 
   updateNewsTicker(team.name + ' signs ' + player.name + ' for ' + amt + '!');
+  
+  // Show SOLD stamp before rendering
+  var soldStamp = document.getElementById('soldStamp_0');
+  if(soldStamp) {
+    soldStamp.style.display = 'block';
+  }
+  
   createConfetti();
   playCelebrationSound();
 
-  saveAuction();
-  renderAll();
+  // Delay save and render to show stamp
+  setTimeout(function(){
+    saveAuction();
+    renderAll();
+  }, 5000);
 }
 
 function createConfetti(){
@@ -1344,19 +1484,21 @@ function resetAuction(){
   if(!isAdmin) return alert('Admin access required!');
   if(confirm("Reset auction?")){
     teams.forEach(function(t){
-      t.wallet=14000;
+      t.wallet=140000;
       var preAssigned = t.squad.filter(function(p){return p.isPreAssigned;});
       t.squad = preAssigned;
     });
     bidLog=[];
+    unsoldPlayers=[];
     availablePlayers = originalPlayers.filter(function(p){return !p.isPreAssigned && !p.isIcon && !(p.isOwner && p.ownerPlays);});
+    availablePlayers.forEach(function(p){ delete p.isUnsold; p.rank = p.rank === 5 ? (p.isYoung ? 4 : 1) : p.rank; });
     saveAuction();
     renderAll();
   }
 }
 
 function saveAuction(){
-  db.ref('auctionState').set({teams:teams,availablePlayers:availablePlayers,bidLog:bidLog});
+  db.ref('auctionState').set({teams:teams,availablePlayers:availablePlayers,bidLog:bidLog,unsoldPlayers:unsoldPlayers});
 }
 
 function updateNewsTicker(message){
@@ -1372,7 +1514,7 @@ function updateNewsTicker(message){
 }
 
 function showRankPlayers(rank){
-  var players = availablePlayers.filter(function(p){return p.rank===rank && !p.isIcon && !p.isYoung;});
+  var players = availablePlayers.filter(function(p){return p.rank===rank && !p.isIcon;});
   var title = 'Group ' + rank + ' Players (' + players.length + ')';
   document.getElementById('rankModalTitle').textContent = title;
   document.getElementById('rankModalPlayers').innerHTML = players.map(function(p){
@@ -1384,8 +1526,21 @@ function showRankPlayers(rank){
   document.getElementById('rankModal').style.display = 'block';
 }
 
+function showUnsoldPlayers(){
+  var players = unsoldPlayers.filter(function(p){return availablePlayers.find(function(ap){return ap.name === p.name;});});
+  var title = 'Unsold Players (' + players.length + ')';
+  document.getElementById('rankModalTitle').textContent = title;
+  document.getElementById('rankModalPlayers').innerHTML = players.map(function(p){
+    return '<div class="rank-player-item">' +
+      '<img class="player-photo" src="' + p.photo + '" style="margin-right:15px;">' +
+      '<div><b>' + p.name + '</b><br>Base Price: ' + p.basePrice + ' | Age: ' + (p.age || 'N/A') + '</div>' +
+    '</div>';
+  }).join('');
+  document.getElementById('rankModal').style.display = 'block';
+}
+
 function showYoungPlayers(){
-  var players = availablePlayers.filter(function(p){return p.isYoung && !p.isIcon;});
+  var players = availablePlayers.filter(function(p){return p.isYoung && !p.isIcon && !p.isUnsold;});
   var title = 'Young Players (<40 years) (' + players.length + ')';
   document.getElementById('rankModalTitle').textContent = title;
   document.getElementById('rankModalPlayers').innerHTML = players.map(function(p){
@@ -1411,14 +1566,15 @@ function showIconPlayers(){
 }
 
 function renderAll(){
-  var rank1 = availablePlayers.filter(function(p){return p.rank===1 && !p.isIcon && !p.isYoung;}).length;
-  var rank2 = availablePlayers.filter(function(p){return p.rank===2 && !p.isIcon && !p.isYoung;}).length;
-  var rank3 = availablePlayers.filter(function(p){return p.rank===3 && !p.isIcon && !p.isYoung;}).length;
-  var youngPlayers = availablePlayers.filter(function(p){return p.isYoung && !p.isIcon;}).length;
-  var totalRank1 = originalPlayers.filter(function(p){return p.rank===1 && !p.isIcon && !p.isPreAssigned && !p.isYoung;}).length;
-  var totalRank2 = originalPlayers.filter(function(p){return p.rank===2 && !p.isIcon && !p.isPreAssigned && !p.isYoung;}).length;
-  var totalRank3 = originalPlayers.filter(function(p){return p.rank===3 && !p.isIcon && !p.isPreAssigned && !p.isYoung;}).length;
-  var totalYoung = originalPlayers.filter(function(p){return p.isYoung && !p.isIcon && !p.isPreAssigned;}).length;
+  var rank1 = availablePlayers.filter(function(p){return p.rank===1 && !p.isIcon;}).length;
+  var rank2 = availablePlayers.filter(function(p){return p.rank===2 && !p.isIcon;}).length;
+  var rank3 = availablePlayers.filter(function(p){return p.rank===3 && !p.isIcon;}).length;
+  var rank4 = availablePlayers.filter(function(p){return p.rank===4 && !p.isIcon;}).length;
+  var unsoldCount = unsoldPlayers.filter(function(p){return availablePlayers.find(function(ap){return ap.name === p.name;});}).length;
+  var totalRank1 = originalPlayers.filter(function(p){return p.rank===1 && !p.isIcon && !p.isPreAssigned;}).length;
+  var totalRank2 = originalPlayers.filter(function(p){return p.rank===2 && !p.isIcon && !p.isPreAssigned;}).length;
+  var totalRank3 = originalPlayers.filter(function(p){return p.rank===3 && !p.isIcon && !p.isPreAssigned;}).length;
+  var totalRank4 = originalPlayers.filter(function(p){return p.rank===4 && !p.isIcon && !p.isPreAssigned;}).length;
 
   // Render auction stats
   var totalSold = bidLog.length;
@@ -1436,7 +1592,8 @@ function renderAll(){
     '<div onclick="showRankPlayers(1)"><span class="rank-badge rank-1">Group 1</span><br><b>' + rank1 + '/' + totalRank1 + '</b><br>Available</div>' +
     '<div onclick="showRankPlayers(2)"><span class="rank-badge rank-2">Group 2</span><br><b>' + rank2 + '/' + totalRank2 + '</b><br>Available</div>' +
     '<div onclick="showRankPlayers(3)"><span class="rank-badge rank-3">Group 3</span><br><b>' + rank3 + '/' + totalRank3 + '</b><br>Available</div>' +
-    '<div onclick="showYoungPlayers()"><span class="rank-badge young-badge">Young Players</span><br><b>' + youngPlayers + '/' + totalYoung + '</b><br>Available</div>';
+    '<div onclick="showRankPlayers(4)"><span class="rank-badge rank-4">Group 4</span><br><b>' + rank4 + '/' + totalRank4 + '</b><br>Available</div>' +
+    '<div onclick="showUnsoldPlayers()"><span class="rank-badge" style="background:#6c757d;color:#fff;">Unsold</span><br><b>' + unsoldCount + '</b><br>Players</div>';
 
   // Auction players table (exclude pre-assigned, ICON, and owner-players)
   document.getElementById('playersTable').innerHTML = originalPlayers.filter(function(p){
@@ -1444,7 +1601,7 @@ function renderAll(){
   }).map(function(p){
     var isSold = !availablePlayers.find(function(ap){ return ap.name === p.name; });
     var badges = '<span class="rank-badge rank-' + p.rank + '">Rank ' + p.rank + '</span>';
-    badges += '<span class="rank-badge owner-badge">Owner/Player</span>';
+    if(p.isYoung) badges += '<span class="rank-badge young-badge">YOUNG</span>';
     var stamp = isSold ? '<span class="sold-stamp">SOLD</span>' : '';
     return '<tr style="position:relative;"><td><img class="player-photo" src="' + p.photo + '">' + stamp + '</td><td>' + p.name + badges + '</td><td>' + p.basePrice + '</td></tr>';
   }).join('');
@@ -1453,59 +1610,78 @@ function renderAll(){
     if(!t.squad) t.squad = [];
     var status = t.squad.length >= 14 ? ' - SQUAD COMPLETE!' : '';
     var ownerInfo = t.ownerName ? '<br>Owner: ' + t.ownerName : '';
+    var ownerPlayerInfo = '';
+    var ownerInSquad = t.squad.find(function(p){return p.isOwner;});
+    var iconPlayers = t.squad.filter(function(p){return p.isPreAssigned && !p.isOwner && p.amount > 0;});
+    var totalDeducted = 0;
+    if(ownerInSquad && ownerInSquad.amount > 0) totalDeducted += ownerInSquad.amount;
+    iconPlayers.forEach(function(p){ totalDeducted += p.amount; });
+    if(totalDeducted > 0) {
+      ownerPlayerInfo = '<br><small style="color:#ef4444;font-weight:bold;">(-' + totalDeducted + ' locked players)</small>';
+    }
     return '<div class="team-card">' +
       '<img class="team-logo-bg" src="' + t.logo + '" alt="' + t.name + '">' +
-      '<div style="position:relative;z-index:2;"><b>' + t.name + status + '</b>' + ownerInfo + '<br>Wallet: ' + t.wallet + '</div>' +
+      '<div style="position:relative;z-index:2;"><b>' + t.name + status + '</b>' + ownerInfo + ownerPlayerInfo + '<br>Wallet: ' + t.wallet + '</div>' +
     '</div>';
   }).join('');
 
-  document.getElementById('availablePlayers').innerHTML = availablePlayers.map(function(p,i){
+  var sortedPlayers = availablePlayers.slice().sort(function(a, b){
+    // Sort by rank: Group 1, 2, 3, then Group 4 (young players)
+    if(a.rank !== b.rank) return a.rank - b.rank;
+    return b.basePrice - a.basePrice;
+  });
+  
+  // Show only the first player (current bid) - side by side layout
+  document.getElementById('availablePlayers').innerHTML = sortedPlayers.slice(0, 1).map(function(p,i){
     var badges = '<span class="rank-badge rank-' + p.rank + '">Group ' + p.rank + '</span>';
-    if(p.isYoung) {
-      badges += '<span class="rank-badge young-badge">YOUNG (<40)</span>';
-    }
-    if(p.isIcon) {
-      badges += '<span class="rank-badge icon-badge">ICON</span>';
-    }
-    if(p.isOwner) {
-      badges += '<span class="rank-badge team-owner-badge">TEAM OWNER</span>';
-    }
-    if(p.isOwner && !p.ownerPlays) {
-      badges += '<span class="rank-badge team-owner-badge">TEAM OWNER (Non-Playing)</span>';
-    }
-    if(!p.isIcon && !p.isOwner) {
-      badges += '<span class="rank-badge owner-badge">Owner/Player</span>';
-    }
-    return '<div class="player-card">' +
-      '<img class="player-photo" src="' + p.photo + '" style="float:left;margin-right:10px;">' +
-      '<b>' + p.name + '</b>' + badges + '<br>' +
-      'Base Price: ' + p.basePrice + '<br><br>' +
-      '<button class="place-bid-toggle" onclick="toggleBidForm(' + i + ')" style="display:' + (isAdmin ? 'block' : 'none') + '">💰 Place Bid</button>' +
-      '<div id="bidForm_' + i + '" class="bid-form">' +
-        '<div style="font-weight:bold;margin-bottom:10px;color:#2d3748;">Select Team:</div>' +
-        '<div class="team-select-grid">' +
-          teams.map(function(t,j){
-            if(!t.squad) t.squad = [];
-            var isDisabled = t.squad.length >= 14 || (p.isOwner && t.ownerName !== p.name);
-            return '<button id="teamBtn_' + i + '_' + j + '" class="team-select-btn" ' + 
-              (isDisabled ? 'disabled' : 'onclick="selectTeam(' + i + ',' + j + ')"') + '>' +
-              t.name + '<br><small>(' + t.squad.length + '/14)</small>' +
-            '</button>';
-          }).join('') +
+    if(p.playerType) badges += '<span class="rank-badge player-type-badge">' + p.playerType + '</span>';
+    if(p.rank === 4) badges += '<span class="rank-badge young-badge">YOUNG (<40)</span>';
+    
+    return '<div style="display:flex;gap:30px;max-width:1200px;margin:20px auto;align-items:flex-start;flex-wrap:wrap;">' +
+      '<div style="flex:1;min-width:350px;background:linear-gradient(135deg, #2d3748, #1a202c);padding:30px;border-radius:20px;border:4px solid #fbbf24;box-shadow:0 0 40px rgba(251,191,36,0.6);position:relative;">' +
+        '<div style="position:relative;display:inline-block;margin:0 auto 20px;display:block;width:350px;height:350px;">' +
+          '<img class="player-photo" src="' + p.photo + '" style="width:350px;height:350px;display:block;border:6px solid #fbbf24;box-shadow:0 0 40px rgba(251,191,36,1);">' +
+          '<div id="soldStamp_' + i + '" style="display:none;position:absolute;top:50%;left:50%;transform:translate(-50%, -50%) rotate(-15deg);background:#dc3545;color:white;padding:40px 80px;border-radius:20px;font-weight:bold;font-size:72px;z-index:100;opacity:0.95;box-shadow:0 12px 48px rgba(0,0,0,0.7);border:6px solid white;letter-spacing:8px;">SOLD!</div>' +
         '</div>' +
-        '<div id="teamWalletInfo_' + i + '" style="text-align:center;color:#64748b;font-size:13px;margin:5px 0;">Select a team to see wallet</div>' +
-        '<div class="bid-input-group">' +
-          '<label>Bid Amount:</label>' +
-          '<input type="number" id="bidAmount_' + i + '" min="' + p.basePrice + '" value="' + p.basePrice + '" placeholder="Enter bid amount">' +
-        '</div>' +
-        '<input type="hidden" id="selectedTeam_' + i + '" value="">' +
-        '<div class="bid-actions">' +
-          '<button class="confirm-bid-btn" onclick="var ti=document.getElementById(\'selectedTeam_' + i + '\').value; if(ti===\'\'){alert(\'Please select a team\');return;} placeBid(ti,' + i + ')">✓ Confirm Bid</button>' +
-          '<button class="cancel-bid-btn" onclick="toggleBidForm(' + i + ')">✗ Cancel</button>' +
+        '<h2 style="color:#fbbf24;font-size:32px;margin:15px 0;text-align:center;text-shadow:0 0 20px rgba(251,191,36,0.8);">' + p.name + '</h2>' +
+        '<div style="text-align:center;margin:15px 0;">' + badges + '</div>' +
+        '<div style="color:white;font-size:24px;margin:15px 0;text-align:center;">Base Price: <span style="color:#fbbf24;font-weight:bold;">' + p.basePrice + '</span></div>' +
+        '<div style="color:#10b981;font-size:20px;font-weight:bold;text-align:center;margin:15px 0;">🔥 CURRENT BID 🔥</div>' +
+        '<div style="color:#fbbf24;font-size:16px;text-align:center;">Remaining: ' + sortedPlayers.length + '</div>' +
+      '</div>' +
+      '<div style="flex:1;min-width:400px;">' +
+        '<div class="player-card" style="padding:30px;">' +
+          '<div class="bid-input-group" style="margin-bottom:25px;">' +
+            '<label style="font-size:20px;font-weight:bold;color:#2d3748;display:block;margin-bottom:10px;">Bid Amount:</label>' +
+            '<input type="number" id="bidAmount_0" min="' + p.basePrice + '" value="' + p.basePrice + '" style="font-size:28px;padding:15px;text-align:center;font-weight:bold;width:100%;box-sizing:border-box;border:3px solid #fbbf24;border-radius:10px;">' +
+          '</div>' +
+          '<div style="font-weight:bold;margin-bottom:15px;color:#2d3748;font-size:20px;text-align:center;">Select Team:</div>' +
+          '<div class="team-select-grid">' +
+            teams.map(function(t,j){
+              if(!t.squad) t.squad = [];
+              var isDisabled = t.squad.length >= 14 || (p.isOwner && !p.ownerPlays && t.ownerName !== p.name);
+              return '<button id="teamBtn_0_' + j + '" class="team-select-btn" style="font-size:15px;padding:15px;" ' + 
+                (isDisabled ? 'disabled' : 'onclick="selectTeam(0,' + j + ')"') + '>' +
+                t.name + '<br><small>(' + t.squad.length + '/14)</small>' +
+              '</button>';
+            }).join('') +
+          '</div>' +
+          '<div id="teamWalletInfo_0" style="text-align:center;color:#64748b;font-size:18px;margin:20px 0;font-weight:bold;">Select a team to see wallet</div>' +
+          '<input type="hidden" id="selectedTeam_0" value="">' +
+          '<button class="confirm-bid-btn" style="font-size:22px;padding:20px;width:100%;margin-top:10px;" onclick="var ti=document.getElementById(\'selectedTeam_0\').value; if(ti===\'\'){alert(\'Please select a team\');return;} placeBid(ti,0)">✓ Confirm Bid</button>' +
+          '<button class="cancel-bid-btn" style="font-size:18px;padding:15px;width:100%;margin-top:10px;" onclick="markUnsold(0)">❌ Mark as Unsold</button>' +
         '</div>' +
       '</div>' +
     '</div>';
   }).join('');
+  
+  // Scroll to current bid player
+  setTimeout(function(){
+    var currentCard = document.getElementById('playerCard_0');
+    if(currentCard) {
+      currentCard.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+  }, 100);
 
   document.getElementById('bidLog').innerHTML = bidLog.slice().reverse().map(function(b, index){
     var newClass = index < 3 ? ' new' : '';
@@ -1522,19 +1698,13 @@ function renderAll(){
 
   document.getElementById('auctionedList').innerHTML = teams.map(function(t){
     if(!t.squad) t.squad = [];
-    var preAssigned = t.squad.filter(function(p){return p.isPreAssigned;});
-    var auctioned = t.squad.filter(function(p){return !p.isPreAssigned;});
     
-    // Check if owner is in squad as a player
-    var ownerPlayer = null;
-    var otherPreAssigned = [];
-    preAssigned.forEach(function(p){
-      if(p.isOwner || p.name === t.ownerName){
-        ownerPlayer = p;
-      } else {
-        otherPreAssigned.push(p);
-      }
-    });
+    console.log('Team:', t.name, 'Squad:', t.squad, 'Owner:', t.ownerName);
+    
+    // Separate owner-player from other squad members
+    var ownerPlayer = t.squad.find(function(p){return p.isOwner === true;});
+    var preAssignedNonOwner = t.squad.filter(function(p){return p.isPreAssigned && !p.isOwner;});
+    var auctioned = t.squad.filter(function(p){return !p.isPreAssigned && !p.isOwner;});
     
     // Check if owner exists but not as a player
     var ownerOnlyDisplay = t.ownerName && !ownerPlayer;
@@ -1551,12 +1721,14 @@ function renderAll(){
           ) +
           (ownerPlayer ? 
             '<div style="font-weight:bold;color:#fbbf24;margin:5px 0;font-size:13px;text-transform:uppercase;letter-spacing:0.5px;">👑 Team Owner & Player:</div>' +
-            '<div class="team-owner-player">👑 ' + ownerPlayer.name + ' (OWNER + PLAYER)</div>' : 
+            '<div class="team-owner-player">👑 ' + ownerPlayer.name + ' <span class="rank-badge owner-badge" style="margin-left:8px;">Own + Player</span>' + (ownerPlayer.amount > 0 ? ' - ' + ownerPlayer.amount : '') + '</div>' : 
             ''
           ) +
-          (otherPreAssigned.length > 0 ? 
-            '<div style="font-weight:bold;color:#8b5cf6;margin:5px 0;margin-top:10px;font-size:13px;text-transform:uppercase;letter-spacing:0.5px;">🔒 Core Team Members (' + otherPreAssigned.length + '):</div>' +
-            otherPreAssigned.map(function(p){ return '<div class="sold-player" style="border-left-color:#8b5cf6;background:rgba(139,92,246,0.1);">🔒 ' + p.name + '</div>'; }).join('') : 
+          (preAssignedNonOwner.length > 0 ? 
+            '<div style="font-weight:bold;color:#8b5cf6;margin:5px 0;margin-top:10px;font-size:13px;text-transform:uppercase;letter-spacing:0.5px;">🔒 Core Team Members (' + preAssignedNonOwner.length + '):</div>' +
+            preAssignedNonOwner.map(function(p){ 
+              return '<div class="sold-player" style="border-left-color:#8b5cf6;background:rgba(139,92,246,0.1);">🔒 ' + p.name + (p.amount > 0 ? ' - ' + p.amount : '') + '</div>'; 
+            }).join('') : 
             ''
           ) +
           (auctioned.length > 0 ? 
@@ -1605,6 +1777,7 @@ db.ref('auctionState').on('value',function(s){
   teams=d.teams||teams;
   availablePlayers=(d.availablePlayers||[]).filter(function(p){return !p.isPreAssigned && !p.isIcon && !(p.isOwner && p.ownerPlays);});
   bidLog=d.bidLog||[];
+  unsoldPlayers=d.unsoldPlayers||[];
   renderAll();
 });
 
