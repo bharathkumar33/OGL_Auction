@@ -217,11 +217,17 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   left:100%;
 }
 .team-card .team-logo-bg {
-  float:left;
-  width:60px;
-  height:60px;
-  margin-right:10px;
+  position:absolute;
+  top:10px;
+  left:10px;
+  width:150px;
+  height:150px;
   object-fit:contain;
+}
+.team-card .team-wallet-content {
+  position:relative;
+  z-index:2;
+  margin-left:175px;
 }
 .bid-btn {
   background:#10b981;
@@ -979,7 +985,8 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   .wallet-title { font-size:14px; margin-bottom:10px; }
   #teamWallets { grid-template-columns:repeat(2,1fr); gap:8px; }
   .team-card { padding:8px; font-size:12px; }
-  .team-logo-bg { width:40px !important; height:40px !important; }
+  .team-card .team-logo-bg { width:60px !important; height:60px !important; top:5px !important; left:5px !important; opacity:0.15 !important; }
+  .team-card .team-wallet-content { margin-left:0 !important; }
   .auction-stats { display:grid !important; grid-template-columns:repeat(2,1fr); gap:8px; }
   .stat-card { padding:12px; }
   .stat-number { font-size:24px; }
@@ -1747,20 +1754,18 @@ function renderAll(){
 
   document.getElementById('teamWallets').innerHTML = teams.map(function(t){
     if(!t.squad) t.squad = [];
-    var status = t.squad.length >= 14 ? ' - SQUAD COMPLETE!' : '';
-    var ownerInfo = t.ownerName ? '<br>Owner: ' + t.ownerName : '';
-    var ownerPlayerInfo = '';
     var ownerInSquad = t.squad.find(function(p){return p.isOwner;});
     var iconPlayers = t.squad.filter(function(p){return p.isPreAssigned && !p.isOwner && p.amount > 0;});
-    var totalDeducted = 0;
-    if(ownerInSquad && ownerInSquad.amount > 0) totalDeducted += ownerInSquad.amount;
-    iconPlayers.forEach(function(p){ totalDeducted += p.amount; });
-    if(totalDeducted > 0) {
-      ownerPlayerInfo = '<br><small style="color:#ef4444;font-weight:bold;">(-' + totalDeducted + ' locked players)</small>';
-    }
-    return '<div class="team-card">' +
+    var lockedCount = (ownerInSquad ? 1 : 0) + iconPlayers.length;
+    
+    return '<div class="team-card" style="background:linear-gradient(135deg, #ffffff, #f8fafc);border:2px solid rgba(251,191,36,0.3);">' +
       '<img class="team-logo-bg" src="' + t.logo + '" alt="' + t.name + '">' +
-      '<div style="position:relative;z-index:2;"><b>' + t.name + status + '</b>' + ownerInfo + ownerPlayerInfo + '<br>Wallet: ' + t.wallet + '</div>' +
+      '<div class="team-wallet-content">' +
+        '<div style="font-size:18px;font-weight:bold;color:#2d3748;margin-bottom:8px;text-align:center;">' + t.name + '</div>' +
+        (t.ownerName ? '<div style="font-size:13px;color:#8b5cf6;margin-bottom:6px;text-align:center;">👑 ' + t.ownerName + '</div>' : '') +
+        (lockedCount > 0 ? '<div style="font-size:12px;color:#ef4444;font-weight:600;margin-bottom:8px;text-align:center;">(🔒 ' + lockedCount + ' locked)</div>' : '') +
+        '<div style="background:linear-gradient(135deg, #fbbf24, #f59e0b);color:#1a202c;padding:10px;border-radius:8px;text-align:center;font-size:18px;font-weight:bold;box-shadow:0 4px 12px rgba(251,191,36,0.3);">💰 ' + t.wallet.toLocaleString() + '</div>' +
+      '</div>' +
     '</div>';
   }).join('');
 
