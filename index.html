@@ -963,6 +963,44 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   #auctionedList { grid-template-columns:repeat(3,1fr); }
 }
 
+@media (max-width: 767px) {
+  .header { padding:15px 10px; }
+  .header-logo { width:50px; height:50px; }
+  .pulse-ring { width:60px !important; height:60px !important; }
+  .header-title { font-size:32px !important; letter-spacing:4px !important; padding:5px 15px !important; }
+  .header-content { gap:12px; flex-direction:column; }
+  nav button { padding:10px 5px; font-size:10px; }
+  .admin-btn-corner { top:8px; right:8px; padding:6px 10px; font-size:10px; }
+  .screen { padding:8px; }
+  .screen.active { margin:8px; }
+  .rank-counter { padding:10px; gap:5px; }
+  .rank-counter > div { padding:10px; min-width:80px; font-size:12px; }
+  .wallet-highlight { padding:12px; }
+  .wallet-title { font-size:14px; margin-bottom:10px; }
+  #teamWallets { grid-template-columns:repeat(2,1fr); gap:8px; }
+  .team-card { padding:8px; font-size:12px; }
+  .team-logo-bg { width:40px !important; height:40px !important; }
+  .auction-stats { display:grid !important; grid-template-columns:repeat(2,1fr); gap:8px; }
+  .stat-card { padding:12px; }
+  .stat-number { font-size:24px; }
+  .stat-label { font-size:10px; }
+  #auctionedList { grid-template-columns:repeat(2,1fr); gap:8px; }
+  .auction-team-card { padding:10px; min-height:300px; font-size:12px; }
+  .team-name-highlight { font-size:12px; padding:8px; }
+  .sold-player { font-size:11px; padding:4px 6px; }
+  .rank-badge { font-size:9px; padding:3px 8px; }
+  .news-ticker-content { font-size:12px; }
+  .news-ticker-label { padding:12px 15px; font-size:11px; }
+  table { font-size:12px; }
+  th, td { padding:8px 4px; }
+  .player-photo { width:40px; height:40px; }
+  .bid-log-item { padding:10px; font-size:13px; }
+  .team-select-grid { grid-template-columns:repeat(2,1fr); gap:6px; }
+  .team-select-btn { font-size:11px; padding:8px; }
+  .bid-input-group input { font-size:16px; padding:10px; }
+  .confirm-bid-btn, .cancel-bid-btn { font-size:14px; padding:12px; }
+}
+
 @media (min-width: 1200px) {
   #auctionedList { grid-template-columns:repeat(6,1fr); }
 }
