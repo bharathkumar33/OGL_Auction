@@ -1624,6 +1624,7 @@ function resumeNextGroup(completedGroup){
   } else {
     localStorage.setItem('currentBreak', 'group' + completedGroup);
   }
+  saveAuction();
   renderAll();
 }
 
