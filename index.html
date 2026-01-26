@@ -1364,9 +1364,10 @@ function uploadCSV(){
       originalPlayers = allPlayers;
       db.ref('registeredPlayers').set(availablePlayers);
       db.ref('allPlayers').set(allPlayers);
-      saveAuction();
-      renderAll();
-      alert('CSV uploaded successfully! ' + availablePlayers.length + ' players loaded.');
+      saveAuction().then(function(){
+        renderAll();
+        alert('CSV uploaded successfully! ' + availablePlayers.length + ' players loaded.');
+      });
     },
     error:function(err){
       console.error('CSV parsing error:', err);
@@ -1382,10 +1383,12 @@ function resetCSV(){
     originalPlayers=[];
     teams.forEach(function(t){t.wallet=140000;t.squad=[];t.ownerName=null;});
     bidLog=[];
+    localStorage.removeItem('currentBreak');
     db.ref('registeredPlayers').remove();
     db.ref('allPlayers').remove();
-    saveAuction();
-    renderAll();
+    saveAuction().then(function(){
+      renderAll();
+    });
   }
 }
 
@@ -1650,8 +1653,9 @@ function resetAuction(){
     completedGroups=[];
     availablePlayers = JSON.parse(JSON.stringify(originalPlayers.filter(function(p){return !p.isPreAssigned && !p.isIcon && !p.isOwner;})));
     localStorage.removeItem('currentBreak');
-    saveAuction();
-    renderAll();
+    saveAuction().then(function(){
+      renderAll();
+    });
   }
 }
 
@@ -2062,7 +2066,11 @@ db.ref('registeredPlayers').once('value').then(function(s){
 });
 
 db.ref('auctionState').on('value',function(s){
-  if(!s.exists()) return;
+  if(!s.exists()) {
+    localStorage.removeItem('currentBreak');
+    renderAll();
+    return;
+  }
   var d=s.val();
   if(!d) return;
   teams=d.teams||teams;
@@ -2075,6 +2083,8 @@ db.ref('auctionState').on('value',function(s){
   completedGroups=d.completedGroups||[];
   if(d.currentBreak) {
     localStorage.setItem('currentBreak', d.currentBreak);
+  } else {
+    localStorage.removeItem('currentBreak');
   }
   renderAll();
 });
