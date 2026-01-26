@@ -999,11 +999,17 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   .team-select-btn { font-size:11px; padding:8px; }
   .bid-input-group input { font-size:16px; padding:10px; }
   .confirm-bid-btn, .cancel-bid-btn { font-size:14px; padding:12px; }
+  #availablePlayers > div > div:first-child { min-width:100% !important; max-width:100% !important; }
+  #availablePlayers > div > div:first-child > div:first-child { width:200px !important; height:200px !important; margin:0 auto !important; }
+  #availablePlayers > div > div:first-child img.player-photo { width:200px !important; height:200px !important; }
+  #availablePlayers > div > div:last-child { min-width:100% !important; }
+  #availablePlayers > div > div:last-child > div:first-child { width:200px !important; margin:0 auto 20px !important; }
   body:not(.admin-mode) .bid-input-group,
   body:not(.admin-mode) .team-select-grid,
   body:not(.admin-mode) .confirm-bid-btn,
   body:not(.admin-mode) .cancel-bid-btn,
   body:not(.admin-mode) #teamWalletInfo_0 { display:none !important; }
+  body:not(.admin-mode) .player-card > div[style*="Select Team"] { display:none !important; }
 }
 
 @media (min-width: 1200px) {
