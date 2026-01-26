@@ -32,7 +32,7 @@ body::before {
 }
 .header {
   background:linear-gradient(135deg, #2d3748, #1a202c);
-  padding:20px 15px;
+  padding:25px 15px;
   text-align:center;
   box-shadow:0 4px 20px rgba(0,0,0,0.3), 0 0 40px rgba(251,191,36,0.1);
   position:relative;
@@ -82,18 +82,24 @@ body::before {
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:15px;
+  gap:25px;
   flex-wrap:wrap;
   position:relative;
   z-index:1;
+  max-width:1400px;
+  margin:0 auto;
 }
 .header-logo {
-  width:60px;
-  height:60px;
+  width:40px;
+  height:40px;
   object-fit:contain;
-  filter: drop-shadow(0 0 20px rgba(251,191,36,0.7));
+  filter: drop-shadow(0 0 15px rgba(251,191,36,0.7));
   position:relative;
   z-index:2;
+  animation: logoFloat 3s ease-in-out infinite;
+  border-radius:50%;
+  padding:3px;
+  background:rgba(251,191,36,0.1);
 }
 @keyframes logoFloat {
   0%, 100% { transform: translateY(0px) scale(1); }
@@ -101,11 +107,16 @@ body::before {
 }
 .header-title {
   color:#fbbf24;
-  font-size:32px;
-  font-weight:bold;
+  font-size:64px;
+  font-weight:900;
   text-shadow:3px 3px 12px rgba(0,0,0,0.4), 0 0 30px rgba(251,191,36,0.6);
   margin:0;
-  letter-spacing:3px;
+  letter-spacing:18px;
+  animation: titlePulse 2s ease-in-out infinite;
+  padding:8px 40px;
+  background:rgba(251,191,36,0.1);
+  border-radius:12px;
+  border:2px solid rgba(251,191,36,0.3);
 }
 @keyframes titlePulse {
   0%, 100% { text-shadow:3px 3px 12px rgba(0,0,0,0.4), 0 0 30px rgba(251,191,36,0.6); }
@@ -662,17 +673,21 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
 }
 .sold-stamp {
   position:absolute;
-  top:50%;
+  top:65%;
   left:50%;
   transform:translate(-50%, -50%) rotate(-15deg);
-  background:#dc3545;
+  background:linear-gradient(135deg, #10b981, #059669);
   color:white;
-  padding:8px 15px;
-  border-radius:10px;
+  padding:10px 20px;
+  border-radius:12px;
   font-weight:bold;
-  font-size:16px;
+  font-size:18px;
   z-index:10;
-  opacity:0.9;
+  opacity:0.95;
+  box-shadow:0 4px 15px rgba(16,185,129,0.5), inset 0 2px 0 rgba(255,255,255,0.3);
+  border:3px solid white;
+  letter-spacing:2px;
+  text-shadow:2px 2px 4px rgba(0,0,0,0.3);
 }
 .unsold-stamp {
   position:absolute;
@@ -902,19 +917,6 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   0% { transform:translateX(-100%) translateY(-100%) rotate(45deg); }
   100% { transform:translateX(100%) translateY(100%) rotate(45deg); }
 }
-.player-card::after {
-  content:'';
-  position:absolute;
-  top:0;
-  left:-100%;
-  width:100%;
-  height:100%;
-  background:linear-gradient(90deg, transparent, rgba(251,191,36,0.3), transparent);
-  transition:left 0.5s;
-}
-.player-card:hover::after {
-  left:100%;
-}
 .floating-particles {
   position:fixed;
   width:4px;
@@ -981,7 +983,7 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   <div class="header-content">
     <div style="position:relative;">
       <img class="header-logo" src="OG_Logo.jpg" alt="OGL Logo">
-      <div class="pulse-ring"></div>
+      <div class="pulse-ring" style="width:55px;height:55px;"></div>
     </div>
     <h1 class="header-title">OGL 2026</h1>
   </div>
@@ -1144,7 +1146,9 @@ function uploadCSV(){
       availablePlayers=res.data.map(function(p, index){
         console.log('Processing row', index + 1, ':', p);
         var basePrice = parseInt(p.BasePrice) || 1000;
-        var age = parseInt(p.Age) || 40;
+        var ageValue = (p.Age || 'Above40').toString().trim();
+        var ageLower = ageValue.toLowerCase().replace(/\s+/g, '');
+        var isYoung = (ageLower.indexOf('below') !== -1 || ageLower === 'below40' || ageLower === '<40');
         var isIcon = (p.Icon && (p.Icon.toLowerCase() === 'yes' || p.Icon.toLowerCase() === 'y')) || false;
         var isOwner = (p.Owner && (p.Owner.toLowerCase() === 'yes' || p.Owner.toLowerCase() === 'y')) || false;
         var ownerPlays = (p.OwnerPlays && (p.OwnerPlays.toLowerCase() === 'yes' || p.OwnerPlays.toLowerCase() === 'y')) || false;
@@ -1156,8 +1160,8 @@ function uploadCSV(){
           basePrice: basePrice,
           photo: p.Photo || "default.png",
           rank: 0,
-          age: age,
-          isYoung: age < 40,
+          age: ageValue,
+          isYoung: isYoung,
           playerType: p.PlayerType || null,
           isIcon: isIcon,
           isOwner: isOwner,
@@ -1166,46 +1170,60 @@ function uploadCSV(){
           isPreAssigned: isPreAssigned
         };
         
-        console.log('Player:', player.name, 'Age:', age, 'isYoung:', age < 40);
+        console.log('Player:', player.name, 'Age:', ageValue, 'isYoung:', isYoung);
         return player;
       });
       
-      // Sort by base price and assign ranks for equal distribution
+      // Sort by base price and assign ranks based on price ranges
       var auctionablePlayers = availablePlayers.filter(function(p){return !p.isPreAssigned && !p.isIcon && !p.isOwner;});
       var nonYoungPlayers = auctionablePlayers.filter(function(p){return !p.isYoung;});
       var youngPlayersList = auctionablePlayers.filter(function(p){return p.isYoung;});
-      nonYoungPlayers.sort(function(a,b){return b.basePrice - a.basePrice;});
       
       console.log('Total auctionable players:', auctionablePlayers.length);
       console.log('Non-young players:', nonYoungPlayers.length);
       console.log('Young players:', youngPlayersList.length);
-      console.log('Players with base price 2000:', nonYoungPlayers.filter(function(p){return p.basePrice === 2000;}).length);
       
-      // Distribute non-young players equally across 3 groups
-      var playersPerGroup = Math.ceil(nonYoungPlayers.length / 3);
-      console.log('Players per group:', playersPerGroup);
-      
-      nonYoungPlayers.forEach(function(p, index){
-        if(index < playersPerGroup) {
+      // Group by base price ranges and sort within each group
+      nonYoungPlayers.forEach(function(p){
+        if(p.basePrice >= 6000) {
           p.rank = 1;
-          p.rankOrder = index; // Store original sort order
-        } else if(index < playersPerGroup * 2) {
+        } else if(p.basePrice >= 4000) {
           p.rank = 2;
-          p.rankOrder = index;
         } else {
           p.rank = 3;
-          p.rankOrder = index;
         }
       });
+      
+      // Sort within each rank by base price descending
+      nonYoungPlayers.sort(function(a,b){
+        if(a.rank !== b.rank) return a.rank - b.rank;
+        return b.basePrice - a.basePrice;
+      });
+      
+      // Assign rankOrder after sorting
+      var rank1Index = 0, rank2Index = 0, rank3Index = 0;
+      nonYoungPlayers.forEach(function(p){
+        if(p.rank === 1) p.rankOrder = rank1Index++;
+        else if(p.rank === 2) p.rankOrder = rank2Index++;
+        else if(p.rank === 3) p.rankOrder = rank3Index++;
+      });
+      
       youngPlayersList.forEach(function(p, index){
         p.rank = 4;
         p.rankOrder = index;
       });
       
+      console.log('Group 1 (6000+):', nonYoungPlayers.filter(function(p){return p.rank === 1;}).length);
+      console.log('Group 2 (4000-5999):', nonYoungPlayers.filter(function(p){return p.rank === 2;}).length);
+      console.log('Group 3 (<4000):', nonYoungPlayers.filter(function(p){return p.rank === 3;}).length);
+      console.log('Group 4 (Young):', youngPlayersList.length);
+      
       console.log('Group 1:', nonYoungPlayers.filter(function(p){return p.rank === 1;}).length);
       console.log('Group 2:', nonYoungPlayers.filter(function(p){return p.rank === 2;}).length);
       console.log('Group 3:', nonYoungPlayers.filter(function(p){return p.rank === 3;}).length);
       console.log('Group 4:', youngPlayersList.length);
+      console.log('Young players (Below40):', youngPlayersList.map(function(p){return p.name + ' - ' + p.age;}).join(', '));
+      console.log('Non-young players (Above40):', nonYoungPlayers.length);
       
       // Reset team owners, wallets, and squads
       teams.forEach(function(t) {
@@ -1320,10 +1338,10 @@ function markUnsold(pi){
   var player = sortedPlayers[pi];
   if(!player) return;
   if(player.isUnsold || player.rank === 5) {
-    alert(player.name + ' is already marked as unsold!');
+    alert(player.name + ' is already in Next Chance queue!');
     return;
   }
-  if(!confirm('Mark ' + player.name + ' as unsold?')) return;
+  if(!confirm('Move ' + player.name + ' to Next Chance?')) return;
   var actualIndex = availablePlayers.findIndex(function(p){ return p.name === player.name; });
   if(actualIndex !== -1) {
     var unsoldCopy = JSON.parse(JSON.stringify(player));
@@ -1335,7 +1353,7 @@ function markUnsold(pi){
       unsoldPlayers.push(JSON.parse(JSON.stringify(unsoldCopy)));
     }
   }
-  updateNewsTicker(player.name + ' marked as UNSOLD - moved to end of queue');
+  updateNewsTicker(player.name + ' moved to Next Chance - will bid later');
   renderAll();
   saveAuction();
 }
@@ -1347,12 +1365,19 @@ function placeBid(ti,pi){
   
   // Get sorted players to find the correct player
   var sortedPlayers = availablePlayers.slice().sort(function(a, b){
-    if(a.rank !== b.rank) return a.rank - b.rank;
+    if(a.rank !== b.rank) {
+      if(a.rank === 5) return 1;
+      if(b.rank === 5) return -1;
+      return a.rank - b.rank;
+    }
+    if(a.rankOrder !== undefined && b.rankOrder !== undefined) return a.rankOrder - b.rankOrder;
     return b.basePrice - a.basePrice;
   });
   
   const team=teams[ti];
   const player=sortedPlayers[pi];
+  
+  console.log('Bidding on player:', player.name, 'Base price:', player.basePrice, 'Index:', pi);
   
   if(!team) {
     alert('Error: Team not found');
@@ -1529,7 +1554,11 @@ function selectTeam(pi, ti){
 
 function resumeNextGroup(completedGroup){
   if(!isAdmin) return alert('Admin access required!');
-  localStorage.setItem('currentBreak', 'group' + completedGroup);
+  if(completedGroup === 4) {
+    localStorage.setItem('currentBreak', 'allGroupsComplete');
+  } else {
+    localStorage.setItem('currentBreak', 'group' + completedGroup);
+  }
   renderAll();
 }
 
@@ -1582,7 +1611,7 @@ function showRankPlayers(rank){
 
 function showUnsoldPlayers(){
   var players = availablePlayers.filter(function(p){return p.isUnsold || p.rank === 5;});
-  var title = 'Unsold Players (' + players.length + ')';
+  var title = 'Next Chance Players (' + players.length + ')';
   document.getElementById('rankModalTitle').textContent = title;
   document.getElementById('rankModalPlayers').innerHTML = players.map(function(p){
     return '<div class="rank-player-item">' +
@@ -1647,7 +1676,7 @@ function renderAll(){
     '<div onclick="showRankPlayers(2)"><span class="rank-badge rank-2">Group 2</span><br><b>' + rank2 + '/' + totalRank2 + '</b><br>Available</div>' +
     '<div onclick="showRankPlayers(3)"><span class="rank-badge rank-3">Group 3</span><br><b>' + rank3 + '/' + totalRank3 + '</b><br>Available</div>' +
     '<div onclick="showRankPlayers(4)"><span class="rank-badge rank-4">Group 4</span><br><b>' + rank4 + '/' + totalRank4 + '</b><br>Available</div>' +
-    '<div onclick="showUnsoldPlayers()"><span class="rank-badge" style="background:#6c757d;color:#fff;">Unsold</span><br><b>' + unsoldCount + '</b><br>Players</div>';
+    '<div onclick="showUnsoldPlayers()"><span class="rank-badge" style="background:#6c757d;color:#fff;">Next Chance</span><br><b>' + unsoldCount + '</b><br>Players</div>';
 
   // Auction players table (exclude pre-assigned, ICON, and ALL owner players)
   document.getElementById('playersTable').innerHTML = originalPlayers.filter(function(p){
@@ -1708,25 +1737,8 @@ function renderAll(){
     nextGroup = 5;
     breakTitle = 'ALL GROUPS COMPLETE';
     
-    // Restore unsold players to their original base price and ranking
-    availablePlayers = availablePlayers.map(function(p){
-      if(p.isUnsold || p.rank === 5) {
-        var originalPlayer = originalPlayers.find(function(op){ return op.name === p.name; });
-        if(originalPlayer) {
-          return {
-            name: p.name,
-            basePrice: originalPlayer.basePrice,
-            photo: p.photo,
-            rank: originalPlayer.rank,
-            age: p.age,
-            isYoung: p.isYoung,
-            playerType: p.playerType,
-            rankOrder: originalPlayer.rankOrder
-          };
-        }
-      }
-      return p;
-    });
+    // Keep unsold players as rank 5 without changing their properties
+    // They will be shown at the end
   } else if(group1Remaining === 0 && group2Remaining > 0 && currentBreak !== 'group1') {
     showBreak = true;
     breakGroup = 1;
@@ -1745,30 +1757,43 @@ function renderAll(){
   }
   
   if(showBreak) {
-    // Show break banner with resume button
+    // Show break banner with video and resume button
     document.getElementById('availablePlayers').innerHTML = 
       '<div style="max-width:1400px;margin:50px auto;text-align:center;">' +
-        '<div style="background:linear-gradient(135deg, #1a202c 0%, #2d3748 50%, #1a202c 100%);padding:80px 60px;border-radius:32px;box-shadow:0 30px 80px rgba(0,0,0,0.6), 0 0 100px rgba(251,191,36,0.4);border:8px solid #fbbf24;position:relative;overflow:hidden;animation:pulse-highlight 2s infinite;">' +
-          '<img src="background.png" style="position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);width:80%;height:80%;object-fit:contain;opacity:0.08;pointer-events:none;z-index:1;">' +
-          '<div style="position:absolute;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at 50% 50%, rgba(251,191,36,0.1) 0%, transparent 70%);pointer-events:none;z-index:1;"></div>' +
+        '<div style="background:linear-gradient(135deg, #1a202c 0%, #2d3748 50%, #1a202c 100%);padding:40px 30px;border-radius:32px;box-shadow:0 30px 80px rgba(0,0,0,0.6), 0 0 100px rgba(251,191,36,0.4);border:8px solid #fbbf24;position:relative;overflow:hidden;">' +
+          '<style>@keyframes bounce-trophy { 0%, 100% { transform:translateY(0) scale(1); } 50% { transform:translateY(-20px) scale(1.2); } } @keyframes rotate-coffee { 0% { transform:rotate(0deg); } 100% { transform:rotate(360deg); } }</style>' +
           '<div style="position:relative;z-index:2;">' +
-            '<div style="font-size:120px;margin-bottom:30px;animation:bounce 2s infinite;">☕</div>' +
-            '<div style="font-size:72px;font-weight:bold;background:linear-gradient(90deg, #fbbf24, #f59e0b, #fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:30px;letter-spacing:8px;text-transform:uppercase;animation:shimmer 3s infinite;">Strategic Break</div>' +
-            '<div style="font-size:48px;color:#10b981;font-weight:700;text-shadow:0 0 30px rgba(16,185,129,0.8);margin-bottom:20px;animation:glow 2s infinite;">⏸️ Time Out ⏸️</div>' +
-            '<div style="font-size:36px;color:#fef3c7;font-weight:600;text-shadow:2px 2px 8px rgba(0,0,0,0.5);margin-bottom:40px;">Be Back Soon!</div>' +
-            '<div style="display:inline-block;background:rgba(251,191,36,0.2);padding:20px 40px;border-radius:16px;border:3px solid #fbbf24;margin-bottom:40px;">' +
-              '<div style="font-size:24px;color:#fbbf24;font-weight:bold;margin-bottom:10px;">🏆 ' + breakTitle + ' 🏆</div>' +
-              '<div style="font-size:18px;color:white;opacity:0.9;">Ready for Group ' + nextGroup + '</div>' +
+            '<div style="font-size:80px;margin-bottom:20px;animation:bounce-trophy 2s ease-in-out infinite;">🏆</div>' +
+            '<div style="font-size:48px;font-weight:bold;background:linear-gradient(90deg, #fbbf24, #f59e0b, #fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:20px;letter-spacing:4px;text-transform:uppercase;animation:pulse-highlight 2s infinite;">☕ Strategic Break ☕</div>' +
+            '<div style="display:flex;justify-content:center;gap:30px;margin:30px 0;flex-wrap:wrap;">' +
+              '<div style="background:rgba(251,191,36,0.15);padding:20px;border-radius:20px;border:3px solid #fbbf24;min-width:200px;">' +
+                '<div style="font-size:60px;margin-bottom:10px;animation:rotate-coffee 3s linear infinite;">☕</div>' +
+                '<div style="color:#fbbf24;font-size:18px;font-weight:bold;">Grab a Coffee</div>' +
+              '</div>' +
+              '<div style="background:rgba(16,185,129,0.15);padding:20px;border-radius:20px;border:3px solid #10b981;min-width:200px;">' +
+                '<div style="font-size:60px;margin-bottom:10px;animation:bounce-trophy 1.5s ease-in-out infinite;">🎯</div>' +
+                '<div style="color:#10b981;font-size:18px;font-weight:bold;">Plan Strategy</div>' +
+              '</div>' +
+              '<div style="background:rgba(139,92,246,0.15);padding:20px;border-radius:20px;border:3px solid #8b5cf6;min-width:200px;">' +
+                '<div style="font-size:60px;margin-bottom:10px;animation:bounce-trophy 2.5s ease-in-out infinite;">💰</div>' +
+                '<div style="color:#8b5cf6;font-size:18px;font-weight:bold;">Check Wallet</div>' +
+              '</div>' +
             '</div>' +
-            (isAdmin ? '<div><button onclick="resumeNextGroup(' + breakGroup + ');" style="background:#10b981;color:white;border:none;padding:20px 60px;border-radius:12px;font-size:24px;font-weight:bold;cursor:pointer;box-shadow:0 8px 24px rgba(16,185,129,0.4);transition:all 0.3s;" onmouseover="this.style.background=\'#059669\'" onmouseout="this.style.background=\'#10b981\'">▶️ Resume - Start Group ' + nextGroup + '</button></div>' : '') +
+            '<div style="display:inline-block;background:rgba(251,191,36,0.2);padding:15px 30px;border-radius:16px;border:3px solid #fbbf24;margin-bottom:30px;">' +
+              '<div style="font-size:24px;color:#fbbf24;font-weight:bold;margin-bottom:5px;">🏆 ' + breakTitle + ' 🏆</div>' +
+              '<div style="font-size:16px;color:white;opacity:0.9;">Ready for Group ' + nextGroup + '</div>' +
+            '</div>' +
+            '<div style="margin:30px auto;max-width:800px;">' +
+              '<video id="breakVideo" controls style="width:100%;max-height:450px;border-radius:16px;border:4px solid #fbbf24;box-shadow:0 8px 32px rgba(0,0,0,0.5);">' +
+                '<source src="break.mp4" type="video/mp4">' +
+                '<source src="break.webm" type="video/webm">' +
+                'Your browser does not support the video tag.' +
+              '</video>' +
+            '</div>' +
+            (isAdmin ? '<div style="margin-top:30px;"><button onclick="resumeNextGroup(' + breakGroup + ');" style="background:#10b981;color:white;border:none;padding:20px 60px;border-radius:12px;font-size:24px;font-weight:bold;cursor:pointer;box-shadow:0 8px 24px rgba(16,185,129,0.4);transition:all 0.3s;" onmouseover="this.style.background=\'#059669\'" onmouseout="this.style.background=\'#10b981\'">▶️ Resume - Start Group ' + nextGroup + '</button></div>' : '') +
           '</div>' +
         '</div>' +
-      '</div>' +
-      '<style>' +
-        '@keyframes bounce { 0%, 100% { transform:translateY(0); } 50% { transform:translateY(-30px); } }' +
-        '@keyframes shimmer { 0%, 100% { background-position:0% 50%; } 50% { background-position:100% 50%; } }' +
-        '@keyframes glow { 0%, 100% { text-shadow:0 0 30px rgba(16,185,129,0.8); } 50% { text-shadow:0 0 60px rgba(16,185,129,1), 0 0 90px rgba(16,185,129,0.6); } }' +
-      '</style>';
+      '</div>';
   } else {
     // Show only the first player (current bid) - side by side layout
     document.getElementById('availablePlayers').innerHTML = sortedPlayers.slice(0, 1).map(function(p,i){
@@ -1800,10 +1825,10 @@ function renderAll(){
       }
       
       return '<div style="display:flex;gap:30px;max-width:1200px;margin:20px auto;align-items:flex-start;flex-wrap:wrap;">' +
-        '<div style="flex:1;min-width:350px;background:linear-gradient(135deg, #2d3748, #1a202c);padding:30px;border-radius:20px;border:4px solid #fbbf24;box-shadow:0 0 40px rgba(251,191,36,0.6);position:relative;">' +
+        '<div style="flex:1;min-width:350px;max-width:400px;background:linear-gradient(135deg, #2d3748, #1a202c);padding:30px;border-radius:20px;border:4px solid #fbbf24;box-shadow:0 0 40px rgba(251,191,36,0.6);position:relative;">' +
           '<div style="position:relative;display:inline-block;margin:0 auto 20px;display:block;width:350px;height:350px;">' +
             '<img class="player-photo" src="' + p.photo + '" style="width:350px;height:350px;display:block;border:6px solid #fbbf24;box-shadow:0 0 40px rgba(251,191,36,1);">' +
-            '<div id="soldStamp_' + i + '" style="display:none;position:absolute;top:50%;left:50%;transform:translate(-50%, -50%) rotate(-15deg);background:#dc3545;color:white;padding:40px 80px;border-radius:20px;font-weight:bold;font-size:72px;z-index:100;opacity:0.95;box-shadow:0 12px 48px rgba(0,0,0,0.7);border:6px solid white;letter-spacing:8px;">SOLD!</div>' +
+            '<div id="soldStamp_' + i + '" style="display:none;position:absolute;top:65%;left:50%;transform:translate(-50%, -50%) rotate(-15deg);background:linear-gradient(135deg, #10b981, #059669);color:white;padding:40px 80px;border-radius:20px;font-weight:bold;font-size:72px;z-index:100;opacity:0.95;box-shadow:0 12px 48px rgba(0,0,0,0.7), 0 4px 15px rgba(16,185,129,0.5), inset 0 2px 0 rgba(255,255,255,0.3);border:6px solid white;letter-spacing:8px;text-shadow:2px 2px 4px rgba(0,0,0,0.3);">SOLD!</div>' +
           '</div>' +
           '<h2 style="color:#fbbf24;font-size:32px;margin:15px 0;text-align:center;text-shadow:0 0 20px rgba(251,191,36,0.8);">' + p.name + '</h2>' +
           '<div style="text-align:center;margin:15px 0;">' + badges + '</div>' +
@@ -1813,26 +1838,26 @@ function renderAll(){
         '</div>' +
         '<div style="flex:1;min-width:400px;">' +
           nextPlayerHTML +
-          '<div class="player-card" style="padding:30px;">' +
-            '<div class="bid-input-group" style="margin-bottom:25px;">' +
-              '<label style="font-size:20px;font-weight:bold;color:#2d3748;display:block;margin-bottom:10px;">Bid Amount:</label>' +
-              '<input type="number" id="bidAmount_0" min="' + p.basePrice + '" value="' + p.basePrice + '" style="font-size:28px;padding:15px;text-align:center;font-weight:bold;width:100%;box-sizing:border-box;border:3px solid #fbbf24;border-radius:10px;">' +
+          '<div class="player-card" style="padding:20px;">' +
+            '<div class="bid-input-group" style="margin-bottom:15px;">' +
+              '<label style="font-size:16px;font-weight:bold;color:#2d3748;display:block;margin-bottom:8px;">Bid Amount:</label>' +
+              '<input type="number" id="bidAmount_0" min="' + p.basePrice + '" value="' + p.basePrice + '" style="font-size:20px;padding:12px;text-align:center;font-weight:bold;width:100%;box-sizing:border-box;border:3px solid #fbbf24;border-radius:10px;">' +
             '</div>' +
-            '<div style="font-weight:bold;margin-bottom:15px;color:#2d3748;font-size:20px;text-align:center;">Select Team:</div>' +
+            '<div style="font-weight:bold;margin-bottom:12px;color:#2d3748;font-size:16px;text-align:center;">Select Team:</div>' +
             '<div class="team-select-grid">' +
               teams.map(function(t,j){
                 if(!t.squad) t.squad = [];
                 var isDisabled = t.squad.length >= 14 || (p.isOwner && !p.ownerPlays && t.ownerName !== p.name);
-                return '<button id="teamBtn_0_' + j + '" class="team-select-btn" style="font-size:15px;padding:15px;" ' + 
+                return '<button id="teamBtn_0_' + j + '" class="team-select-btn" style="font-size:13px;padding:12px;" ' + 
                   (isDisabled ? 'disabled' : 'onclick="selectTeam(0,' + j + ')"') + '>' +
                   t.name + '<br><small>(' + t.squad.length + '/14)</small>' +
                 '</button>';
               }).join('') +
             '</div>' +
-            '<div id="teamWalletInfo_0" style="text-align:center;color:#64748b;font-size:18px;margin:20px 0;font-weight:bold;">Select a team to see wallet</div>' +
+            '<div id="teamWalletInfo_0" style="text-align:center;color:#64748b;font-size:15px;margin:15px 0;font-weight:bold;">Select a team to see wallet</div>' +
             '<input type="hidden" id="selectedTeam_0" value="">' +
-            '<button class="confirm-bid-btn" style="font-size:22px;padding:20px;width:100%;margin-top:10px;" onclick="var ti=document.getElementById(\'selectedTeam_0\').value; if(ti===\'\'){alert(\'Please select a team\');return;} placeBid(ti,0)">✓ Confirm Bid</button>' +
-            '<button class="cancel-bid-btn" style="font-size:18px;padding:15px;width:100%;margin-top:10px;" onclick="markUnsold(0)">❌ Mark as Unsold</button>' +
+            '<button class="confirm-bid-btn" style="font-size:16px;padding:15px;width:100%;margin-top:8px;" onclick="var ti=document.getElementById(\'selectedTeam_0\').value; if(ti===\'\'){alert(\'Please select a team\');return;} placeBid(ti,0)">✓ Confirm Bid</button>' +
+            '<button class="cancel-bid-btn" style="font-size:14px;padding:12px;width:100%;margin-top:8px;" onclick="markUnsold(0)">🔄 Next Chance</button>' +
           '</div>' +
         '</div>' +
       '</div>';
