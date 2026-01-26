@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -581,7 +582,7 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
 .news-ticker-content {
   display:inline-block;
   white-space:nowrap;
-  animation:tickerScroll 30s linear infinite;
+  animation:tickerScroll 60s linear infinite;
   font-weight:600;
   font-size:15px;
   letter-spacing:1px;
@@ -988,7 +989,7 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
 <nav>
   <button onclick="showScreen('players',this)">Registered Players</button>
   <button class="active" onclick="showScreen('auction',this)">Auction</button>
-  <button onclick="showScreen('auctioned',this)">Auctioned Teams</button>
+  <button onclick="showScreen('auctioned',this)">Playing Squad</button>
 </nav>
 <div id="players" class="screen">
   <div class="news-ticker">
@@ -1036,7 +1037,7 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   <button class="reset-btn" onclick="resetAuction()">Reset Auction</button>
 </div>
 <div id="auctioned" class="screen">
-  <h2>Auctioned Teams</h2>
+  <h2>Playing Squad</h2>
   <div id="auctionedList"></div>
 </div>
 <script>
@@ -1072,6 +1073,7 @@ let availablePlayers = [];
 let bidLog = [];
 let originalPlayers = [];
 let unsoldPlayers = [];
+let completedGroups = [];
 
 function toggleAdmin(){
   if(isAdmin) {
@@ -1169,18 +1171,41 @@ function uploadCSV(){
       });
       
       // Sort by base price and assign ranks for equal distribution
-      var auctionablePlayers = availablePlayers.filter(function(p){return !p.isPreAssigned && !p.isIcon && !(p.isOwner && p.ownerPlays);});
+      var auctionablePlayers = availablePlayers.filter(function(p){return !p.isPreAssigned && !p.isIcon && !p.isOwner;});
       var nonYoungPlayers = auctionablePlayers.filter(function(p){return !p.isYoung;});
       var youngPlayersList = auctionablePlayers.filter(function(p){return p.isYoung;});
       nonYoungPlayers.sort(function(a,b){return b.basePrice - a.basePrice;});
       
-      // Assign ranks based on base price: 6000=Group1, 4000=Group2, 2000=Group3
-      nonYoungPlayers.forEach(function(p){
-        if(p.basePrice >= 6000) p.rank = 1;
-        else if(p.basePrice >= 4000) p.rank = 2;
-        else p.rank = 3;
+      console.log('Total auctionable players:', auctionablePlayers.length);
+      console.log('Non-young players:', nonYoungPlayers.length);
+      console.log('Young players:', youngPlayersList.length);
+      console.log('Players with base price 2000:', nonYoungPlayers.filter(function(p){return p.basePrice === 2000;}).length);
+      
+      // Distribute non-young players equally across 3 groups
+      var playersPerGroup = Math.ceil(nonYoungPlayers.length / 3);
+      console.log('Players per group:', playersPerGroup);
+      
+      nonYoungPlayers.forEach(function(p, index){
+        if(index < playersPerGroup) {
+          p.rank = 1;
+          p.rankOrder = index; // Store original sort order
+        } else if(index < playersPerGroup * 2) {
+          p.rank = 2;
+          p.rankOrder = index;
+        } else {
+          p.rank = 3;
+          p.rankOrder = index;
+        }
       });
-      youngPlayersList.forEach(function(p){p.rank = 4;});
+      youngPlayersList.forEach(function(p, index){
+        p.rank = 4;
+        p.rankOrder = index;
+      });
+      
+      console.log('Group 1:', nonYoungPlayers.filter(function(p){return p.rank === 1;}).length);
+      console.log('Group 2:', nonYoungPlayers.filter(function(p){return p.rank === 2;}).length);
+      console.log('Group 3:', nonYoungPlayers.filter(function(p){return p.rank === 3;}).length);
+      console.log('Group 4:', youngPlayersList.length);
       
       // Reset team owners, wallets, and squads
       teams.forEach(function(t) {
@@ -1246,12 +1271,12 @@ function uploadCSV(){
       // Store all players including pre-assigned for reference
       var allPlayers = JSON.parse(JSON.stringify(availablePlayers));
       
-      // Remove pre-assigned, ICON, and owner-players from availablePlayers for auction
-      availablePlayers = availablePlayers.filter(function(p){ return !p.isPreAssigned && !p.isIcon && !(p.isOwner && p.ownerPlays); });
+      // Remove pre-assigned, ICON, and ALL owner players from availablePlayers for auction
+      availablePlayers = availablePlayers.filter(function(p){ return !p.isPreAssigned && !p.isIcon && !p.isOwner; });
       
       console.log('Total players loaded:', allPlayers.length);
       console.log('Players available for auction:', availablePlayers.length);
-      console.log('Owner-players excluded from auction:', allPlayers.filter(function(p){return p.isOwner && p.ownerPlays;}).length);
+      console.log('Owner-players excluded from auction:', allPlayers.filter(function(p){return p.isOwner;}).length);
       
       originalPlayers = allPlayers;
       db.ref('registeredPlayers').set(availablePlayers);
@@ -1284,22 +1309,35 @@ function resetCSV(){
 function markUnsold(pi){
   if(!isAdmin) return alert('Admin access required!');
   var sortedPlayers = availablePlayers.slice().sort(function(a, b){
-    if(a.rank !== b.rank) return a.rank - b.rank;
+    if(a.rank !== b.rank) {
+      if(a.rank === 5) return 1;
+      if(b.rank === 5) return -1;
+      return a.rank - b.rank;
+    }
+    if(a.rankOrder !== undefined && b.rankOrder !== undefined) return a.rankOrder - b.rankOrder;
     return b.basePrice - a.basePrice;
   });
   var player = sortedPlayers[pi];
   if(!player) return;
+  if(player.isUnsold || player.rank === 5) {
+    alert(player.name + ' is already marked as unsold!');
+    return;
+  }
   if(!confirm('Mark ' + player.name + ' as unsold?')) return;
   var actualIndex = availablePlayers.findIndex(function(p){ return p.name === player.name; });
   if(actualIndex !== -1) {
-    player.isUnsold = true;
-    player.rank = 5;
-    availablePlayers[actualIndex] = player;
-    unsoldPlayers.push(player);
+    var unsoldCopy = JSON.parse(JSON.stringify(player));
+    unsoldCopy.isUnsold = true;
+    unsoldCopy.rank = 5;
+    availablePlayers[actualIndex] = unsoldCopy;
+    var alreadyUnsold = unsoldPlayers.find(function(up){ return up.name === player.name; });
+    if(!alreadyUnsold) {
+      unsoldPlayers.push(JSON.parse(JSON.stringify(unsoldCopy)));
+    }
   }
   updateNewsTicker(player.name + ' marked as UNSOLD - moved to end of queue');
-  saveAuction();
   renderAll();
+  saveAuction();
 }
 
 function placeBid(ti,pi){
@@ -1367,20 +1405,21 @@ function placeBid(ti,pi){
 
   updateNewsTicker(team.name + ' signs ' + player.name + ' for ' + amt + '!');
   
-  // Show SOLD stamp before rendering
+  // Play IPL sold sound
+  var soldAudio = new Audio('sold.mp3');
+  soldAudio.volume = 0.7;
+  soldAudio.play().catch(function(err){ console.log('Audio play failed:', err); });
+  
+  // Show SOLD stamp
   var soldStamp = document.getElementById('soldStamp_0');
-  if(soldStamp) {
-    soldStamp.style.display = 'block';
-  }
+  if(soldStamp) soldStamp.style.display = 'block';
   
   createConfetti();
-  playCelebrationSound();
 
-  // Delay save and render to show stamp
   setTimeout(function(){
     saveAuction();
     renderAll();
-  }, 5000);
+  }, 2000);
 }
 
 function createConfetti(){
@@ -1473,12 +1512,25 @@ function toggleBidForm(pi){
 }
 
 function selectTeam(pi, ti){
-  document.querySelectorAll('#bidForm_' + pi + ' .team-select-btn').forEach(b => b.classList.remove('selected'));
-  document.getElementById('teamBtn_' + pi + '_' + ti).classList.add('selected');
+  // Remove 'selected' class from all team buttons for this player
+  var allButtons = document.querySelectorAll('.team-select-btn');
+  allButtons.forEach(function(b){ b.classList.remove('selected'); });
+  
+  // Add 'selected' class only to the clicked button
+  var clickedButton = document.getElementById('teamBtn_' + pi + '_' + ti);
+  if(clickedButton) {
+    clickedButton.classList.add('selected');
+  }
   
   var selectedTeam = teams[ti];
   document.getElementById('selectedTeam_' + pi).value = ti;
   document.getElementById('teamWalletInfo_' + pi).textContent = 'Wallet: ' + selectedTeam.wallet;
+}
+
+function resumeNextGroup(completedGroup){
+  if(!isAdmin) return alert('Admin access required!');
+  localStorage.setItem('currentBreak', 'group' + completedGroup);
+  renderAll();
 }
 
 function resetAuction(){
@@ -1491,15 +1543,16 @@ function resetAuction(){
     });
     bidLog=[];
     unsoldPlayers=[];
-    availablePlayers = originalPlayers.filter(function(p){return !p.isPreAssigned && !p.isIcon && !(p.isOwner && p.ownerPlays);});
-    availablePlayers.forEach(function(p){ delete p.isUnsold; p.rank = p.rank === 5 ? (p.isYoung ? 4 : 1) : p.rank; });
+    completedGroups=[];
+    availablePlayers = JSON.parse(JSON.stringify(originalPlayers.filter(function(p){return !p.isPreAssigned && !p.isIcon && !p.isOwner;})));
+    localStorage.removeItem('currentBreak');
     saveAuction();
     renderAll();
   }
 }
 
 function saveAuction(){
-  db.ref('auctionState').set({teams:teams,availablePlayers:availablePlayers,bidLog:bidLog,unsoldPlayers:unsoldPlayers});
+  db.ref('auctionState').set({teams:teams,availablePlayers:availablePlayers,bidLog:bidLog,unsoldPlayers:unsoldPlayers,completedGroups:completedGroups});
 }
 
 function updateNewsTicker(message){
@@ -1528,7 +1581,7 @@ function showRankPlayers(rank){
 }
 
 function showUnsoldPlayers(){
-  var players = unsoldPlayers.filter(function(p){return availablePlayers.find(function(ap){return ap.name === p.name;});});
+  var players = availablePlayers.filter(function(p){return p.isUnsold || p.rank === 5;});
   var title = 'Unsold Players (' + players.length + ')';
   document.getElementById('rankModalTitle').textContent = title;
   document.getElementById('rankModalPlayers').innerHTML = players.map(function(p){
@@ -1571,7 +1624,7 @@ function renderAll(){
   var rank2 = availablePlayers.filter(function(p){return p.rank===2 && !p.isIcon;}).length;
   var rank3 = availablePlayers.filter(function(p){return p.rank===3 && !p.isIcon;}).length;
   var rank4 = availablePlayers.filter(function(p){return p.rank===4 && !p.isIcon;}).length;
-  var unsoldCount = unsoldPlayers.filter(function(p){return availablePlayers.find(function(ap){return ap.name === p.name;});}).length;
+  var unsoldCount = availablePlayers.filter(function(p){return p.isUnsold || p.rank === 5;}).length;
   var totalRank1 = originalPlayers.filter(function(p){return p.rank===1 && !p.isIcon && !p.isPreAssigned;}).length;
   var totalRank2 = originalPlayers.filter(function(p){return p.rank===2 && !p.isIcon && !p.isPreAssigned;}).length;
   var totalRank3 = originalPlayers.filter(function(p){return p.rank===3 && !p.isIcon && !p.isPreAssigned;}).length;
@@ -1596,15 +1649,13 @@ function renderAll(){
     '<div onclick="showRankPlayers(4)"><span class="rank-badge rank-4">Group 4</span><br><b>' + rank4 + '/' + totalRank4 + '</b><br>Available</div>' +
     '<div onclick="showUnsoldPlayers()"><span class="rank-badge" style="background:#6c757d;color:#fff;">Unsold</span><br><b>' + unsoldCount + '</b><br>Players</div>';
 
-  // Auction players table (exclude pre-assigned, ICON, and owner-players)
+  // Auction players table (exclude pre-assigned, ICON, and ALL owner players)
   document.getElementById('playersTable').innerHTML = originalPlayers.filter(function(p){
-    return !p.isPreAssigned && !p.isIcon && !(p.isOwner && p.ownerPlays);
+    return !p.isPreAssigned && !p.isIcon && !p.isOwner;
   }).map(function(p){
     var isSold = !availablePlayers.find(function(ap){ return ap.name === p.name; });
-    var badges = '<span class="rank-badge rank-' + p.rank + '">Rank ' + p.rank + '</span>';
-    if(p.isYoung) badges += '<span class="rank-badge young-badge">YOUNG</span>';
     var stamp = isSold ? '<span class="sold-stamp">SOLD</span>' : '';
-    return '<tr style="position:relative;"><td><img class="player-photo" src="' + p.photo + '">' + stamp + '</td><td>' + p.name + badges + '</td><td>' + p.basePrice + '</td></tr>';
+    return '<tr style="position:relative;"><td><img class="player-photo" src="' + p.photo + '">' + stamp + '</td><td>' + p.name + '</td><td>' + p.basePrice + '</td></tr>';
   }).join('');
 
   document.getElementById('teamWallets').innerHTML = teams.map(function(t){
@@ -1627,66 +1678,166 @@ function renderAll(){
   }).join('');
 
   var sortedPlayers = availablePlayers.slice().sort(function(a, b){
-    // Sort by rank first, then by base price descending within each rank
-    if(a.rank !== b.rank) return a.rank - b.rank;
+    // Sort by rank first (but put rank 5/unsold at the end), then by rankOrder (original base price order)
+    if(a.rank !== b.rank) {
+      // If either is rank 5 (unsold), put it at the end
+      if(a.rank === 5) return 1;
+      if(b.rank === 5) return -1;
+      return a.rank - b.rank;
+    }
+    if(a.rankOrder !== undefined && b.rankOrder !== undefined) return a.rankOrder - b.rankOrder;
     return b.basePrice - a.basePrice;
   });
   
-  // Show only the first player (current bid) - side by side layout
-  document.getElementById('availablePlayers').innerHTML = sortedPlayers.slice(0, 1).map(function(p,i){
-    var badges = '<span class="rank-badge rank-' + p.rank + '">Group ' + p.rank + '</span>';
-    if(p.playerType) badges += '<span class="rank-badge player-type-badge">' + p.playerType + '</span>';
-    if(p.rank === 4) badges += '<span class="rank-badge young-badge">YOUNG (<40)</span>';
+  // Check if any group is complete and show break banner
+  var group1Remaining = availablePlayers.filter(function(p){return p.rank === 1 && !p.isUnsold;}).length;
+  var group2Remaining = availablePlayers.filter(function(p){return p.rank === 2 && !p.isUnsold;}).length;
+  var group3Remaining = availablePlayers.filter(function(p){return p.rank === 3 && !p.isUnsold;}).length;
+  var group4Remaining = availablePlayers.filter(function(p){return p.rank === 4 && !p.isUnsold;}).length;
+  var hasNextGroup = availablePlayers.filter(function(p){return p.rank > 1;}).length > 0;
+  var currentBreak = localStorage.getItem('currentBreak');
+  
+  var showBreak = false;
+  var breakGroup = 0;
+  var nextGroup = 0;
+  var breakTitle = '';
+  
+  if(group1Remaining === 0 && group2Remaining === 0 && group3Remaining === 0 && group4Remaining === 0 && unsoldCount > 0 && currentBreak !== 'allGroupsComplete') {
+    showBreak = true;
+    breakGroup = 4;
+    nextGroup = 5;
+    breakTitle = 'ALL GROUPS COMPLETE';
     
-    // Find highest bid
-    var highestBid = bidLog.length > 0 ? bidLog.reduce(function(max, b){ return b.amount > max.amount ? b : max; }, bidLog[0]) : null;
-    var highestBidHTML = '';
-    if(highestBid) {
-      highestBidHTML = '<div style="background:linear-gradient(135deg, #fbbf24, #f59e0b);padding:20px;border-radius:16px;margin-bottom:20px;text-align:center;box-shadow:0 8px 32px rgba(251,191,36,0.4);border:3px solid white;animation:pulse-highlight 2s infinite;">' +
-        '<div style="font-size:16px;font-weight:bold;color:#1a202c;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">🔥 HIGHEST BID SO FAR 🔥</div>' +
-        '<div style="font-size:28px;font-weight:bold;color:white;text-shadow:2px 2px 4px rgba(0,0,0,0.3);">' + highestBid.amount.toLocaleString() + '</div>' +
-        '<div style="font-size:16px;color:#1a202c;font-weight:600;margin-top:8px;">' + highestBid.player + ' → ' + highestBid.team + '</div>' +
+    // Restore unsold players to their original base price and ranking
+    availablePlayers = availablePlayers.map(function(p){
+      if(p.isUnsold || p.rank === 5) {
+        var originalPlayer = originalPlayers.find(function(op){ return op.name === p.name; });
+        if(originalPlayer) {
+          return {
+            name: p.name,
+            basePrice: originalPlayer.basePrice,
+            photo: p.photo,
+            rank: originalPlayer.rank,
+            age: p.age,
+            isYoung: p.isYoung,
+            playerType: p.playerType,
+            rankOrder: originalPlayer.rankOrder
+          };
+        }
+      }
+      return p;
+    });
+  } else if(group1Remaining === 0 && group2Remaining > 0 && currentBreak !== 'group1') {
+    showBreak = true;
+    breakGroup = 1;
+    nextGroup = 2;
+    breakTitle = 'GROUP 1 COMPLETE';
+  } else if(group1Remaining === 0 && group2Remaining === 0 && group3Remaining > 0 && currentBreak !== 'group2') {
+    showBreak = true;
+    breakGroup = 2;
+    nextGroup = 3;
+    breakTitle = 'GROUP 2 COMPLETE';
+  } else if(group1Remaining === 0 && group2Remaining === 0 && group3Remaining === 0 && group4Remaining > 0 && currentBreak !== 'group3') {
+    showBreak = true;
+    breakGroup = 3;
+    nextGroup = 4;
+    breakTitle = 'GROUP 3 COMPLETE';
+  }
+  
+  if(showBreak) {
+    // Show break banner with resume button
+    document.getElementById('availablePlayers').innerHTML = 
+      '<div style="max-width:1400px;margin:50px auto;text-align:center;">' +
+        '<div style="background:linear-gradient(135deg, #1a202c 0%, #2d3748 50%, #1a202c 100%);padding:80px 60px;border-radius:32px;box-shadow:0 30px 80px rgba(0,0,0,0.6), 0 0 100px rgba(251,191,36,0.4);border:8px solid #fbbf24;position:relative;overflow:hidden;animation:pulse-highlight 2s infinite;">' +
+          '<img src="background.png" style="position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);width:80%;height:80%;object-fit:contain;opacity:0.08;pointer-events:none;z-index:1;">' +
+          '<div style="position:absolute;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at 50% 50%, rgba(251,191,36,0.1) 0%, transparent 70%);pointer-events:none;z-index:1;"></div>' +
+          '<div style="position:relative;z-index:2;">' +
+            '<div style="font-size:120px;margin-bottom:30px;animation:bounce 2s infinite;">☕</div>' +
+            '<div style="font-size:72px;font-weight:bold;background:linear-gradient(90deg, #fbbf24, #f59e0b, #fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:30px;letter-spacing:8px;text-transform:uppercase;animation:shimmer 3s infinite;">Strategic Break</div>' +
+            '<div style="font-size:48px;color:#10b981;font-weight:700;text-shadow:0 0 30px rgba(16,185,129,0.8);margin-bottom:20px;animation:glow 2s infinite;">⏸️ Time Out ⏸️</div>' +
+            '<div style="font-size:36px;color:#fef3c7;font-weight:600;text-shadow:2px 2px 8px rgba(0,0,0,0.5);margin-bottom:40px;">Be Back Soon!</div>' +
+            '<div style="display:inline-block;background:rgba(251,191,36,0.2);padding:20px 40px;border-radius:16px;border:3px solid #fbbf24;margin-bottom:40px;">' +
+              '<div style="font-size:24px;color:#fbbf24;font-weight:bold;margin-bottom:10px;">🏆 ' + breakTitle + ' 🏆</div>' +
+              '<div style="font-size:18px;color:white;opacity:0.9;">Ready for Group ' + nextGroup + '</div>' +
+            '</div>' +
+            (isAdmin ? '<div><button onclick="resumeNextGroup(' + breakGroup + ');" style="background:#10b981;color:white;border:none;padding:20px 60px;border-radius:12px;font-size:24px;font-weight:bold;cursor:pointer;box-shadow:0 8px 24px rgba(16,185,129,0.4);transition:all 0.3s;" onmouseover="this.style.background=\'#059669\'" onmouseout="this.style.background=\'#10b981\'">▶️ Resume - Start Group ' + nextGroup + '</button></div>' : '') +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<style>' +
+        '@keyframes bounce { 0%, 100% { transform:translateY(0); } 50% { transform:translateY(-30px); } }' +
+        '@keyframes shimmer { 0%, 100% { background-position:0% 50%; } 50% { background-position:100% 50%; } }' +
+        '@keyframes glow { 0%, 100% { text-shadow:0 0 30px rgba(16,185,129,0.8); } 50% { text-shadow:0 0 60px rgba(16,185,129,1), 0 0 90px rgba(16,185,129,0.6); } }' +
+      '</style>';
+  } else {
+    // Show only the first player (current bid) - side by side layout
+    document.getElementById('availablePlayers').innerHTML = sortedPlayers.slice(0, 1).map(function(p,i){
+      var badges = '<span class="rank-badge rank-' + p.rank + '">Group ' + p.rank + '</span>';
+      if(p.playerType) badges += '<span class="rank-badge player-type-badge">' + p.playerType + '</span>';
+      if(p.rank === 4) badges += '<span class="rank-badge young-badge"><40</span>';
+      
+      // Find next player ready for bid - prioritize showing player from next group when current group is finishing
+      var nextPlayerHTML = '';
+      if(sortedPlayers.length > 1) {
+        var currentGroupRemaining = sortedPlayers.filter(function(sp){return sp.rank === p.rank;}).length;
+        var nextPlayers = sortedPlayers.slice(1).filter(function(np){return np.rank !== p.rank;});
+        var nextPlayer = null;
+        
+        // Show next group player only if current player is last in their group
+        if(currentGroupRemaining === 1 && nextPlayers.length > 0) {
+          nextPlayer = nextPlayers[0];
+        } else {
+          nextPlayer = sortedPlayers[1];
+        }
+        
+        if(nextPlayer) {
+          nextPlayerHTML = '<div style="background:linear-gradient(135deg, #fbbf24, #f59e0b);padding:20px;border-radius:16px;margin-bottom:20px;text-align:center;box-shadow:0 8px 32px rgba(251,191,36,0.4);border:3px solid white;animation:pulse-highlight 2s infinite;">' +
+            '<div style="font-size:16px;font-weight:bold;color:#1a202c;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">⏭️ NEXT PLAYER READY ⏭️</div>' +
+            '<div style="font-size:28px;font-weight:bold;color:white;text-shadow:2px 2px 4px rgba(0,0,0,0.3);">' + nextPlayer.name + '</div>' +
+            '<div style="font-size:16px;color:#1a202c;font-weight:600;margin-top:8px;">Group ' + nextPlayer.rank + ' • Base: ' + nextPlayer.basePrice + '</div>' +
+          '</div>';
+        }
+      }
+      
+      return '<div style="display:flex;gap:30px;max-width:1200px;margin:20px auto;align-items:flex-start;flex-wrap:wrap;">' +
+        '<div style="flex:1;min-width:350px;background:linear-gradient(135deg, #2d3748, #1a202c);padding:30px;border-radius:20px;border:4px solid #fbbf24;box-shadow:0 0 40px rgba(251,191,36,0.6);position:relative;">' +
+          '<div style="position:relative;display:inline-block;margin:0 auto 20px;display:block;width:350px;height:350px;">' +
+            '<img class="player-photo" src="' + p.photo + '" style="width:350px;height:350px;display:block;border:6px solid #fbbf24;box-shadow:0 0 40px rgba(251,191,36,1);">' +
+            '<div id="soldStamp_' + i + '" style="display:none;position:absolute;top:50%;left:50%;transform:translate(-50%, -50%) rotate(-15deg);background:#dc3545;color:white;padding:40px 80px;border-radius:20px;font-weight:bold;font-size:72px;z-index:100;opacity:0.95;box-shadow:0 12px 48px rgba(0,0,0,0.7);border:6px solid white;letter-spacing:8px;">SOLD!</div>' +
+          '</div>' +
+          '<h2 style="color:#fbbf24;font-size:32px;margin:15px 0;text-align:center;text-shadow:0 0 20px rgba(251,191,36,0.8);">' + p.name + '</h2>' +
+          '<div style="text-align:center;margin:15px 0;">' + badges + '</div>' +
+          '<div style="color:white;font-size:24px;margin:15px 0;text-align:center;">Base Price: <span style="color:#fbbf24;font-weight:bold;">' + p.basePrice + '</span></div>' +
+          '<div style="color:#10b981;font-size:20px;font-weight:bold;text-align:center;margin:15px 0;">🔥 CURRENT BID 🔥</div>' +
+          '<div style="color:#fbbf24;font-size:16px;text-align:center;">Remaining: ' + sortedPlayers.length + '</div>' +
+        '</div>' +
+        '<div style="flex:1;min-width:400px;">' +
+          nextPlayerHTML +
+          '<div class="player-card" style="padding:30px;">' +
+            '<div class="bid-input-group" style="margin-bottom:25px;">' +
+              '<label style="font-size:20px;font-weight:bold;color:#2d3748;display:block;margin-bottom:10px;">Bid Amount:</label>' +
+              '<input type="number" id="bidAmount_0" min="' + p.basePrice + '" value="' + p.basePrice + '" style="font-size:28px;padding:15px;text-align:center;font-weight:bold;width:100%;box-sizing:border-box;border:3px solid #fbbf24;border-radius:10px;">' +
+            '</div>' +
+            '<div style="font-weight:bold;margin-bottom:15px;color:#2d3748;font-size:20px;text-align:center;">Select Team:</div>' +
+            '<div class="team-select-grid">' +
+              teams.map(function(t,j){
+                if(!t.squad) t.squad = [];
+                var isDisabled = t.squad.length >= 14 || (p.isOwner && !p.ownerPlays && t.ownerName !== p.name);
+                return '<button id="teamBtn_0_' + j + '" class="team-select-btn" style="font-size:15px;padding:15px;" ' + 
+                  (isDisabled ? 'disabled' : 'onclick="selectTeam(0,' + j + ')"') + '>' +
+                  t.name + '<br><small>(' + t.squad.length + '/14)</small>' +
+                '</button>';
+              }).join('') +
+            '</div>' +
+            '<div id="teamWalletInfo_0" style="text-align:center;color:#64748b;font-size:18px;margin:20px 0;font-weight:bold;">Select a team to see wallet</div>' +
+            '<input type="hidden" id="selectedTeam_0" value="">' +
+            '<button class="confirm-bid-btn" style="font-size:22px;padding:20px;width:100%;margin-top:10px;" onclick="var ti=document.getElementById(\'selectedTeam_0\').value; if(ti===\'\'){alert(\'Please select a team\');return;} placeBid(ti,0)">✓ Confirm Bid</button>' +
+            '<button class="cancel-bid-btn" style="font-size:18px;padding:15px;width:100%;margin-top:10px;" onclick="markUnsold(0)">❌ Mark as Unsold</button>' +
+          '</div>' +
+        '</div>' +
       '</div>';
-    }
-    
-    return '<div style="display:flex;gap:30px;max-width:1200px;margin:20px auto;align-items:flex-start;flex-wrap:wrap;">' +
-      '<div style="flex:1;min-width:350px;background:linear-gradient(135deg, #2d3748, #1a202c);padding:30px;border-radius:20px;border:4px solid #fbbf24;box-shadow:0 0 40px rgba(251,191,36,0.6);position:relative;">' +
-        '<div style="position:relative;display:inline-block;margin:0 auto 20px;display:block;width:350px;height:350px;">' +
-          '<img class="player-photo" src="' + p.photo + '" style="width:350px;height:350px;display:block;border:6px solid #fbbf24;box-shadow:0 0 40px rgba(251,191,36,1);">' +
-          '<div id="soldStamp_' + i + '" style="display:none;position:absolute;top:50%;left:50%;transform:translate(-50%, -50%) rotate(-15deg);background:#dc3545;color:white;padding:40px 80px;border-radius:20px;font-weight:bold;font-size:72px;z-index:100;opacity:0.95;box-shadow:0 12px 48px rgba(0,0,0,0.7);border:6px solid white;letter-spacing:8px;">SOLD!</div>' +
-        '</div>' +
-        '<h2 style="color:#fbbf24;font-size:32px;margin:15px 0;text-align:center;text-shadow:0 0 20px rgba(251,191,36,0.8);">' + p.name + '</h2>' +
-        '<div style="text-align:center;margin:15px 0;">' + badges + '</div>' +
-        '<div style="color:white;font-size:24px;margin:15px 0;text-align:center;">Base Price: <span style="color:#fbbf24;font-weight:bold;">' + p.basePrice + '</span></div>' +
-        '<div style="color:#10b981;font-size:20px;font-weight:bold;text-align:center;margin:15px 0;">🔥 CURRENT BID 🔥</div>' +
-        '<div style="color:#fbbf24;font-size:16px;text-align:center;">Remaining: ' + sortedPlayers.length + '</div>' +
-      '</div>' +
-      '<div style="flex:1;min-width:400px;">' +
-        highestBidHTML +
-        '<div class="player-card" style="padding:30px;">' +
-          '<div class="bid-input-group" style="margin-bottom:25px;">' +
-            '<label style="font-size:20px;font-weight:bold;color:#2d3748;display:block;margin-bottom:10px;">Bid Amount:</label>' +
-            '<input type="number" id="bidAmount_0" min="' + p.basePrice + '" value="' + p.basePrice + '" style="font-size:28px;padding:15px;text-align:center;font-weight:bold;width:100%;box-sizing:border-box;border:3px solid #fbbf24;border-radius:10px;">' +
-          '</div>' +
-          '<div style="font-weight:bold;margin-bottom:15px;color:#2d3748;font-size:20px;text-align:center;">Select Team:</div>' +
-          '<div class="team-select-grid">' +
-            teams.map(function(t,j){
-              if(!t.squad) t.squad = [];
-              var isDisabled = t.squad.length >= 14 || (p.isOwner && !p.ownerPlays && t.ownerName !== p.name);
-              return '<button id="teamBtn_0_' + j + '" class="team-select-btn" style="font-size:15px;padding:15px;" ' + 
-                (isDisabled ? 'disabled' : 'onclick="selectTeam(0,' + j + ')"') + '>' +
-                t.name + '<br><small>(' + t.squad.length + '/14)</small>' +
-              '</button>';
-            }).join('') +
-          '</div>' +
-          '<div id="teamWalletInfo_0" style="text-align:center;color:#64748b;font-size:18px;margin:20px 0;font-weight:bold;">Select a team to see wallet</div>' +
-          '<input type="hidden" id="selectedTeam_0" value="">' +
-          '<button class="confirm-bid-btn" style="font-size:22px;padding:20px;width:100%;margin-top:10px;" onclick="var ti=document.getElementById(\'selectedTeam_0\').value; if(ti===\'\'){alert(\'Please select a team\');return;} placeBid(ti,0)">✓ Confirm Bid</button>' +
-          '<button class="cancel-bid-btn" style="font-size:18px;padding:15px;width:100%;margin-top:10px;" onclick="markUnsold(0)">❌ Mark as Unsold</button>' +
-        '</div>' +
-      '</div>' +
-    '</div>';
-  }).join('');
+    }).join('');
+  }
   
   // Scroll to current bid player
   setTimeout(function(){
@@ -1722,6 +1873,10 @@ function renderAll(){
     // Check if owner exists but not as a player
     var ownerOnlyDisplay = t.ownerName && !ownerPlayer;
     
+    // Combine owner-player with core team members
+    var coreTeamMembers = preAssignedNonOwner.slice();
+    if(ownerPlayer) coreTeamMembers.unshift(ownerPlayer);
+    
     return '<div class="auction-team-card">' +
       '<img class="team-logo-watermark" src="' + t.logo + '" alt="' + t.name + '">' +
       '<div class="team-content">' +
@@ -1732,15 +1887,12 @@ function renderAll(){
             '<div class="team-owner-player">👑 ' + t.ownerName + ' (OWNER ONLY)</div>' : 
             ''
           ) +
-          (ownerPlayer ? 
-            '<div style="font-weight:bold;color:#fbbf24;margin:5px 0;font-size:13px;text-transform:uppercase;letter-spacing:0.5px;">👑 Team Owner & Player:</div>' +
-            '<div class="team-owner-player">👑 ' + ownerPlayer.name + ' <span class="rank-badge owner-badge" style="margin-left:8px;">Own + Player</span>' + (ownerPlayer.amount > 0 ? ' - ' + ownerPlayer.amount : '') + '</div>' : 
-            ''
-          ) +
-          (preAssignedNonOwner.length > 0 ? 
-            '<div style="font-weight:bold;color:#8b5cf6;margin:5px 0;margin-top:10px;font-size:13px;text-transform:uppercase;letter-spacing:0.5px;">🔒 Core Team Members (' + preAssignedNonOwner.length + '):</div>' +
-            preAssignedNonOwner.map(function(p){ 
-              return '<div class="sold-player" style="border-left-color:#8b5cf6;background:rgba(139,92,246,0.1);">🔒 ' + p.name + (p.amount > 0 ? ' - ' + p.amount : '') + '</div>'; 
+          (coreTeamMembers.length > 0 ? 
+            '<div style="font-weight:bold;color:#8b5cf6;margin:5px 0;margin-top:10px;font-size:13px;text-transform:uppercase;letter-spacing:0.5px;">🔒 Core Team Members (' + coreTeamMembers.length + '):</div>' +
+            coreTeamMembers.map(function(p){ 
+              var icon = p.isOwner ? '👑' : '🔒';
+              var badge = p.isOwner ? '<span class="rank-badge owner-badge" style="margin-left:8px;">Owner + Player</span>' : '';
+              return '<div class="sold-player" style="border-left-color:#8b5cf6;background:rgba(139,92,246,0.1);">' + icon + ' ' + p.name + badge + (p.amount > 0 ? ' - ' + p.amount : '') + '</div>'; 
             }).join('') : 
             ''
           ) +
@@ -1772,7 +1924,7 @@ function renderAll(){
 
 db.ref('registeredPlayers').once('value').then(function(s){
   if(s.exists()) {
-    availablePlayers=s.val().filter(function(p){return !p.isPreAssigned && !p.isIcon && !(p.isOwner && p.ownerPlays);});
+    availablePlayers=s.val().filter(function(p){return !p.isPreAssigned && !p.isIcon && !p.isOwner;});
   }
   return db.ref('allPlayers').once('value');
 }).then(function(s){
@@ -1787,10 +1939,15 @@ db.ref('registeredPlayers').once('value').then(function(s){
 db.ref('auctionState').on('value',function(s){
   if(!s.exists()) return;
   var d=s.val();
+  if(!d) return;
   teams=d.teams||teams;
-  availablePlayers=(d.availablePlayers||[]).filter(function(p){return !p.isPreAssigned && !p.isIcon && !(p.isOwner && p.ownerPlays);});
+  var syncedPlayers = (d.availablePlayers||[]).filter(function(p){return !p.isPreAssigned && !p.isIcon && !p.isOwner;});
+  if(JSON.stringify(syncedPlayers) !== JSON.stringify(availablePlayers)) {
+    availablePlayers = syncedPlayers;
+  }
   bidLog=d.bidLog||[];
   unsoldPlayers=d.unsoldPlayers||[];
+  completedGroups=d.completedGroups||[];
   renderAll();
 });
 
