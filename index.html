@@ -1654,7 +1654,8 @@ function resetAuction(){
 }
 
 function saveAuction(){
-  db.ref('auctionState').set({teams:teams,availablePlayers:availablePlayers,bidLog:bidLog,unsoldPlayers:unsoldPlayers,completedGroups:completedGroups});
+  var currentBreak = localStorage.getItem('currentBreak') || '';
+  db.ref('auctionState').set({teams:teams,availablePlayers:availablePlayers,bidLog:bidLog,unsoldPlayers:unsoldPlayers,completedGroups:completedGroups,currentBreak:currentBreak});
 }
 
 function updateNewsTicker(message){
@@ -2070,6 +2071,9 @@ db.ref('auctionState').on('value',function(s){
   bidLog=d.bidLog||[];
   unsoldPlayers=d.unsoldPlayers||[];
   completedGroups=d.completedGroups||[];
+  if(d.currentBreak) {
+    localStorage.setItem('currentBreak', d.currentBreak);
+  }
   renderAll();
 });
 
