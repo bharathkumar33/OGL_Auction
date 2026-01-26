@@ -1620,8 +1620,9 @@ function selectTeam(pi, ti){
 function startAuction(){
   if(!isAdmin) return alert('Admin access required!');
   localStorage.setItem('currentBreak', 'auctionStarted');
-  saveAuction();
-  renderAll();
+  saveAuction().then(function(){
+    renderAll();
+  });
 }
 
 function resumeNextGroup(completedGroup){
@@ -1631,8 +1632,9 @@ function resumeNextGroup(completedGroup){
   } else {
     localStorage.setItem('currentBreak', 'group' + completedGroup);
   }
-  saveAuction();
-  renderAll();
+  saveAuction().then(function(){
+    renderAll();
+  });
 }
 
 function resetAuction(){
@@ -1655,7 +1657,7 @@ function resetAuction(){
 
 function saveAuction(){
   var currentBreak = localStorage.getItem('currentBreak') || '';
-  db.ref('auctionState').set({teams:teams,availablePlayers:availablePlayers,bidLog:bidLog,unsoldPlayers:unsoldPlayers,completedGroups:completedGroups,currentBreak:currentBreak});
+  return db.ref('auctionState').set({teams:teams,availablePlayers:availablePlayers,bidLog:bidLog,unsoldPlayers:unsoldPlayers,completedGroups:completedGroups,currentBreak:currentBreak});
 }
 
 function updateNewsTicker(message){
