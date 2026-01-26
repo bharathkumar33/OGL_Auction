@@ -999,6 +999,11 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   .team-select-btn { font-size:11px; padding:8px; }
   .bid-input-group input { font-size:16px; padding:10px; }
   .confirm-bid-btn, .cancel-bid-btn { font-size:14px; padding:12px; }
+  body:not(.admin-mode) .bid-input-group,
+  body:not(.admin-mode) .team-select-grid,
+  body:not(.admin-mode) .confirm-bid-btn,
+  body:not(.admin-mode) .cancel-bid-btn,
+  body:not(.admin-mode) #teamWalletInfo_0 { display:none !important; }
 }
 
 @media (min-width: 1200px) {
@@ -1097,6 +1102,7 @@ const ADMIN_PASSWORD = 'OGL2026Admin';
 // Check admin status on load
 if(localStorage.getItem('isAdmin') === 'true') {
   isAdmin = true;
+  document.body.classList.add('admin-mode');
   updateUIForRole();
 }
 
@@ -1120,6 +1126,7 @@ function toggleAdmin(){
     isAdmin = false;
     localStorage.removeItem('isAdmin');
     document.getElementById('adminBtn').innerHTML = '🔒 Admin Login';
+    document.body.classList.remove('admin-mode');
     updateUIForRole();
   } else {
     const pwd = prompt('Enter admin password:');
@@ -1127,6 +1134,7 @@ function toggleAdmin(){
       isAdmin = true;
       localStorage.setItem('isAdmin', 'true');
       document.getElementById('adminBtn').innerHTML = '🔓 Admin Logout';
+      document.body.classList.add('admin-mode');
       updateUIForRole();
     } else if(pwd !== null) {
       alert('Incorrect password!');
