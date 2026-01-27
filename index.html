@@ -1016,6 +1016,7 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   #availablePlayers > div > div:last-child > div:first-child { max-width:100% !important; padding:12px !important; }
   #availablePlayers > div > div:last-child > div:first-child > div[style*="font-size:28px"] { font-size:20px !important; }
   #availablePlayers > div > div:last-child > div:first-child > div[style*="font-size:16px"]:first-child { font-size:12px !important; }
+  #availablePlayers #soldStamp_0 { padding:15px 30px !important; font-size:32px !important; border:3px solid white !important; letter-spacing:3px !important; }
   body:not(.admin-mode) .bid-input-group,
   body:not(.admin-mode) .team-select-grid,
   body:not(.admin-mode) .confirm-bid-btn,
@@ -1498,21 +1499,13 @@ function placeBid(ti,pi){
 
   updateNewsTicker(team.name + ' signs ' + player.name + ' for ' + amt + '!');
   
-  // Play IPL sold sound
-  var soldAudio = new Audio('sold.mp3');
-  soldAudio.volume = 0.7;
-  soldAudio.play().catch(function(err){ console.log('Audio play failed:', err); });
-  
-  // Show SOLD stamp
-  var soldStamp = document.getElementById('soldStamp_0');
-  if(soldStamp) soldStamp.style.display = 'block';
-  
-  createConfetti();
-
-  setTimeout(function(){
-    saveAuction();
-    renderAll();
-  }, 2000);
+  // Save and trigger celebration, then render after celebration
+  saveAuction().then(function(){
+    db.ref('celebration').set({active:true, timestamp:Date.now()});
+    setTimeout(function(){
+      db.ref('celebration').remove();
+    }, 2500);
+  });
 }
 
 function createConfetti(){
@@ -1843,7 +1836,12 @@ function renderAll(){
         '<div style="background:linear-gradient(135deg, #2d3748, #1a202c);padding:30px 20px;border-radius:20px;box-shadow:0 0 40px rgba(251,191,36,0.6);border:4px solid #fbbf24;text-align:center;">' +
           '<style>@keyframes float-legend{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}</style>' +
           '<div style="font-size:60px;margin-bottom:15px;animation:float-legend 3s ease-in-out infinite;filter:drop-shadow(0 0 20px rgba(251,191,36,0.8));">🏆</div>' +
-          '<div style="font-size:36px;font-weight:900;background:linear-gradient(90deg, #fbbf24, #f59e0b, #10b981, #8b5cf6, #fbbf24);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:25px;letter-spacing:3px;text-transform:uppercase;">OGL 2026 AUCTION</div>' +
+          '<div style="font-size:36px;font-weight:900;background:linear-gradient(90deg, #fbbf24, #f59e0b, #10b981, #8b5cf6, #fbbf24);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:20px;letter-spacing:3px;text-transform:uppercase;">OGL 2026 AUCTION</div>' +
+          '<div style="display:flex;gap:20px;justify-content:center;margin-bottom:25px;flex-wrap:wrap;">' +
+            '<div style="background:linear-gradient(135deg, #10b981, #059669);color:white;padding:12px 20px;border-radius:12px;box-shadow:0 4px 15px rgba(16,185,129,0.4);border:2px solid rgba(255,255,255,0.3);font-size:16px;font-weight:600;">📅 March 1st</div>' +
+            '<div style="background:linear-gradient(135deg, #10b981, #059669);color:white;padding:12px 20px;border-radius:12px;box-shadow:0 4px 15px rgba(16,185,129,0.4);border:2px solid rgba(255,255,255,0.3);font-size:16px;font-weight:600;">🕐 2 PM</div>' +
+            '<div style="background:linear-gradient(135deg, #10b981, #059669);color:white;padding:12px 20px;border-radius:12px;box-shadow:0 4px 15px rgba(16,185,129,0.4);border:2px solid rgba(255,255,255,0.3);font-size:16px;font-weight:600;">📍 James Bathe Reserve</div>' +
+          '</div>' +
           '<div style="display:flex;justify-content:center;gap:15px;margin:25px 0;flex-wrap:wrap;">' +
             '<div style="background:rgba(251,191,36,0.2);padding:15px;border-radius:16px;border:3px solid #fbbf24;min-width:140px;transition:all 0.3s;" onmouseover="this.style.transform=\'translateY(-5px)\'" onmouseout="this.style.transform=\'translateY(0)\'">' +
               '<div style="font-size:40px;margin-bottom:8px;">🏆</div>' +
@@ -2086,7 +2084,33 @@ db.ref('auctionState').on('value',function(s){
   } else {
     localStorage.removeItem('currentBreak');
   }
-  renderAll();
+  
+  // Only render if not celebrating
+  db.ref('celebration').once('value').then(function(cs){
+    if(!cs.exists() || !cs.val().active) {
+      renderAll();
+    }
+  });
+});
+
+// Listen for celebration events
+var celebrationTimeout = null;
+db.ref('celebration').on('value', function(s){
+  if(s.exists() && s.val().active) {
+    var soldAudio = new Audio('sold.mp3');
+    soldAudio.volume = 0.7;
+    soldAudio.play().catch(function(err){ console.log('Audio play failed:', err); });
+    
+    var soldStamp = document.getElementById('soldStamp_0');
+    if(soldStamp) soldStamp.style.display = 'block';
+    
+    createConfetti();
+    
+    if(celebrationTimeout) clearTimeout(celebrationTimeout);
+    celebrationTimeout = setTimeout(function(){
+      renderAll();
+    }, 2500);
+  }
 });
 
 // Keep connection alive and reconnect if needed
