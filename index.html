@@ -1016,7 +1016,6 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   #availablePlayers > div > div:last-child > div:first-child { max-width:100% !important; padding:12px !important; }
   #availablePlayers > div > div:last-child > div:first-child > div[style*="font-size:28px"] { font-size:20px !important; }
   #availablePlayers > div > div:last-child > div:first-child > div[style*="font-size:16px"]:first-child { font-size:12px !important; }
-  #availablePlayers #soldStamp_0 { padding:15px 30px !important; font-size:32px !important; border:3px solid white !important; letter-spacing:3px !important; }
   body:not(.admin-mode) .bid-input-group,
   body:not(.admin-mode) .team-select-grid,
   body:not(.admin-mode) .confirm-bid-btn,
@@ -1499,13 +1498,21 @@ function placeBid(ti,pi){
 
   updateNewsTicker(team.name + ' signs ' + player.name + ' for ' + amt + '!');
   
-  // Save and trigger celebration, then render after celebration
-  saveAuction().then(function(){
-    db.ref('celebration').set({active:true, timestamp:Date.now()});
-    setTimeout(function(){
-      db.ref('celebration').remove();
-    }, 2500);
-  });
+  // Play IPL sold sound
+  var soldAudio = new Audio('sold.mp3');
+  soldAudio.volume = 0.7;
+  soldAudio.play().catch(function(err){ console.log('Audio play failed:', err); });
+  
+  // Show SOLD stamp
+  var soldStamp = document.getElementById('soldStamp_0');
+  if(soldStamp) soldStamp.style.display = 'block';
+  
+  createConfetti();
+
+  setTimeout(function(){
+    saveAuction();
+    renderAll();
+  }, 2000);
 }
 
 function createConfetti(){
@@ -1836,12 +1843,7 @@ function renderAll(){
         '<div style="background:linear-gradient(135deg, #2d3748, #1a202c);padding:30px 20px;border-radius:20px;box-shadow:0 0 40px rgba(251,191,36,0.6);border:4px solid #fbbf24;text-align:center;">' +
           '<style>@keyframes float-legend{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}</style>' +
           '<div style="font-size:60px;margin-bottom:15px;animation:float-legend 3s ease-in-out infinite;filter:drop-shadow(0 0 20px rgba(251,191,36,0.8));">🏆</div>' +
-          '<div style="font-size:36px;font-weight:900;background:linear-gradient(90deg, #fbbf24, #f59e0b, #10b981, #8b5cf6, #fbbf24);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:20px;letter-spacing:3px;text-transform:uppercase;">OGL 2026 AUCTION</div>' +
-          '<div style="display:flex;gap:20px;justify-content:center;margin-bottom:25px;flex-wrap:wrap;">' +
-            '<div style="background:linear-gradient(135deg, #10b981, #059669);color:white;padding:12px 20px;border-radius:12px;box-shadow:0 4px 15px rgba(16,185,129,0.4);border:2px solid rgba(255,255,255,0.3);font-size:16px;font-weight:600;">📅 March 1st</div>' +
-            '<div style="background:linear-gradient(135deg, #10b981, #059669);color:white;padding:12px 20px;border-radius:12px;box-shadow:0 4px 15px rgba(16,185,129,0.4);border:2px solid rgba(255,255,255,0.3);font-size:16px;font-weight:600;">🕐 2 PM</div>' +
-            '<div style="background:linear-gradient(135deg, #10b981, #059669);color:white;padding:12px 20px;border-radius:12px;box-shadow:0 4px 15px rgba(16,185,129,0.4);border:2px solid rgba(255,255,255,0.3);font-size:16px;font-weight:600;">📍 James Bathe Reserve</div>' +
-          '</div>' +
+          '<div style="font-size:36px;font-weight:900;background:linear-gradient(90deg, #fbbf24, #f59e0b, #10b981, #8b5cf6, #fbbf24);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:25px;letter-spacing:3px;text-transform:uppercase;">OGL 2026 AUCTION</div>' +
           '<div style="display:flex;justify-content:center;gap:15px;margin:25px 0;flex-wrap:wrap;">' +
             '<div style="background:rgba(251,191,36,0.2);padding:15px;border-radius:16px;border:3px solid #fbbf24;min-width:140px;transition:all 0.3s;" onmouseover="this.style.transform=\'translateY(-5px)\'" onmouseout="this.style.transform=\'translateY(0)\'">' +
               '<div style="font-size:40px;margin-bottom:8px;">🏆</div>' +
@@ -1987,7 +1989,7 @@ function renderAll(){
     '</div>';
   }).join('');
 
-  document.getElementById('auctionedList').innerHTML = teams.map(function(t, teamIndex){
+  document.getElementById('auctionedList').innerHTML = teams.map(function(t){
     if(!t.squad) t.squad = [];
     
     console.log('Team:', t.name, 'Squad:', t.squad, 'Owner:', t.ownerName);
@@ -2004,13 +2006,10 @@ function renderAll(){
     var coreTeamMembers = preAssignedNonOwner.slice();
     if(ownerPlayer) coreTeamMembers.unshift(ownerPlayer);
     
-    var hasPlayers = t.squad.length > 0;
-    
     return '<div class="auction-team-card">' +
       '<img class="team-logo-watermark" src="' + t.logo + '" alt="' + t.name + '">' +
       '<div class="team-content">' +
         '<div class="team-name-highlight">' + t.name + '</div>' +
-        (hasPlayers ? '<button onclick="generateTeamCollage(' + teamIndex + ')" style="background:#fbbf24;color:#1a202c;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;font-weight:600;font-size:12px;width:100%;margin-bottom:10px;transition:all 0.3s;" onmouseover="this.style.background=\'#f59e0b\'" onmouseout="this.style.background=\'#fbbf24\'">📸 Generate Team Photo</button>' : '') +
         '<div style="text-align:left;">' + 
           (ownerOnlyDisplay ? 
             '<div style="font-weight:bold;color:#fbbf24;margin:5px 0;font-size:13px;text-transform:uppercase;letter-spacing:0.5px;">👑 Team Owner:</div>' +
@@ -2087,33 +2086,7 @@ db.ref('auctionState').on('value',function(s){
   } else {
     localStorage.removeItem('currentBreak');
   }
-  
-  // Only render if not celebrating
-  db.ref('celebration').once('value').then(function(cs){
-    if(!cs.exists() || !cs.val().active) {
-      renderAll();
-    }
-  });
-});
-
-// Listen for celebration events
-var celebrationTimeout = null;
-db.ref('celebration').on('value', function(s){
-  if(s.exists() && s.val().active) {
-    var soldAudio = new Audio('sold.mp3');
-    soldAudio.volume = 0.7;
-    soldAudio.play().catch(function(err){ console.log('Audio play failed:', err); });
-    
-    var soldStamp = document.getElementById('soldStamp_0');
-    if(soldStamp) soldStamp.style.display = 'block';
-    
-    createConfetti();
-    
-    if(celebrationTimeout) clearTimeout(celebrationTimeout);
-    celebrationTimeout = setTimeout(function(){
-      renderAll();
-    }, 2500);
-  }
+  renderAll();
 });
 
 // Keep connection alive and reconnect if needed
@@ -2149,96 +2122,6 @@ function createFloatingParticles(){
     particle.style.animationDuration = (10 + Math.random() * 10) + 's';
     document.body.appendChild(particle);
   }
-}
-
-function generateTeamCollage(teamIndex){
-  var team = teams[teamIndex];
-  if(!team || !team.squad || team.squad.length === 0) return alert('No players in this team!');
-  
-  var canvas = document.createElement('canvas');
-  var ctx = canvas.getContext('2d');
-  
-  var photoSize = 200;
-  var cols = Math.ceil(Math.sqrt(team.squad.length));
-  var rows = Math.ceil(team.squad.length / cols);
-  var padding = 20;
-  var headerHeight = 150;
-  
-  canvas.width = cols * (photoSize + padding) + padding;
-  canvas.height = rows * (photoSize + padding) + padding + headerHeight;
-  
-  // Background gradient
-  var gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-  gradient.addColorStop(0, '#2d3748');
-  gradient.addColorStop(1, '#1a202c');
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  
-  // Draw header without logo
-  ctx.fillStyle = '#fbbf24';
-  ctx.font = 'bold 42px Arial';
-  ctx.textAlign = 'center';
-  ctx.fillText(team.name, canvas.width/2, 60);
-  
-  ctx.fillStyle = '#10b981';
-  ctx.font = 'bold 24px Arial';
-  ctx.fillText('Squad: ' + team.squad.length + ' Players', canvas.width/2, 100);
-  
-  // Load all player photos
-  var loadedImages = 0;
-  var playerImages = [];
-  
-  team.squad.forEach(function(player, index){
-    var img = new Image();
-    img.onload = function(){
-      playerImages[index] = img;
-      loadedImages++;
-      
-      if(loadedImages === team.squad.length){
-        // Draw all player photos
-        team.squad.forEach(function(player, i){
-          var col = i % cols;
-          var row = Math.floor(i / cols);
-          var x = col * (photoSize + padding) + padding;
-          var y = row * (photoSize + padding) + padding + headerHeight;
-          
-          // Border
-          ctx.strokeStyle = '#fbbf24';
-          ctx.lineWidth = 4;
-          ctx.strokeRect(x - 2, y - 2, photoSize + 4, photoSize + 4);
-          
-          // Photo
-          if(playerImages[i]){
-            ctx.drawImage(playerImages[i], x, y, photoSize, photoSize);
-          }
-          
-          // Player name
-          ctx.fillStyle = '#ffffff';
-          ctx.font = 'bold 14px Arial';
-          ctx.textAlign = 'center';
-          var name = player.name.length > 20 ? player.name.substring(0, 18) + '...' : player.name;
-          ctx.fillText(name, x + photoSize/2, y + photoSize + 18);
-        });
-        
-        // Download
-        canvas.toBlob(function(blob){
-          var url = URL.createObjectURL(blob);
-          var a = document.createElement('a');
-          a.href = url;
-          a.download = team.name.replace(/ /g, '_') + '_Team_Photo.png';
-          a.click();
-          URL.revokeObjectURL(url);
-        });
-      }
-    };
-    img.onerror = function(){
-      loadedImages++;
-      if(loadedImages === team.squad.length){
-        alert('Some images failed to load. Check image paths.');
-      }
-    };
-    img.src = player.photo || 'default.png';
-  });
 }
 
 // Register service worker for PWA
