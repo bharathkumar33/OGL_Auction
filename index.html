@@ -118,6 +118,31 @@ body::before {
   border-radius:12px;
   border:2px solid rgba(251,191,36,0.3);
 }
+.auction-ticket {
+  background:linear-gradient(135deg, #10b981, #059669);
+  color:white;
+  padding:12px 25px;
+  border-radius:10px;
+  margin-top:15px;
+  box-shadow:0 4px 15px rgba(16,185,129,0.4);
+  border:2px solid rgba(255,255,255,0.3);
+  position:relative;
+  z-index:2;
+}
+.auction-ticket-content {
+  display:flex;
+  gap:20px;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  font-size:16px;
+  font-weight:600;
+}
+.ticket-item {
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
 @keyframes titlePulse {
   0%, 100% { text-shadow:3px 3px 12px rgba(0,0,0,0.4), 0 0 30px rgba(251,191,36,0.6); }
   50% { text-shadow:3px 3px 12px rgba(0,0,0,0.4), 0 0 45px rgba(251,191,36,0.9); }
@@ -975,6 +1000,8 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   .pulse-ring { width:60px !important; height:60px !important; }
   .header-title { font-size:32px !important; letter-spacing:4px !important; padding:5px 15px !important; }
   .header-content { gap:12px; flex-direction:column; }
+  .auction-ticket { padding:8px 15px; margin-top:10px; }
+  .auction-ticket-content { font-size:12px; gap:10px; }
   nav button { padding:10px 5px; font-size:10px; }
   .admin-btn-corner { top:8px; right:8px; padding:6px 10px; font-size:10px; }
   .screen { padding:8px; }
@@ -1047,7 +1074,16 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
       <img class="header-logo" src="OG_Logo.jpg" alt="OGL Logo">
       <div class="pulse-ring" style="width:95px;height:95px;"></div>
     </div>
-    <h1 class="header-title">Original GOAT League</h1>
+    <div>
+      <h1 class="header-title">Original GOAT League</h1>
+      <div class="auction-ticket">
+        <div class="auction-ticket-content">
+          <div class="ticket-item">📅 March 1st, 2025</div>
+          <div class="ticket-item">🕐 2:00 PM</div>
+          <div class="ticket-item">📍 James Bathe Reserve</div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 <nav>
@@ -1498,21 +1534,13 @@ function placeBid(ti,pi){
 
   updateNewsTicker(team.name + ' signs ' + player.name + ' for ' + amt + '!');
   
-  // Play IPL sold sound
-  var soldAudio = new Audio('sold.mp3');
-  soldAudio.volume = 0.7;
-  soldAudio.play().catch(function(err){ console.log('Audio play failed:', err); });
-  
-  // Show SOLD stamp
-  var soldStamp = document.getElementById('soldStamp_0');
-  if(soldStamp) soldStamp.style.display = 'block';
-  
-  createConfetti();
-
-  setTimeout(function(){
-    saveAuction();
-    renderAll();
-  }, 2000);
+  // Save and trigger celebration, then render after celebration
+  saveAuction().then(function(){
+    db.ref('celebration').set({active:true, timestamp:Date.now()});
+    setTimeout(function(){
+      db.ref('celebration').remove();
+    }, 2500);
+  });
 }
 
 function createConfetti(){
@@ -1843,7 +1871,14 @@ function renderAll(){
         '<div style="background:linear-gradient(135deg, #2d3748, #1a202c);padding:30px 20px;border-radius:20px;box-shadow:0 0 40px rgba(251,191,36,0.6);border:4px solid #fbbf24;text-align:center;">' +
           '<style>@keyframes float-legend{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}</style>' +
           '<div style="font-size:60px;margin-bottom:15px;animation:float-legend 3s ease-in-out infinite;filter:drop-shadow(0 0 20px rgba(251,191,36,0.8));">🏆</div>' +
-          '<div style="font-size:36px;font-weight:900;background:linear-gradient(90deg, #fbbf24, #f59e0b, #10b981, #8b5cf6, #fbbf24);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:25px;letter-spacing:3px;text-transform:uppercase;">OGL 2026 AUCTION</div>' +
+          '<div style="font-size:36px;font-weight:900;background:linear-gradient(90deg, #fbbf24, #f59e0b, #10b981, #8b5cf6, #fbbf24);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:20px;letter-spacing:3px;text-transform:uppercase;">OGL 2026 AUCTION</div>' +
+          '<div style="background:linear-gradient(135deg, #10b981, #059669);color:white;padding:15px 25px;border-radius:12px;margin:0 auto 25px;display:inline-block;box-shadow:0 4px 15px rgba(16,185,129,0.4);border:2px solid rgba(255,255,255,0.3);">' +
+            '<div style="display:flex;gap:20px;align-items:center;justify-content:center;flex-wrap:wrap;font-size:16px;font-weight:600;">' +
+              '<div style="display:flex;align-items:center;gap:8px;">📅 March 1st, 2025</div>' +
+              '<div style="display:flex;align-items:center;gap:8px;">🕐 2:00 PM</div>' +
+              '<div style="display:flex;align-items:center;gap:8px;">📍 James Bathe Reserve</div>' +
+            '</div>' +
+          '</div>' +
           '<div style="display:flex;justify-content:center;gap:15px;margin:25px 0;flex-wrap:wrap;">' +
             '<div style="background:rgba(251,191,36,0.2);padding:15px;border-radius:16px;border:3px solid #fbbf24;min-width:140px;transition:all 0.3s;" onmouseover="this.style.transform=\'translateY(-5px)\'" onmouseout="this.style.transform=\'translateY(0)\'">' +
               '<div style="font-size:40px;margin-bottom:8px;">🏆</div>' +
@@ -2086,7 +2121,33 @@ db.ref('auctionState').on('value',function(s){
   } else {
     localStorage.removeItem('currentBreak');
   }
-  renderAll();
+  
+  // Only render if not celebrating
+  db.ref('celebration').once('value').then(function(cs){
+    if(!cs.exists() || !cs.val().active) {
+      renderAll();
+    }
+  });
+});
+
+// Listen for celebration events
+var celebrationTimeout = null;
+db.ref('celebration').on('value', function(s){
+  if(s.exists() && s.val().active) {
+    var soldAudio = new Audio('sold.mp3');
+    soldAudio.volume = 0.7;
+    soldAudio.play().catch(function(err){ console.log('Audio play failed:', err); });
+    
+    var soldStamp = document.getElementById('soldStamp_0');
+    if(soldStamp) soldStamp.style.display = 'block';
+    
+    createConfetti();
+    
+    if(celebrationTimeout) clearTimeout(celebrationTimeout);
+    celebrationTimeout = setTimeout(function(){
+      renderAll();
+    }, 2500);
+  }
 });
 
 // Keep connection alive and reconnect if needed
