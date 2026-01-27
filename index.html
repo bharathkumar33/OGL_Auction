@@ -1364,9 +1364,10 @@ function uploadCSV(){
       originalPlayers = allPlayers;
       db.ref('registeredPlayers').set(availablePlayers);
       db.ref('allPlayers').set(allPlayers);
-      saveAuction();
-      renderAll();
-      alert('CSV uploaded successfully! ' + availablePlayers.length + ' players loaded.');
+      saveAuction().then(function(){
+        renderAll();
+        alert('CSV uploaded successfully! ' + availablePlayers.length + ' players loaded.');
+      });
     },
     error:function(err){
       console.error('CSV parsing error:', err);
@@ -1382,10 +1383,12 @@ function resetCSV(){
     originalPlayers=[];
     teams.forEach(function(t){t.wallet=140000;t.squad=[];t.ownerName=null;});
     bidLog=[];
+    localStorage.removeItem('currentBreak');
     db.ref('registeredPlayers').remove();
     db.ref('allPlayers').remove();
-    saveAuction();
-    renderAll();
+    saveAuction().then(function(){
+      renderAll();
+    });
   }
 }
 
@@ -1617,6 +1620,14 @@ function selectTeam(pi, ti){
   document.getElementById('teamWalletInfo_' + pi).textContent = 'Wallet: ' + selectedTeam.wallet;
 }
 
+function startAuction(){
+  if(!isAdmin) return alert('Admin access required!');
+  localStorage.setItem('currentBreak', 'auctionStarted');
+  saveAuction().then(function(){
+    renderAll();
+  });
+}
+
 function resumeNextGroup(completedGroup){
   if(!isAdmin) return alert('Admin access required!');
   if(completedGroup === 4) {
@@ -1624,8 +1635,9 @@ function resumeNextGroup(completedGroup){
   } else {
     localStorage.setItem('currentBreak', 'group' + completedGroup);
   }
-  saveAuction();
-  renderAll();
+  saveAuction().then(function(){
+    renderAll();
+  });
 }
 
 function resetAuction(){
@@ -1641,13 +1653,15 @@ function resetAuction(){
     completedGroups=[];
     availablePlayers = JSON.parse(JSON.stringify(originalPlayers.filter(function(p){return !p.isPreAssigned && !p.isIcon && !p.isOwner;})));
     localStorage.removeItem('currentBreak');
-    saveAuction();
-    renderAll();
+    saveAuction().then(function(){
+      renderAll();
+    });
   }
 }
 
 function saveAuction(){
-  db.ref('auctionState').set({teams:teams,availablePlayers:availablePlayers,bidLog:bidLog,unsoldPlayers:unsoldPlayers,completedGroups:completedGroups});
+  var currentBreak = localStorage.getItem('currentBreak') || '';
+  return db.ref('auctionState').set({teams:teams,availablePlayers:availablePlayers,bidLog:bidLog,unsoldPlayers:unsoldPlayers,completedGroups:completedGroups,currentBreak:currentBreak});
 }
 
 function updateNewsTicker(message){
@@ -1845,7 +1859,7 @@ function renderAll(){
             '</div>' +
           '</div>' +
           '<div style="color:white;font-size:18px;margin:25px 0;font-style:italic;opacity:0.95;">💫 "Passion meets the field!" 💫</div>' +
-          (isAdmin ? '<div style="margin-top:30px;"><button onclick="localStorage.setItem(\'currentBreak\', \'auctionStarted\'); renderAll();" style="background:linear-gradient(135deg, #10b981, #059669);color:white;border:none;padding:18px 50px;border-radius:12px;font-size:20px;font-weight:bold;cursor:pointer;box-shadow:0 8px 24px rgba(16,185,129,0.4);transition:all 0.3s;text-transform:uppercase;letter-spacing:2px;" onmouseover="this.style.transform=\'scale(1.05)\';this.style.boxShadow=\'0 12px 32px rgba(16,185,129,0.6)\'" onmouseout="this.style.transform=\'scale(1)\';this.style.boxShadow=\'0 8px 24px rgba(16,185,129,0.4)\'">🚀 START AUCTION 🚀</button></div>' : '<div style="margin-top:30px;color:#fbbf24;font-size:16px;font-weight:bold;">⏳ Waiting for Admin to Start Auction...</div>') +
+          (isAdmin ? '<div style="margin-top:30px;"><button onclick="startAuction();" style="background:linear-gradient(135deg, #10b981, #059669);color:white;border:none;padding:18px 50px;border-radius:12px;font-size:20px;font-weight:bold;cursor:pointer;box-shadow:0 8px 24px rgba(16,185,129,0.4);transition:all 0.3s;text-transform:uppercase;letter-spacing:2px;" onmouseover="this.style.transform=\'scale(1.05)\';this.style.boxShadow=\'0 12px 32px rgba(16,185,129,0.6)\'" onmouseout="this.style.transform=\'scale(1)\';this.style.boxShadow=\'0 8px 24px rgba(16,185,129,0.4)\'">🚀 START AUCTION 🚀</button></div>' : '<div style="margin-top:30px;color:#fbbf24;font-size:16px;font-weight:bold;">⏳ Waiting for Admin to Start Auction...</div>') +
         '</div>' +
       '</div>';
   } else if(showBreak) {
@@ -2052,7 +2066,11 @@ db.ref('registeredPlayers').once('value').then(function(s){
 });
 
 db.ref('auctionState').on('value',function(s){
-  if(!s.exists()) return;
+  if(!s.exists()) {
+    localStorage.removeItem('currentBreak');
+    renderAll();
+    return;
+  }
   var d=s.val();
   if(!d) return;
   teams=d.teams||teams;
@@ -2063,6 +2081,11 @@ db.ref('auctionState').on('value',function(s){
   bidLog=d.bidLog||[];
   unsoldPlayers=d.unsoldPlayers||[];
   completedGroups=d.completedGroups||[];
+  if(d.currentBreak) {
+    localStorage.setItem('currentBreak', d.currentBreak);
+  } else {
+    localStorage.removeItem('currentBreak');
+  }
   renderAll();
 });
 
