@@ -463,9 +463,6 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   align-items:center;
   justify-content:center;
 }
-.rank-modal.active {
-  display:flex;
-}
 .rank-modal-content {
   background:white;
   margin:auto;
@@ -482,8 +479,6 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   font-weight:bold;
   cursor:pointer;
   color:#999;
-  z-index:1001;
-  position:relative;
 }
 .rank-modal-close:hover {
   color:#000;
@@ -1224,7 +1219,7 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   .header-title { font-size:28px !important; letter-spacing:2px !important; padding:5px 10px !important; }
   .header-content { gap:10px; flex-direction:column; }
   nav button { padding:10px 4px; font-size:9px; white-space:nowrap; }
-  .admin-btn-corner { display:none !important; }
+  .admin-btn-corner { top:5px; right:5px; padding:5px 8px; font-size:9px; }
   .screen { padding:8px; }
   .screen.active { margin:8px; }
   .rank-counter { padding:10px; gap:5px; display:flex; }
@@ -1342,9 +1337,9 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   </div>
   
   <div id="rankCounter" class="rank-counter"></div>
-  <div id="rankModal" class="rank-modal" onclick="if(event.target===this){this.style.display='none';this.classList.remove('active');}">
+  <div id="rankModal" class="rank-modal" onclick="if(event.target===this) this.style.display='none'">
     <div class="rank-modal-content">
-      <span class="rank-modal-close" onclick="var m=document.getElementById('rankModal');m.style.display='none';m.classList.remove('active');">&times;</span>
+      <span class="rank-modal-close" onclick="document.getElementById('rankModal').style.display='none'">&times;</span>
       <h2 id="rankModalTitle"></h2>
       <div id="rankModalPlayers"></div>
     </div>
@@ -2169,9 +2164,7 @@ function showRankPlayers(rank){
       '<div><b>' + p.name + '</b><br>Base Price: ' + p.basePrice + ' | Age: ' + (p.age || 'N/A') + '</div>' +
     '</div>';
   }).join('');
-  var modal = document.getElementById('rankModal');
-  modal.classList.add('active');
-  modal.style.display = 'flex';
+  document.getElementById('rankModal').style.display = 'flex';
 }
 
 function showUnsoldPlayers(){
@@ -2184,9 +2177,7 @@ function showUnsoldPlayers(){
       '<div><b>' + p.name + '</b><br>Base Price: ' + p.basePrice + ' | Age: ' + (p.age || 'N/A') + '</div>' +
     '</div>';
   }).join('');
-  var modal = document.getElementById('rankModal');
-  modal.classList.add('active');
-  modal.style.display = 'flex';
+  document.getElementById('rankModal').style.display = 'flex';
 }
 
 function showYoungPlayers(){
@@ -2199,9 +2190,7 @@ function showYoungPlayers(){
       '<div><b>' + p.name + '</b><br>Base Price: ' + p.basePrice + ' | Age: ' + p.age + '</div>' +
     '</div>';
   }).join('');
-  var modal = document.getElementById('rankModal');
-  modal.classList.add('active');
-  modal.style.display = 'flex';
+  document.getElementById('rankModal').style.display = 'flex';
 }
 
 function showIconPlayers(){
@@ -2214,20 +2203,11 @@ function showIconPlayers(){
       '<div><b>' + p.name + '</b><br>Base Price: ' + p.basePrice + '</div>' +
     '</div>';
   }).join('');
-  var modal = document.getElementById('rankModal');
-  modal.classList.add('active');
-  modal.style.display = 'flex';
+  document.getElementById('rankModal').style.display = 'flex';
 }
 
 function showHelp(){
-  if(window.innerWidth <= 767) {
-    var helpWindow = window.open('OGL_Auction_Rules.html', '_blank');
-    if(!helpWindow) {
-      alert('Please allow popups to view the help page');
-    }
-  } else {
-    window.open('OGL_Auction_Rules.html', '_blank', 'width=900,height=800,scrollbars=yes');
-  }
+  window.open('OGL_Auction_Rules.html', '_blank', 'width=900,height=800,scrollbars=yes');
 }
 
 function renderAll(){
