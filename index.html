@@ -1609,10 +1609,10 @@ function uploadCSV(){
           });
           if(targetTeam) {
             if(!targetTeam.squad) targetTeam.squad = [];
-            var preAssignedAmount = player.isIcon ? player.basePrice : 0;
+            var preAssignedAmount = player.basePrice;
             var squadMember = {name:player.name, amount:preAssignedAmount, photo:player.photo, isPreAssigned:true, isOwner:false};
             targetTeam.squad.push(squadMember);
-            if(player.isIcon) targetTeam.wallet -= player.basePrice;
+            targetTeam.wallet -= player.basePrice;
             if(player.isIcon && player.isYoung) {
               if(!targetTeam.groupPicks) targetTeam.groupPicks = {1:0,2:0,3:0,4:0};
               targetTeam.groupPicks[4]++;
