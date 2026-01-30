@@ -18,6 +18,8 @@ body {
   background: url('background.png') no-repeat center center fixed;
   background-size: cover;
   position:relative;
+  overflow-x:hidden;
+  width:100%;
 }
 body::before {
   content:'';
@@ -198,6 +200,20 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   position:relative;
   overflow:hidden;
   transition:all 0.3s;
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+}
+.team-card::after {
+  content:'';
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:linear-gradient(135deg, rgba(255,255,255,0.85), rgba(248,250,252,0.85));
+  z-index:0;
+  pointer-events:none;
 }
 .team-card:hover {
   transform:scale(1.02);
@@ -217,17 +233,12 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   left:100%;
 }
 .team-card .team-logo-bg {
-  position:absolute;
-  top:10px;
-  left:10px;
-  width:150px;
-  height:150px;
-  object-fit:contain;
+  display:none;
 }
 .team-card .team-wallet-content {
   position:relative;
   z-index:2;
-  margin-left:175px;
+  margin-left:0;
 }
 .bid-btn {
   background:#10b981;
@@ -342,7 +353,6 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   border:4px solid #fbbf24;
   box-shadow:0 0 25px rgba(251,191,36,0.8);
 }
-}
 @keyframes fadeInScale {
   from { opacity:0; transform:translate(-50%, -50%) scale(0.8); }
   to { opacity:1; transform:translate(-50%, -50%) scale(1); }
@@ -420,6 +430,9 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   border:2px solid rgba(251,191,36,0.2);
   flex-wrap:wrap;
 }
+@media (min-width: 768px) {
+  .rank-counter { display:none; }
+}
 .rank-counter > div {
   cursor:pointer;
   padding:15px;
@@ -447,15 +460,18 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   background:rgba(0,0,0,0.7);
   z-index:1000;
   overflow:auto;
+  align-items:center;
+  justify-content:center;
 }
 .rank-modal-content {
   background:white;
-  margin:50px auto;
+  margin:auto;
   padding:20px;
   border-radius:10px;
   max-width:800px;
   max-height:80vh;
   overflow-y:auto;
+  position:relative;
 }
 .rank-modal-close {
   float:right;
@@ -490,6 +506,20 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   min-height:400px;
   transition:all 0.3s;
   border:2px solid transparent;
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+}
+.auction-team-card::after {
+  content:'';
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:linear-gradient(135deg, rgba(255,255,255,0.75), rgba(248,250,252,0.75));
+  z-index:0;
+  pointer-events:none;
 }
 .auction-team-card:hover {
   transform:translateY(-5px) scale(1.02);
@@ -497,14 +527,7 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   border:2px solid #fbbf24;
 }
 .team-logo-watermark {
-  position:absolute;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  opacity:0.1;
-  object-fit:contain;
-  z-index:1;
+  display:none;
 }
 .team-content {
   position:relative;
@@ -560,6 +583,181 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   border:2px solid #fbbf24;
   position:relative;
   overflow:hidden;
+}
+.group-limit-warning {
+  background:rgba(239,68,68,0.15);
+  border:2px solid #ef4444;
+  color:#dc2626;
+  padding:8px 12px;
+  border-radius:8px;
+  font-size:11px;
+  font-weight:600;
+  margin-top:6px;
+  text-align:center;
+  animation:warningPulse 2s infinite;
+}
+@keyframes warningPulse {
+  0%, 100% { background:rgba(239,68,68,0.15); }
+  50% { background:rgba(239,68,68,0.25); }
+}
+.group-limit-full {
+  background:rgba(239,68,68,0.2);
+  border:2px solid #ef4444;
+  color:#dc2626;
+  padding:6px 10px;
+  border-radius:6px;
+  font-size:10px;
+  font-weight:700;
+  margin:2px 0;
+  text-align:center;
+  animation:warningPulse 2s infinite;
+}
+.bidding-restriction {
+  background:linear-gradient(135deg, rgba(239,68,68,0.1), rgba(239,68,68,0.05));
+  border:2px solid #ef4444;
+  border-radius:12px;
+  padding:12px;
+  margin:10px 0;
+  animation:restrictionAlert 3s infinite;
+}
+@keyframes restrictionAlert {
+  0%, 100% { border-color:#ef4444; box-shadow:0 0 0 rgba(239,68,68,0.4); }
+  50% { border-color:#dc2626; box-shadow:0 0 15px rgba(239,68,68,0.6); }
+}
+.wallet-insufficient {
+  background:rgba(239,68,68,0.2);
+  border:2px solid #ef4444;
+  color:#dc2626;
+  padding:6px 10px;
+  border-radius:6px;
+  font-size:10px;
+  font-weight:600;
+  margin-top:4px;
+  text-align:center;
+}
+.team-photo-container {
+  background:linear-gradient(135deg, rgba(255,255,255,0.95), rgba(248,250,252,0.95));
+  border-radius:20px;
+  padding:30px;
+  margin:20px auto;
+  max-width:900px;
+  box-shadow:0 8px 32px rgba(251,191,36,0.3), 0 0 60px rgba(251,191,36,0.2);
+  border:3px solid #fbbf24;
+  position:relative;
+  overflow:hidden;
+}
+.team-photo-container::before {
+  content:'';
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  width:100%;
+  height:100%;
+  background-size:contain;
+  background-position:center;
+  background-repeat:no-repeat;
+  opacity:0.08;
+  z-index:0;
+  pointer-events:none;
+}
+.team-photo-header {
+  text-align:center;
+  margin-bottom:30px;
+  position:relative;
+  z-index:1;
+}
+.team-photo-name {
+  font-size:32px;
+  font-weight:900;
+  color:#2d3748;
+  text-transform:uppercase;
+  letter-spacing:2px;
+  margin-bottom:10px;
+  text-shadow:2px 2px 4px rgba(0,0,0,0.1);
+}
+.leadership-row {
+  display:flex;
+  justify-content:center;
+  gap:40px;
+  margin:30px 0;
+  flex-wrap:wrap;
+  position:relative;
+  z-index:1;
+}
+.leader-card {
+  text-align:center;
+  position:relative;
+}
+.leader-photo {
+  width:150px;
+  height:150px;
+  border-radius:50%;
+  border:5px solid #fbbf24;
+  box-shadow:0 8px 24px rgba(251,191,36,0.4);
+  object-fit:cover;
+  margin-bottom:10px;
+}
+.leader-badge {
+  position:absolute;
+  top:-10px;
+  right:-10px;
+  background:linear-gradient(135deg, #fbbf24, #f59e0b);
+  color:#1a202c;
+  padding:8px 15px;
+  border-radius:20px;
+  font-weight:900;
+  font-size:14px;
+  box-shadow:0 4px 12px rgba(251,191,36,0.5);
+}
+.leader-name {
+  font-size:18px;
+  font-weight:700;
+  color:#2d3748;
+  margin-top:5px;
+}
+.players-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(120px, 1fr));
+  gap:20px;
+  margin-top:30px;
+  padding-top:30px;
+  border-top:3px solid #e2e8f0;
+  position:relative;
+  z-index:1;
+}
+.player-item {
+  text-align:center;
+}
+.player-item-photo {
+  width:100px;
+  height:100px;
+  border-radius:50%;
+  border:3px solid #10b981;
+  box-shadow:0 4px 12px rgba(16,185,129,0.3);
+  object-fit:cover;
+  margin:0 auto 8px;
+  transition:all 0.3s;
+}
+.player-item-photo:hover {
+  transform:scale(1.1);
+  box-shadow:0 6px 20px rgba(16,185,129,0.5);
+}
+.player-item-name {
+  font-size:13px;
+  font-weight:600;
+  color:#2d3748;
+}
+@media (max-width: 767px) {
+  .team-photo-container { padding:20px; }
+  .team-photo-name { font-size:24px; }
+  .leadership-row { gap:20px; }
+  .leader-photo { width:100px; height:100px; }
+  .leader-badge { font-size:11px; padding:5px 10px; }
+  .leader-name { font-size:15px; }
+  .players-grid { grid-template-columns:repeat(auto-fill, minmax(90px, 1fr)); gap:15px; }
+  .player-item-photo { width:70px; height:70px; }
+  .player-item-name { font-size:11px; }
 }
 .wallet-highlight::before {
   content:'';
@@ -684,15 +882,15 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   transform:translate(-50%, -50%) rotate(-15deg);
   background:linear-gradient(135deg, #10b981, #059669);
   color:white;
-  padding:10px 20px;
-  border-radius:12px;
+  padding:6px 15px;
+  border-radius:8px;
   font-weight:bold;
-  font-size:18px;
+  font-size:14px;
   z-index:10;
   opacity:0.95;
   box-shadow:0 4px 15px rgba(16,185,129,0.5), inset 0 2px 0 rgba(255,255,255,0.3);
-  border:3px solid white;
-  letter-spacing:2px;
+  border:2px solid white;
+  letter-spacing:1px;
   text-shadow:2px 2px 4px rgba(0,0,0,0.3);
 }
 .unsold-stamp {
@@ -725,30 +923,57 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   opacity:0.9;
   box-shadow:0 2px 8px rgba(139,92,246,0.3);
 }
-.collapsible-header {
-  cursor:pointer;
+.collapsible-section {
+  background:white;
+  border-radius:12px;
+  margin:10px 0;
+  overflow:hidden;
+  border:2px solid rgba(251,191,36,0.2);
+  transition:all 0.3s;
+}
+.collapsible-section.collapsed .collapsible-body {
+  max-height:0;
+  padding:0;
+}
+.collapsible-section .collapsible-body {
+  max-height:2000px;
+  padding:15px;
+  transition:all 0.3s;
+  overflow:hidden;
+}
+.collapsible-toggle {
+  width:100%;
   padding:12px 15px;
   background:linear-gradient(135deg, #f3f4f6, #e5e7eb);
-  border-radius:8px;
-  margin-top:20px;
-  user-select:none;
+  border:none;
+  cursor:pointer;
   display:flex;
   justify-content:space-between;
   align-items:center;
+  font-weight:600;
+  font-size:14px;
+  color:#2d3748;
   transition:all 0.3s;
-  border-left:4px solid #fbbf24;
 }
-.collapsible-header:hover {
+.collapsible-toggle:hover {
   background:linear-gradient(135deg, #e5e7eb, #d1d5db);
-  transform:translateX(2px);
 }
-.collapsible-content {
-  max-height:1000px;
-  overflow:hidden;
-  transition:max-height 0.3s ease;
+.collapsible-toggle .arrow {
+  transition:transform 0.3s;
+  font-size:18px;
 }
-.collapsible-content.collapsed {
-  max-height:0;
+.collapsible-section.collapsed .arrow {
+  transform:rotate(-90deg);
+}
+.compact-info {
+  display:inline-block;
+  background:rgba(251,191,36,0.1);
+  padding:2px 8px;
+  border-radius:12px;
+  font-size:11px;
+  margin-left:8px;
+  color:#d97706;
+  font-weight:600;
 }
 .bid-form {
   display:none;
@@ -951,10 +1176,28 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 768px) and (max-width: 1199px) {
+  .header { padding:30px 20px; }
+  .header-logo { width:90px; height:90px; }
+  .header-title { font-size:48px; letter-spacing:4px; }
+  .header-content { gap:25px; }
+  nav button { padding:12px; font-size:13px; }
+  .screen { padding:15px; }
+  .screen.active { margin:15px; }
+  .rank-counter { padding:20px; }
+  .rank-counter > div { padding:15px; margin:0 6px; }
+  .wallet-highlight { padding:20px; }
+  .wallet-title { font-size:18px; margin-bottom:15px; }
+  .admin-btn-corner { top:12px; right:12px; padding:8px 14px; font-size:12px; }
+  #teamWallets { grid-template-columns:repeat(2,1fr); }
+  .auction-stats { grid-template-columns:repeat(2,1fr); gap:12px; }
+  #auctionedList { grid-template-columns:repeat(2,1fr); }
+}
+
+@media (min-width: 1200px) {
   .header { padding:40px 25px; }
   .header-logo { width:120px; height:120px; }
-  .header-title { font-size:72px; letter-spacing:6px; }
+  .header-title { font-size:64px; letter-spacing:6px; }
   .header-content { gap:35px; }
   nav button { padding:14px; font-size:15px; }
   .screen { padding:20px; }
@@ -973,28 +1216,33 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   .header { padding:15px 10px; }
   .header-logo { width:50px; height:50px; }
   .pulse-ring { width:60px !important; height:60px !important; }
-  .header-title { font-size:32px !important; letter-spacing:4px !important; padding:5px 15px !important; }
-  .header-content { gap:12px; flex-direction:column; }
-  nav button { padding:10px 5px; font-size:10px; }
-  .admin-btn-corner { top:8px; right:8px; padding:6px 10px; font-size:10px; }
+  .header-title { font-size:28px !important; letter-spacing:2px !important; padding:5px 10px !important; }
+  .header-content { gap:10px; flex-direction:column; }
+  nav button { padding:10px 4px; font-size:9px; white-space:nowrap; }
+  .admin-btn-corner { top:5px; right:5px; padding:5px 8px; font-size:9px; }
   .screen { padding:8px; }
   .screen.active { margin:8px; }
-  .rank-counter { padding:10px; gap:5px; }
+  .rank-counter { padding:10px; gap:5px; display:flex; }
   .rank-counter > div { padding:10px; min-width:80px; font-size:12px; }
   .wallet-highlight { padding:12px; }
   .wallet-title { font-size:14px; margin-bottom:10px; }
   #teamWallets { grid-template-columns:repeat(2,1fr); gap:8px; }
-  .team-card { padding:8px; font-size:12px; }
-  .team-card .team-logo-bg { width:60px !important; height:60px !important; top:5px !important; left:5px !important; opacity:0.15 !important; }
-  .team-card .team-wallet-content { margin-left:0 !important; }
+  .team-card { padding:8px; font-size:11px; }
+  .team-card .team-logo-bg { width:50px !important; height:50px !important; top:5px !important; left:5px !important; opacity:0.12 !important; }
+  .team-card .team-wallet-content { margin-left:0 !important; padding-left:5px !important; }
+  .team-name-desktop, .owner-name-desktop, .locked-count-desktop, .wallet-amount-desktop, .max-safe-desktop, .squad-info-desktop, .budget-per-player-desktop, .group-picks-desktop { display:none !important; }
+  .team-name-mobile, .owner-name-mobile, .locked-count-mobile, .wallet-amount-mobile, .max-safe-mobile, .squad-info-mobile, .budget-per-player-mobile, .group-picks-mobile { display:block !important; }
+  .collapsible-section { margin:8px 0; }
+  .collapsible-toggle { font-size:12px; padding:10px; }
+  .compact-info { font-size:9px; padding:1px 6px; }
   .auction-stats { display:none !important; }
   .stat-card { padding:12px; }
   .stat-number { font-size:24px; }
   .stat-label { font-size:10px; }
   #auctionedList { grid-template-columns:repeat(2,1fr); gap:8px; }
-  .auction-team-card { padding:10px; min-height:300px; font-size:12px; }
-  .team-name-highlight { font-size:12px; padding:8px; }
-  .sold-player { font-size:11px; padding:4px 6px; }
+  .auction-team-card { padding:8px; min-height:280px; font-size:11px; }
+  .team-name-highlight { font-size:11px; padding:6px; }
+  .sold-player { font-size:10px; padding:3px 5px; }
   .rank-badge { font-size:9px; padding:3px 8px; }
   .news-ticker-content { font-size:12px; }
   .news-ticker-label { padding:12px 15px; font-size:11px; }
@@ -1002,31 +1250,29 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   th, td { padding:8px 4px; }
   .player-photo { width:40px; height:40px; }
   .bid-log-item { padding:10px; font-size:13px; }
-  .team-select-grid { grid-template-columns:repeat(2,1fr); gap:6px; }
-  .team-select-btn { font-size:11px; padding:8px; }
+  .team-select-btn { font-size:10px; padding:8px 6px; min-height:85px; }
   .bid-input-group input { font-size:16px; padding:10px; }
   .confirm-bid-btn, .cancel-bid-btn { font-size:14px; padding:12px; }
-  #availablePlayers > div { flex-direction:column !important; gap:15px !important; margin:10px auto !important; max-width:100% !important; padding:0 5px !important; box-sizing:border-box !important; }
-  #availablePlayers > div > div { min-width:100% !important; max-width:100% !important; flex:none !important; box-sizing:border-box !important; }
-  #availablePlayers > div > div:first-child { padding:15px 10px !important; box-sizing:border-box !important; }
-  #availablePlayers > div > div:first-child > div:first-child { width:100% !important; max-width:280px !important; height:auto !important; margin:0 auto 15px !important; }
-  #availablePlayers > div > div:first-child img.player-photo { width:100% !important; max-width:280px !important; height:auto !important; aspect-ratio:1 !important; object-fit:cover !important; }
-  #availablePlayers > div > div:first-child h2 { font-size:24px !important; }
-  #availablePlayers > div > div:first-child > div[style*="font-size:24px"] { font-size:18px !important; }
-  #availablePlayers > div > div:last-child > div:first-child { max-width:100% !important; padding:12px !important; }
-  #availablePlayers > div > div:last-child > div:first-child > div[style*="font-size:28px"] { font-size:20px !important; }
-  #availablePlayers > div > div:last-child > div:first-child > div[style*="font-size:16px"]:first-child { font-size:12px !important; }
+  #availablePlayers > div > div:first-child { grid-column:1/-1; max-width:100% !important; position:relative !important; top:0 !important; }
+  #availablePlayers > div > div:last-child { grid-column:1/-1; }
+  #availablePlayers > div { display:block !important; padding:0 8px !important; margin:10px auto !important; }
+  #availablePlayers > div > div { max-width:100% !important; margin-bottom:15px; }
+  #availablePlayers .auction-grid-desktop { display:none !important; }
+  #availablePlayers .auction-grid-mobile { display:block !important; }
+  .rank-counter { display:flex !important; }
   body:not(.admin-mode) .bid-input-group,
   body:not(.admin-mode) .team-select-grid,
   body:not(.admin-mode) .confirm-bid-btn,
   body:not(.admin-mode) .cancel-bid-btn,
   body:not(.admin-mode) #teamWalletInfo_0,
   body:not(.admin-mode) .player-card > div[style*="Select Team"],
-  body:not(.admin-mode) .player-card > div[style*="font-weight:bold"][style*="margin-bottom:12px"] { display:none !important; }
+  body:not(.admin-mode) .player-card > div[style*="font-weight:bold"][style*="margin-bottom:12px"],
+  body:not(.admin-mode) .auction-grid-mobile > div:last-child { display:none !important; }
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 1400px) {
   #auctionedList { grid-template-columns:repeat(6,1fr); }
+  .header-title { font-size:72px; letter-spacing:8px; }
 }
 </style>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -1054,6 +1300,7 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   <button onclick="showScreen('players',this)">Registered Players</button>
   <button class="active" onclick="showScreen('auction',this)">Auction</button>
   <button onclick="showScreen('auctioned',this)">Playing Squad</button>
+  <button onclick="showScreen('teamPhotos',this)">Team Photos</button>
 </nav>
 <div id="players" class="screen">
   <div class="news-ticker">
@@ -1084,9 +1331,10 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   </div>
   <div class="auction-stats" id="auctionStats"></div>
   <div class="wallet-highlight">
-    <div class="wallet-title">TEAM OWNER / WALLET</div>
+    <div class="wallet-title">💰 TEAM WALLETS</div>
     <div id="teamWallets"></div>
   </div>
+  
   <div id="rankCounter" class="rank-counter"></div>
   <div id="rankModal" class="rank-modal" onclick="if(event.target===this) this.style.display='none'">
     <div class="rank-modal-content">
@@ -1103,6 +1351,9 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
 <div id="auctioned" class="screen">
   <h2>Playing Squad</h2>
   <div id="auctionedList"></div>
+</div>
+<div id="teamPhotos" class="screen" style="background:linear-gradient(135deg, #1a202c 0%, #2d3748 50%, #1a202c 100%);">
+  <div id="teamPhotosList"></div>
 </div>
 <script>
 const firebaseConfig = {
@@ -1126,12 +1377,12 @@ if(localStorage.getItem('isAdmin') === 'true') {
 }
 
 let teams = [
-  { name:"Charging Bulls", wallet:140000, squad:[], logo:"ChargingBulls.png", ownerName:null },
-  { name:"Mighty Tuskers", wallet:140000, squad:[], logo:"MightyTuskers.png", ownerName:null },
-  { name:"Royal Tigers", wallet:140000, squad:[], logo:"RoyalTigers.png", ownerName:null },
-  { name:"Blazing Phoenix", wallet:140000, squad:[], logo:"BlazingPhoenix.png", ownerName:null },
-  { name:"Golden Eagle", wallet:140000, squad:[], logo:"GoldenEagle.png", ownerName:null },
-  { name:"Power Panthers", wallet:140000, squad:[], logo:"PowerPanthers.png", ownerName:null }
+  { name:"Charging Bulls", wallet:150000, squad:[], logo:"ChargingBulls.png", ownerName:null, groupPicks:{1:0,2:0,3:0,4:0} },
+  { name:"Mighty Tuskers", wallet:150000, squad:[], logo:"MightyTuskers.png", ownerName:null, groupPicks:{1:0,2:0,3:0,4:0} },
+  { name:"Royal Tigers", wallet:150000, squad:[], logo:"RoyalTigers.png", ownerName:null, groupPicks:{1:0,2:0,3:0,4:0} },
+  { name:"Blazing Phoenix", wallet:150000, squad:[], logo:"BlazingPhoenix.png", ownerName:null, groupPicks:{1:0,2:0,3:0,4:0} },
+  { name:"Golden Eagle", wallet:150000, squad:[], logo:"GoldenEagle.png", ownerName:null, groupPicks:{1:0,2:0,3:0,4:0} },
+  { name:"Power Panthers", wallet:150000, squad:[], logo:"PowerPanthers.png", ownerName:null, groupPicks:{1:0,2:0,3:0,4:0} }
 ];
 
 let availablePlayers = [];
@@ -1139,6 +1390,26 @@ let bidLog = [];
 let originalPlayers = [];
 let unsoldPlayers = [];
 let completedGroups = [];
+let currentGroup = 1;
+let groupWalletLimits = {1:70000, 2:30000, 3:20000, 4:30000};
+
+function shuffleArray(array) {
+  var shuffled = array.slice();
+  for (var i = shuffled.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var temp = shuffled[i];
+    shuffled[i] = shuffled[j];
+    shuffled[j] = temp;
+  }
+  return shuffled;
+}
+
+function toggleSection(sectionId) {
+  var section = document.getElementById(sectionId);
+  if(section) {
+    section.classList.toggle('collapsed');
+  }
+}
 
 function toggleAdmin(){
   if(isAdmin) {
@@ -1248,7 +1519,7 @@ function uploadCSV(){
       console.log('Non-young players:', nonYoungPlayers.length);
       console.log('Young players:', youngPlayersList.length);
       
-      // Group by base price ranges and sort within each group
+      // Group by base price ranges
       nonYoungPlayers.forEach(function(p){
         if(p.basePrice >= 6000) {
           p.rank = 1;
@@ -1259,24 +1530,20 @@ function uploadCSV(){
         }
       });
       
-      // Sort within each rank by base price descending
-      nonYoungPlayers.sort(function(a,b){
-        if(a.rank !== b.rank) return a.rank - b.rank;
-        return b.basePrice - a.basePrice;
-      });
+      // Separate into groups and shuffle each group
+      var group1 = shuffleArray(nonYoungPlayers.filter(function(p){return p.rank === 1;}));
+      var group2 = shuffleArray(nonYoungPlayers.filter(function(p){return p.rank === 2;}));
+      var group3 = shuffleArray(nonYoungPlayers.filter(function(p){return p.rank === 3;}));
+      var group4 = shuffleArray(youngPlayersList);
       
-      // Assign rankOrder after sorting
-      var rank1Index = 0, rank2Index = 0, rank3Index = 0;
-      nonYoungPlayers.forEach(function(p){
-        if(p.rank === 1) p.rankOrder = rank1Index++;
-        else if(p.rank === 2) p.rankOrder = rank2Index++;
-        else if(p.rank === 3) p.rankOrder = rank3Index++;
-      });
+      // Assign rankOrder after shuffling
+      group1.forEach(function(p, index){ p.rankOrder = index; });
+      group2.forEach(function(p, index){ p.rankOrder = index; });
+      group3.forEach(function(p, index){ p.rankOrder = index; });
+      group4.forEach(function(p, index){ p.rank = 4; p.rankOrder = index; });
       
-      youngPlayersList.forEach(function(p, index){
-        p.rank = 4;
-        p.rankOrder = index;
-      });
+      // Combine back
+      nonYoungPlayers = group1.concat(group2).concat(group3);
       
       console.log('Group 1 (6000+):', nonYoungPlayers.filter(function(p){return p.rank === 1;}).length);
       console.log('Group 2 (4000-5999):', nonYoungPlayers.filter(function(p){return p.rank === 2;}).length);
@@ -1293,7 +1560,7 @@ function uploadCSV(){
       // Reset team owners, wallets, and squads
       teams.forEach(function(t) {
         t.ownerName = null;
-        t.wallet = 140000;
+        t.wallet = 150000;
         t.squad = [];
       });
       
@@ -1344,6 +1611,10 @@ function uploadCSV(){
             var squadMember = {name:player.name, amount:preAssignedAmount, photo:player.photo, isPreAssigned:true, isOwner:false};
             targetTeam.squad.push(squadMember);
             if(player.isIcon) targetTeam.wallet -= player.basePrice;
+            if(player.isIcon && player.isYoung) {
+              if(!targetTeam.groupPicks) targetTeam.groupPicks = {1:0,2:0,3:0,4:0};
+              targetTeam.groupPicks[4]++;
+            }
             console.log('Added to squad:', squadMember, 'Team:', targetTeam.name, 'Wallet deducted:', preAssignedAmount);
           } else {
             console.log('WARNING: Could not find team for pre-assigned/ICON player', player.name, 'with team name', player.teamName);
@@ -1381,7 +1652,7 @@ function resetCSV(){
   if(confirm("Clear players?")){
     availablePlayers=[];
     originalPlayers=[];
-    teams.forEach(function(t){t.wallet=140000;t.squad=[];t.ownerName=null;});
+    teams.forEach(function(t){t.wallet=150000;t.squad=[];t.ownerName=null;});
     bidLog=[];
     localStorage.removeItem('currentBreak');
     db.ref('registeredPlayers').remove();
@@ -1394,7 +1665,11 @@ function resetCSV(){
 
 function markUnsold(pi){
   if(!isAdmin) return alert('Admin access required!');
+  
   var sortedPlayers = availablePlayers.slice().sort(function(a, b){
+    var aIsTarget = (a.rank === currentGroup && !a.isUnsold) ? 0 : 1;
+    var bIsTarget = (b.rank === currentGroup && !b.isUnsold) ? 0 : 1;
+    if(aIsTarget !== bIsTarget) return aIsTarget - bIsTarget;
     if(a.rank !== b.rank) {
       if(a.rank === 5) return 1;
       if(b.rank === 5) return -1;
@@ -1403,13 +1678,15 @@ function markUnsold(pi){
     if(a.rankOrder !== undefined && b.rankOrder !== undefined) return a.rankOrder - b.rankOrder;
     return b.basePrice - a.basePrice;
   });
+  
   var player = sortedPlayers[pi];
   if(!player) return;
-  if(player.isUnsold || player.rank === 5) {
+  if(player.isUnsold && player.rank === 5) {
     alert(player.name + ' is already in Next Chance queue!');
     return;
   }
   if(!confirm('Move ' + player.name + ' to Next Chance?')) return;
+  
   var actualIndex = availablePlayers.findIndex(function(p){ return p.name === player.name; });
   if(actualIndex !== -1) {
     var unsoldCopy = JSON.parse(JSON.stringify(player));
@@ -1421,9 +1698,76 @@ function markUnsold(pi){
       unsoldPlayers.push(JSON.parse(JSON.stringify(unsoldCopy)));
     }
   }
+  
   updateNewsTicker(player.name + ' moved to Next Chance - will bid later');
-  renderAll();
-  saveAuction();
+  checkGroupCompletion();
+  saveAuction().then(function(){
+    renderAll();
+  });
+}
+
+function getGroupPickCount(team, groupRank) {
+  if(!team.groupPicks) team.groupPicks = {1:0,2:0,3:0,4:0};
+  return team.groupPicks[groupRank] || 0;
+}
+
+function canPickFromGroup(team, groupRank, playerName) {
+  if(groupRank === 5) {
+    // Next Chance: Check original group of the player
+    if(playerName) {
+      var originalPlayer = originalPlayers.find(function(op){return op.name === playerName;});
+      if(originalPlayer) {
+        var origGroup = originalPlayer.rank;
+        // Check if team has pre-assigned below40 players
+        var hasPreAssignedBelow40 = team.squad.some(function(p){
+          return p.isPreAssigned && originalPlayers.find(function(op){return op.name === p.name && op.rank === 4;});
+        });
+        
+        // If player is from Group 4 and team has pre-assigned below40, limit to 2 total from Group 4
+        if(origGroup === 4 && hasPreAssignedBelow40) {
+          return getGroupPickCount(team, 4) < 2;
+        }
+        // Otherwise check if original group is full (3/3)
+        return getGroupPickCount(team, origGroup) < 3;
+      }
+    }
+    return true;
+  }
+  return getGroupPickCount(team, groupRank) < 3;
+}
+
+function getGroupWalletSpent(team, groupRank) {
+  if(!team.squad) return 0;
+  return team.squad.filter(function(p){
+    var originalPlayer = originalPlayers.find(function(op){return op.name === p.name;});
+    return originalPlayer && originalPlayer.rank === groupRank && !p.isPreAssigned;
+  }).reduce(function(sum, p){ return sum + (p.amount || 0); }, 0);
+}
+
+function canAffordInGroup(team, groupRank, amount) {
+  if(groupRank === 5) return true;
+  var spent = getGroupWalletSpent(team, groupRank);
+  var limit = groupWalletLimits[groupRank] || 999999;
+  return (spent + amount) <= limit;
+}
+
+function checkGroupCompletion() {
+  if(currentGroup <= 4) {
+    var groupPlayers = availablePlayers.filter(function(p){ return p.rank === currentGroup && !p.isUnsold; });
+    
+    if(groupPlayers.length === 0) {
+      completedGroups.push(currentGroup);
+      updateNewsTicker('🎉 Group ' + currentGroup + ' Complete! Moving to next group...');
+      currentGroup++;
+      if(currentGroup > 4) currentGroup = 5;
+      return true;
+    }
+  }
+  return false;
+}
+
+function autoMoveLeftoverPlayers(currentGroup) {
+  // Not needed anymore - groups complete when all players are picked or moved
 }
 
 function placeBid(ti,pi){
@@ -1431,8 +1775,10 @@ function placeBid(ti,pi){
   ti = parseInt(ti);
   pi = parseInt(pi);
   
-  // Get sorted players to find the correct player
   var sortedPlayers = availablePlayers.slice().sort(function(a, b){
+    var aIsTarget = (a.rank === currentGroup && !a.isUnsold) ? 0 : 1;
+    var bIsTarget = (b.rank === currentGroup && !b.isUnsold) ? 0 : 1;
+    if(aIsTarget !== bIsTarget) return aIsTarget - bIsTarget;
     if(a.rank !== b.rank) {
       if(a.rank === 5) return 1;
       if(b.rank === 5) return -1;
@@ -1445,27 +1791,26 @@ function placeBid(ti,pi){
   const team=teams[ti];
   const player=sortedPlayers[pi];
   
-  console.log('Bidding on player:', player.name, 'Base price:', player.basePrice, 'Index:', pi);
-  
-  if(!team) {
-    alert('Error: Team not found');
-    return;
-  }
-  
-  if(!player) {
-    alert('Error: Player not found');
-    return;
-  }
-  
-  if(player.isOwner && team.ownerName !== player.name) {
-    alert('Team owners can only play for their own team!');
+  if(!team || !player) {
+    alert('Error: Team or Player not found');
     return;
   }
   
   if(!team.squad) team.squad = [];
+  if(!team.groupPicks) team.groupPicks = {1:0,2:0,3:0,4:0};
   
   if(team.squad.length>=14) {
     alert("Squad full");
+    return;
+  }
+  
+  if(!canPickFromGroup(team, player.rank, player.name)) {
+    var checkGroup = player.rank;
+    if(player.rank === 5) {
+      var originalPlayer = originalPlayers.find(function(op){return op.name === player.name;});
+      if(originalPlayer && originalPlayer.rank === 4) checkGroup = 4;
+    }
+    alert('Group limit reached! ' + team.name + ' already has 3 players from Group ' + checkGroup);
     return;
   }
 
@@ -1483,36 +1828,75 @@ function placeBid(ti,pi){
     alert('Bid must be at least ' + player.basePrice);
     return;
   }
+  
+  if(player.rank !== 5 && !canAffordInGroup(team, player.rank, parseInt(amt))) {
+    var spent = getGroupWalletSpent(team, player.rank);
+    var limit = groupWalletLimits[player.rank];
+    alert('⚠️ GROUP WALLET LIMIT\n\nGroup ' + player.rank + ' limit: ' + limit.toLocaleString() + '\nAlready spent: ' + spent.toLocaleString() + '\nThis bid: ' + parseInt(amt).toLocaleString() + '\nWould exceed limit by: ' + ((spent + parseInt(amt)) - limit).toLocaleString());
+    return;
+  }
+  
+  var remainingSlots = 14 - team.squad.length - 1;
+  
+  if(remainingSlots > 0) {
+    var walletAfterBid = team.wallet - parseInt(amt);
+    
+    // Calculate minimum reserve based on cheapest available players
+    var allAvailableBasePrices = availablePlayers.map(function(p){ return p.basePrice; }).sort(function(a,b){ return a-b; });
+    var minReserveNeeded = 0;
+    for(var i = 0; i < Math.min(remainingSlots, allAvailableBasePrices.length); i++) {
+      minReserveNeeded += allAvailableBasePrices[i];
+    }
+    
+    // Fallback: if not enough players available, use 2000 per slot
+    if(remainingSlots > allAvailableBasePrices.length) {
+      minReserveNeeded += (remainingSlots - allAvailableBasePrices.length) * 2000;
+    }
+    
+    if(walletAfterBid < minReserveNeeded) {
+      var maxAllowedBid = team.wallet - minReserveNeeded;
+      alert('⚠️ WALLET PROTECTION\n\nThis bid will leave insufficient funds!\n\nRemaining slots: ' + remainingSlots + '\nMinimum reserve needed: ' + minReserveNeeded.toLocaleString() + '\nWallet after bid: ' + walletAfterBid.toLocaleString() + '\n\nMaximum safe bid: ' + Math.max(0, maxAllowedBid).toLocaleString());
+      return;
+    }
+  }
 
   if(!confirm('Confirm bid:\n' + team.name + ' bids ' + amt + ' for ' + player.name + '?')) return;
 
-  team.wallet -= parseInt(amt);
-  team.squad.push({name:player.name, amount:parseInt(amt), photo:player.photo});
-  bidLog.push({team:team.name,player:player.name,amount:parseInt(amt),timestamp:new Date().toLocaleTimeString()});
+  // Show SOLD stamp on BOTH desktop and mobile BEFORE updating data
+  var soldStampDesktop = document.getElementById('soldStamp_0');
+  var soldStampMobile = document.getElementById('soldStamp_mobile');
+  if(soldStampDesktop) soldStampDesktop.style.display = 'block';
+  if(soldStampMobile) soldStampMobile.style.display = 'block';
   
-  // Remove player from availablePlayers by finding the actual index
-  var actualIndex = availablePlayers.findIndex(function(p){ return p.name === player.name; });
-  if(actualIndex !== -1) {
-    availablePlayers.splice(actualIndex,1);
-  }
-
-  updateNewsTicker(team.name + ' signs ' + player.name + ' for ' + amt + '!');
+  createConfetti();
   
-  // Play IPL sold sound
   var soldAudio = new Audio('sold.mp3');
   soldAudio.volume = 0.7;
   soldAudio.play().catch(function(err){ console.log('Audio play failed:', err); });
-  
-  // Show SOLD stamp
-  var soldStamp = document.getElementById('soldStamp_0');
-  if(soldStamp) soldStamp.style.display = 'block';
-  
-  createConfetti();
 
+  // Wait 3 seconds before processing the bid
   setTimeout(function(){
+    team.wallet -= parseInt(amt);
+    team.squad.push({name:player.name, amount:parseInt(amt), photo:player.photo});
+    
+    var originalPlayer = originalPlayers.find(function(op){return op.name === player.name;});
+    var rankToIncrement = originalPlayer ? originalPlayer.rank : player.rank;
+    if(rankToIncrement !== 5 && rankToIncrement <= 4) team.groupPicks[rankToIncrement]++;
+    
+    bidLog.push({team:team.name,player:player.name,amount:parseInt(amt),timestamp:new Date().toLocaleTimeString()});
+    
+    var actualIndex = availablePlayers.findIndex(function(p){ return p.name === player.name; });
+    if(actualIndex !== -1) {
+      availablePlayers.splice(actualIndex,1);
+    }
+
+    updateNewsTicker(team.name + ' signs ' + player.name + ' for ' + amt + '!');
+    
+    checkGroupCompletion();
+    
     saveAuction();
     renderAll();
-  }, 2000);
+  }, 3000);
 }
 
 function createConfetti(){
@@ -1616,8 +2000,90 @@ function selectTeam(pi, ti){
   }
   
   var selectedTeam = teams[ti];
+  var remainingSlots = 14 - selectedTeam.squad.length - 1;
+  var minReserve = remainingSlots * 2000;
+  var maxSafeBid = selectedTeam.wallet - minReserve;
+  
+  // Get current player info
+  var sortedPlayers = availablePlayers.slice().sort(function(a, b){
+    var aIsTarget = (a.rank === currentGroup && !a.isUnsold) ? 0 : 1;
+    var bIsTarget = (b.rank === currentGroup && !b.isUnsold) ? 0 : 1;
+    if(aIsTarget !== bIsTarget) return aIsTarget - bIsTarget;
+    if(a.rank !== b.rank) {
+      if(a.rank === 5) return 1;
+      if(b.rank === 5) return -1;
+      return a.rank - b.rank;
+    }
+    if(a.rankOrder !== undefined && b.rankOrder !== undefined) return a.rankOrder - b.rankOrder;
+    return b.basePrice - a.basePrice;
+  });
+  var currentPlayer = sortedPlayers[pi];
+  
   document.getElementById('selectedTeam_' + pi).value = ti;
-  document.getElementById('teamWalletInfo_' + pi).textContent = 'Wallet: ' + selectedTeam.wallet;
+  document.getElementById('teamWalletInfo_' + pi).innerHTML = 
+    'Wallet: ' + selectedTeam.wallet.toLocaleString() + 
+    '<br><span style="font-size:12px;color:#64748b;">Max Safe Bid: <span style="color:#10b981;font-weight:bold;">' + 
+    maxSafeBid.toLocaleString() + '</span></span>';
+  
+  // Check for bidding restrictions
+  var restrictions = [];
+  var restrictionsEl = document.getElementById('biddingRestrictions_' + pi);
+  var restrictionDetailsEl = document.getElementById('restrictionDetails_' + pi);
+  
+  if(!selectedTeam.groupPicks) selectedTeam.groupPicks = {1:0,2:0,3:0,4:0};
+  
+  // Check group limits
+  if(currentPlayer && currentPlayer.rank <= 4) {
+    var groupCount = selectedTeam.groupPicks[currentPlayer.rank] || 0;
+    if(groupCount >= 3) {
+      restrictions.push('❌ Group ' + currentPlayer.rank + ' limit reached (3/3 players)');
+    }
+    
+    // Check group wallet limits
+    var groupSpent = getGroupWalletSpent(selectedTeam, currentPlayer.rank);
+    var groupLimit = groupWalletLimits[currentPlayer.rank] || 999999;
+    var groupRemaining = groupLimit - groupSpent;
+    if(groupRemaining < currentPlayer.basePrice) {
+      restrictions.push('❌ Group ' + currentPlayer.rank + ' budget exceeded (' + groupSpent.toLocaleString() + '/' + groupLimit.toLocaleString() + ')');
+    }
+  }
+  
+    // Check Next Chance restrictions for original group
+  if(currentPlayer && (currentPlayer.rank === 5 || currentPlayer.isUnsold)) {
+    var originalPlayer = originalPlayers.find(function(op){return op.name === currentPlayer.name;});
+    if(originalPlayer) {
+      var origGroup = originalPlayer.rank;
+      var origGroupCount = selectedTeam.groupPicks[origGroup] || 0;
+      
+      // Check if team has pre-assigned below40 for Group 4 limit adjustment
+      var hasPreAssignedBelow40 = selectedTeam.squad.some(function(p){
+        return p.isPreAssigned && originalPlayers.find(function(op){return op.name === p.name && op.rank === 4;});
+      });
+      
+      var groupLimit = (origGroup === 4 && hasPreAssignedBelow40) ? 2 : 3;
+      
+      if(origGroupCount >= groupLimit) {
+        restrictions.push('❌ Cannot bid - Group ' + origGroup + ' limit reached (' + origGroupCount + '/' + groupLimit + ' players)');
+      }
+    }
+  }
+  
+  // Check squad full
+  if(selectedTeam.squad.length >= 14) {
+    restrictions.push('❌ Squad is complete (14/14 players)');
+  }
+  
+  // Check wallet insufficient
+  if(maxSafeBid < (currentPlayer ? currentPlayer.basePrice : 0)) {
+    restrictions.push('❌ Insufficient wallet for safe bidding');
+  }
+  
+  if(restrictions.length > 0) {
+    restrictionsEl.style.display = 'block';
+    restrictionDetailsEl.innerHTML = restrictions.join('<br>');
+  } else {
+    restrictionsEl.style.display = 'none';
+  }
 }
 
 function startAuction(){
@@ -1644,13 +2110,15 @@ function resetAuction(){
   if(!isAdmin) return alert('Admin access required!');
   if(confirm("Reset auction?")){
     teams.forEach(function(t){
-      t.wallet=140000;
+      t.wallet=150000;
+      t.groupPicks = {1:0,2:0,3:0,4:0};
       var preAssigned = t.squad.filter(function(p){return p.isPreAssigned;});
       t.squad = preAssigned;
     });
     bidLog=[];
     unsoldPlayers=[];
     completedGroups=[];
+    currentGroup=1;
     availablePlayers = JSON.parse(JSON.stringify(originalPlayers.filter(function(p){return !p.isPreAssigned && !p.isIcon && !p.isOwner;})));
     localStorage.removeItem('currentBreak');
     saveAuction().then(function(){
@@ -1661,7 +2129,7 @@ function resetAuction(){
 
 function saveAuction(){
   var currentBreak = localStorage.getItem('currentBreak') || '';
-  return db.ref('auctionState').set({teams:teams,availablePlayers:availablePlayers,bidLog:bidLog,unsoldPlayers:unsoldPlayers,completedGroups:completedGroups,currentBreak:currentBreak});
+  return db.ref('auctionState').set({teams:teams,availablePlayers:availablePlayers,bidLog:bidLog,unsoldPlayers:unsoldPlayers,completedGroups:completedGroups,currentGroup:currentGroup,currentBreak:currentBreak});
 }
 
 function updateNewsTicker(message){
@@ -1686,7 +2154,7 @@ function showRankPlayers(rank){
       '<div><b>' + p.name + '</b><br>Base Price: ' + p.basePrice + ' | Age: ' + (p.age || 'N/A') + '</div>' +
     '</div>';
   }).join('');
-  document.getElementById('rankModal').style.display = 'block';
+  document.getElementById('rankModal').style.display = 'flex';
 }
 
 function showUnsoldPlayers(){
@@ -1699,7 +2167,7 @@ function showUnsoldPlayers(){
       '<div><b>' + p.name + '</b><br>Base Price: ' + p.basePrice + ' | Age: ' + (p.age || 'N/A') + '</div>' +
     '</div>';
   }).join('');
-  document.getElementById('rankModal').style.display = 'block';
+  document.getElementById('rankModal').style.display = 'flex';
 }
 
 function showYoungPlayers(){
@@ -1712,7 +2180,7 @@ function showYoungPlayers(){
       '<div><b>' + p.name + '</b><br>Base Price: ' + p.basePrice + ' | Age: ' + p.age + '</div>' +
     '</div>';
   }).join('');
-  document.getElementById('rankModal').style.display = 'block';
+  document.getElementById('rankModal').style.display = 'flex';
 }
 
 function showIconPlayers(){
@@ -1725,7 +2193,7 @@ function showIconPlayers(){
       '<div><b>' + p.name + '</b><br>Base Price: ' + p.basePrice + '</div>' +
     '</div>';
   }).join('');
-  document.getElementById('rankModal').style.display = 'block';
+  document.getElementById('rankModal').style.display = 'flex';
 }
 
 function renderAll(){
@@ -1738,6 +2206,18 @@ function renderAll(){
   var totalRank2 = originalPlayers.filter(function(p){return p.rank===2 && !p.isIcon && !p.isPreAssigned;}).length;
   var totalRank3 = originalPlayers.filter(function(p){return p.rank===3 && !p.isIcon && !p.isPreAssigned;}).length;
   var totalRank4 = originalPlayers.filter(function(p){return p.rank===4 && !p.isIcon && !p.isPreAssigned;}).length;
+  
+  // Check if current group is empty and move to next (only if auction has started)
+  if(bidLog.length > 0) {
+    while(currentGroup <= 4) {
+      var currentGroupPlayers = availablePlayers.filter(function(p){ return p.rank === currentGroup && !p.isUnsold; });
+      if(currentGroupPlayers.length > 0) break;
+      currentGroup++;
+    }
+    if(currentGroup > 4) currentGroup = 5;
+  } else {
+    currentGroup = 1;
+  }
 
   // Render auction stats
   var totalSold = bidLog.length;
@@ -1752,11 +2232,11 @@ function renderAll(){
     '<div class="stat-card"><div class="stat-number">' + avgPrice.toLocaleString() + '</div><div class="stat-label">📈 Avg Price</div></div>';
 
   document.getElementById('rankCounter').innerHTML = 
-    '<div onclick="showRankPlayers(1)"><span class="rank-badge rank-1">Group 1</span><br><b>' + rank1 + '/' + totalRank1 + '</b><br>Available</div>' +
-    '<div onclick="showRankPlayers(2)"><span class="rank-badge rank-2">Group 2</span><br><b>' + rank2 + '/' + totalRank2 + '</b><br>Available</div>' +
-    '<div onclick="showRankPlayers(3)"><span class="rank-badge rank-3">Group 3</span><br><b>' + rank3 + '/' + totalRank3 + '</b><br>Available</div>' +
-    '<div onclick="showRankPlayers(4)"><span class="rank-badge rank-4">Group 4</span><br><b>' + rank4 + '/' + totalRank4 + '</b><br>Available</div>' +
-    '<div onclick="showUnsoldPlayers()"><span class="rank-badge" style="background:#6c757d;color:#fff;">Next Chance</span><br><b>' + unsoldCount + '</b><br>Players</div>';
+    '<div onclick="showRankPlayers(1)" style="' + (currentGroup === 1 ? 'border:3px solid #fbbf24;box-shadow:0 0 20px rgba(251,191,36,0.5);' : '') + '"><span class="rank-badge rank-1">Group 1</span>' + (currentGroup === 1 ? '<br><span style="color:#fbbf24;font-size:11px;font-weight:bold;">🎯 ACTIVE</span>' : '') + '<br><b>' + rank1 + '/' + totalRank1 + '</b><br>Available<br><small style="color:#f59e0b;font-weight:600;">💡 Max 70K</small></div>' +
+    '<div onclick="showRankPlayers(2)" style="' + (currentGroup === 2 ? 'border:3px solid #fbbf24;box-shadow:0 0 20px rgba(251,191,36,0.5);' : '') + '"><span class="rank-badge rank-2">Group 2</span>' + (currentGroup === 2 ? '<br><span style="color:#fbbf24;font-size:11px;font-weight:bold;">🎯 ACTIVE</span>' : '') + '<br><b>' + rank2 + '/' + totalRank2 + '</b><br>Available<br><small style="color:#94a3b8;font-weight:600;">💡 Max 30K</small></div>' +
+    '<div onclick="showRankPlayers(3)" style="' + (currentGroup === 3 ? 'border:3px solid #fbbf24;box-shadow:0 0 20px rgba(251,191,36,0.5);' : '') + '"><span class="rank-badge rank-3">Group 3</span>' + (currentGroup === 3 ? '<br><span style="color:#fbbf24;font-size:11px;font-weight:bold;">🎯 ACTIVE</span>' : '') + '<br><b>' + rank3 + '/' + totalRank3 + '</b><br>Available<br><small style="color:#fb923c;font-weight:600;">💡 Max 20K</small></div>' +
+    '<div onclick="showRankPlayers(4)" style="' + (currentGroup === 4 ? 'border:3px solid #fbbf24;box-shadow:0 0 20px rgba(251,191,36,0.5);' : '') + '"><span class="rank-badge rank-4">Group 4</span>' + (currentGroup === 4 ? '<br><span style="color:#fbbf24;font-size:11px;font-weight:bold;">🎯 ACTIVE</span>' : '') + '<br><b>' + rank4 + '/' + totalRank4 + '</b><br>Available<br><small style="color:#10b981;font-weight:600;">💡 Max 30K</small></div>' +
+    '<div onclick="showUnsoldPlayers()" style="' + (currentGroup === 5 ? 'border:3px solid #fbbf24;box-shadow:0 0 20px rgba(251,191,36,0.5);' : '') + '"><span class="rank-badge" style="background:#6c757d;color:#fff;">Next Chance</span>' + (currentGroup === 5 ? '<br><span style="color:#fbbf24;font-size:11px;font-weight:bold;">🎯 ACTIVE</span>' : '') + '<br><b>' + unsoldCount + '</b><br>Players</div>';
 
   // Auction players table (exclude pre-assigned, ICON, and ALL owner players)
   document.getElementById('playersTable').innerHTML = originalPlayers.filter(function(p){
@@ -1769,25 +2249,87 @@ function renderAll(){
 
   document.getElementById('teamWallets').innerHTML = teams.map(function(t){
     if(!t.squad) t.squad = [];
+    if(!t.groupPicks) t.groupPicks = {1:0,2:0,3:0,4:0};
     var ownerInSquad = t.squad.find(function(p){return p.isOwner;});
     var iconPlayers = t.squad.filter(function(p){return p.isPreAssigned && !p.isOwner && p.amount > 0;});
     var lockedCount = (ownerInSquad ? 1 : 0) + iconPlayers.length;
+    var auctionedCount = t.squad.filter(function(p){return !p.isPreAssigned && !p.isOwner;}).length;
+    var remainingSlots = 14 - t.squad.length;
+    var totalAvailable = availablePlayers.length;
+    var budgetPerSlot = remainingSlots > 0 ? Math.floor(t.wallet / remainingSlots) : 0;
     
-    return '<div class="team-card" style="background:linear-gradient(135deg, #ffffff, #f8fafc);border:2px solid rgba(251,191,36,0.3);">' +
+    // Calculate actual minimum reserve needed
+    var minReserveNeeded = 0;
+    if(remainingSlots > 0) {
+      var allAvailableBasePrices = availablePlayers.map(function(p){ return p.basePrice; }).sort(function(a,b){ return a-b; });
+      for(var i = 0; i < Math.min(remainingSlots, allAvailableBasePrices.length); i++) {
+        minReserveNeeded += allAvailableBasePrices[i];
+      }
+      if(remainingSlots > allAvailableBasePrices.length) {
+        minReserveNeeded += (remainingSlots - allAvailableBasePrices.length) * 2000;
+      }
+    }
+    
+    var showWarning = remainingSlots > 0 && totalAvailable > 0 && t.wallet < minReserveNeeded;
+    var maxSafeBid = remainingSlots > 0 ? t.wallet - minReserveNeeded : t.wallet;
+    
+    var g1Count = t.groupPicks[1] || 0;
+    var g2Count = t.groupPicks[2] || 0;
+    var g3Count = t.groupPicks[3] || 0;
+    var g4Count = t.groupPicks[4] || 0;
+    
+    var g1Spent = getGroupWalletSpent(t, 1);
+    var g2Spent = getGroupWalletSpent(t, 2);
+    var g3Spent = getGroupWalletSpent(t, 3);
+    var g4Spent = getGroupWalletSpent(t, 4);
+    
+    // Check if any groups are at limit for current bidding
+    var groupLimitWarnings = [];
+    // Only show warnings if squad is not complete
+    if(t.squad.length < 14) {
+      if(currentGroup === 1 && g1Count >= 3) groupLimitWarnings.push('Group 1 FULL');
+      if(currentGroup === 2 && g2Count >= 3) groupLimitWarnings.push('Group 2 FULL');
+      if(currentGroup === 3 && g3Count >= 3) groupLimitWarnings.push('Group 3 FULL');
+      if(currentGroup === 4 && g4Count >= 3) groupLimitWarnings.push('Group 4 FULL');
+      if(currentGroup === 5) {
+        // Check if any Next Chance players are from Group 4 and team is full in Group 4
+        if(g4Count >= 3) groupLimitWarnings.push('Cannot bid on Group 4 players (Group 4 FULL)');
+      }
+    }
+    
+    return '<div class="team-card" style="background-image:url(' + t.logo + ');border:2px solid rgba(251,191,36,0.3);">' +
       '<img class="team-logo-bg" src="' + t.logo + '" alt="' + t.name + '">' +
       '<div class="team-wallet-content">' +
-        '<div style="font-size:18px;font-weight:bold;color:#2d3748;margin-bottom:8px;text-align:center;">' + t.name + '</div>' +
-        (t.ownerName ? '<div style="font-size:13px;color:#8b5cf6;margin-bottom:6px;text-align:center;">👑 ' + t.ownerName + '</div>' : '') +
-        (lockedCount > 0 ? '<div style="font-size:12px;color:#ef4444;font-weight:600;margin-bottom:8px;text-align:center;">(🔒 ' + lockedCount + ' locked)</div>' : '') +
-        '<div style="background:linear-gradient(135deg, #fbbf24, #f59e0b);color:#1a202c;padding:10px;border-radius:8px;text-align:center;font-size:18px;font-weight:bold;box-shadow:0 4px 12px rgba(251,191,36,0.3);">💰 ' + t.wallet.toLocaleString() + '</div>' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:8px;">' +
+          '<span style="font-size:18px;font-weight:900;color:#2d3748;">' + t.name + '</span>' +
+          (t.ownerName ? '<span style="font-size:12px;color:#8b5cf6;">👑 ' + t.ownerName + '</span>' : '') +
+          (lockedCount > 0 ? '<span style="font-size:11px;color:#ef4444;font-weight:600;">(🔒 ' + lockedCount + ')</span>' : '') +
+        '</div>' +
+        (groupLimitWarnings.length > 0 ? '<div class="group-limit-warning" style="margin-bottom:8px;">⚠️ ' + groupLimitWarnings.join(' | ') + '</div>' : '') +
+        '<div style="background:linear-gradient(135deg, #fbbf24, #f59e0b);color:#000000;padding:8px;border-radius:8px;text-align:center;font-size:18px;font-weight:bold;box-shadow:0 4px 12px rgba(251,191,36,0.3);margin-bottom:6px;">💰 ' + t.wallet.toLocaleString() + '</div>' +
+        '<div style="display:flex;justify-content:space-between;font-size:11px;font-weight:900;margin-bottom:6px;">' +
+          '<span style="color:#047857;font-weight:900;">🎯 ' + maxSafeBid.toLocaleString() + '</span>' +
+          '<span style="color:#1e293b;font-weight:900;">Squad: ' + t.squad.length + '/14</span>' +
+          '<span style="color:#1e293b;font-weight:900;">Need: ' + remainingSlots + '</span>' +
+        '</div>' +
+        (remainingSlots > 0 ? '<div style="font-size:12px;text-align:center;' + (showWarning ? 'color:#b91c1c;background:rgba(239,68,68,0.1);' : 'color:#047857;background:rgba(16,185,129,0.1);') + 'font-weight:900;padding:5px;border-radius:6px;border:2px solid ' + (showWarning ? '#ef4444' : '#10b981') + ';margin-bottom:6px;">💰 ' + budgetPerSlot.toLocaleString() + ' / Player</div>' : '') +
+        (t.squad.length === 14 ? '<div style="background:linear-gradient(135deg, #10b981, #059669);color:white;padding:8px;border-radius:8px;text-align:center;font-size:14px;font-weight:bold;box-shadow:0 4px 12px rgba(16,185,129,0.4);">✅ COMPLETE!</div>' : '<div style="font-size:10px;color:#1e293b;border-top:1px solid #e2e8f0;padding-top:6px;">' +
+          '<div style="display:flex;justify-content:space-between;padding:2px 0;' + (g1Count >= 3 ? 'background:rgba(239,68,68,0.1);border-radius:3px;padding:2px 4px;' : '') + '"><span style="font-weight:900;color:#1e293b;">G1 (70K):</span><span style="font-weight:900;color:' + (g1Count >= 3 ? '#b91c1c' : '#047857') + ';">' + g1Count + '/3 (' + g1Spent.toLocaleString() + ')' + (g1Count >= 3 ? ' ❌' : '') + '</span></div>' +
+          '<div style="display:flex;justify-content:space-between;padding:2px 0;' + (g2Count >= 3 ? 'background:rgba(239,68,68,0.1);border-radius:3px;padding:2px 4px;' : '') + '"><span style="font-weight:900;color:#1e293b;">G2 (30K):</span><span style="font-weight:900;color:' + (g2Count >= 3 ? '#b91c1c' : '#047857') + ';">' + g2Count + '/3 (' + g2Spent.toLocaleString() + ')' + (g2Count >= 3 ? ' ❌' : '') + '</span></div>' +
+          '<div style="display:flex;justify-content:space-between;padding:2px 0;' + (g3Count >= 3 ? 'background:rgba(239,68,68,0.1);border-radius:3px;padding:2px 4px;' : '') + '"><span style="font-weight:900;color:#1e293b;">G3 (20K):</span><span style="font-weight:900;color:' + (g3Count >= 3 ? '#b91c1c' : '#047857') + ';">' + g3Count + '/3 (' + g3Spent.toLocaleString() + ')' + (g3Count >= 3 ? ' ❌' : '') + '</span></div>' +
+          '<div style="display:flex;justify-content:space-between;padding:2px 0;' + (g4Count >= 3 ? 'background:rgba(239,68,68,0.1);border-radius:3px;padding:2px 4px;' : '') + '"><span style="font-weight:900;color:#1e293b;">G4 (30K):</span><span style="font-weight:900;color:' + (g4Count >= 3 ? '#b91c1c' : '#047857') + ';">' + g4Count + '/3 (' + g4Spent.toLocaleString() + ')' + (g4Count >= 3 ? ' ❌' : '') + '</span></div>' +
+        '</div>') +
       '</div>' +
     '</div>';
   }).join('');
 
+  // Sort players: prioritize current group
   var sortedPlayers = availablePlayers.slice().sort(function(a, b){
-    // Sort by rank first (but put rank 5/unsold at the end), then by rankOrder (original base price order)
+    // For Group 5 (Next Chance), treat isUnsold and rank===5 the same
+    var aIsTarget = (a.rank === currentGroup || (currentGroup === 5 && (a.isUnsold || a.rank === 5))) ? 0 : 1;
+    var bIsTarget = (b.rank === currentGroup || (currentGroup === 5 && (b.isUnsold || b.rank === 5))) ? 0 : 1;
+    if(aIsTarget !== bIsTarget) return aIsTarget - bIsTarget;
     if(a.rank !== b.rank) {
-      // If either is rank 5 (unsold), put it at the end
       if(a.rank === 5) return 1;
       if(b.rank === 5) return -1;
       return a.rank - b.rank;
@@ -1795,6 +2337,159 @@ function renderAll(){
     if(a.rankOrder !== undefined && b.rankOrder !== undefined) return a.rankOrder - b.rankOrder;
     return b.basePrice - a.basePrice;
   });
+  
+  // Auto-move players from current group if NO team can afford/pick them
+  if(currentGroup <= 4 && sortedPlayers.length > 0) {
+    var currentGroupPlayers = sortedPlayers.filter(function(p){ return p.rank === currentGroup && !p.isUnsold; });
+    var movedAny = false;
+    
+    currentGroupPlayers.forEach(function(player){
+      var anyTeamCanPick = teams.some(function(t){
+        if(t.squad.length >= 14) return false;
+        if(!canPickFromGroup(t, player.rank, player.name)) return false;
+        
+        var groupSpent = getGroupWalletSpent(t, player.rank);
+        var groupLimit = groupWalletLimits[player.rank] || 999999;
+        var groupRemainingBudget = groupLimit - groupSpent;
+        if(groupRemainingBudget < player.basePrice) return false;
+        
+        var remainingSlots = 14 - t.squad.length - 1;
+        var minReserve = remainingSlots * 2000;
+        var maxSafeBid = t.wallet - minReserve;
+        if(maxSafeBid < player.basePrice) return false;
+        
+        return true;
+      });
+      
+      if(!anyTeamCanPick) {
+        var actualIndex = availablePlayers.findIndex(function(p){ return p.name === player.name; });
+        if(actualIndex !== -1) {
+          var unsoldCopy = JSON.parse(JSON.stringify(player));
+          unsoldCopy.isUnsold = true;
+          unsoldCopy.rank = 5;
+          availablePlayers[actualIndex] = unsoldCopy;
+          var alreadyUnsold = unsoldPlayers.find(function(up){ return up.name === player.name; });
+          if(!alreadyUnsold) {
+            unsoldPlayers.push(JSON.parse(JSON.stringify(unsoldCopy)));
+            movedAny = true;
+          }
+        }
+      }
+    });
+    
+    if(movedAny) {
+      saveAuction();
+      checkGroupCompletion();
+    }
+  }
+  
+  // Smart Next Chance assignment: Fill incomplete groups first
+  if(currentGroup === 5 && sortedPlayers.length > 0) {
+    var nextChancePlayers = sortedPlayers.filter(function(p){ return p.rank === 5 || p.isUnsold; });
+    
+    nextChancePlayers.forEach(function(player){
+      var teamsNeedingThisGroup = teams.filter(function(t){
+        if(t.squad.length >= 14) return false;
+        
+        var originalPlayer = originalPlayers.find(function(op){return op.name === player.name;});
+        if(!originalPlayer) return false;
+        
+        var origGroup = originalPlayer.rank;
+        var groupCount = getGroupPickCount(t, origGroup);
+        
+        // Check if team has pre-assigned below40 for Group 4 limit adjustment
+        var hasPreAssignedBelow40 = t.squad.some(function(p){
+          return p.isPreAssigned && originalPlayers.find(function(op){return op.name === p.name && op.rank === 4;});
+        });
+        
+        var groupLimit = (origGroup === 4 && hasPreAssignedBelow40) ? 2 : 3;
+        
+        return groupCount < groupLimit && canPickFromGroup(t, 5, player.name);
+      });
+      
+      // Priority: Teams with incomplete groups
+      if(teamsNeedingThisGroup.length === 1) {
+        var onlyTeam = teamsNeedingThisGroup[0];
+        var origPlayer = originalPlayers.find(function(op){return op.name === player.name;});
+        if(origPlayer) {
+          var groupSpent = getGroupWalletSpent(onlyTeam, origPlayer.rank);
+          var groupLimit = groupWalletLimits[origPlayer.rank] || 999999;
+          var groupRemainingBudget = groupLimit - groupSpent;
+          
+          if(groupRemainingBudget >= player.basePrice && onlyTeam.wallet >= player.basePrice) {
+            var remainingSlots = 14 - onlyTeam.squad.length - 1;
+            var minReserve = remainingSlots * 2000;
+            var maxSafeBid = onlyTeam.wallet - minReserve;
+            
+            if(maxSafeBid >= player.basePrice) {
+              console.log('💡 HINT: Only ' + onlyTeam.name + ' needs ' + player.name + ' to complete their group!');
+            }
+          }
+        }
+      }
+    });
+  }
+  
+  // Auto-assign remaining players if only ONE team can pick them
+  if(availablePlayers.length > 0) {
+    var teamsNeedingPlayers = teams.filter(function(t){ return t.squad.length < 14; });
+    
+    // ONLY check bankruptcy if this is the LAST team needing players
+    if(teamsNeedingPlayers.length === 1) {
+      var onlyTeam = teamsNeedingPlayers[0];
+      var remainingSlots = 14 - onlyTeam.squad.length;
+      var playersToAssign = availablePlayers.slice(0, remainingSlots);
+      
+      if(playersToAssign.length > 0 && playersToAssign.length === remainingSlots) {
+        // Check if team can afford at base prices
+        var totalBaseCost = playersToAssign.reduce(function(sum, p){ return sum + p.basePrice; }, 0);
+        
+        if(onlyTeam.wallet < totalBaseCost) {
+          // BANKRUPTCY RESCUE - only when it's the last team
+          alert('⚠️ BANKRUPTCY RESCUE!\n\n' + onlyTeam.name + ' is the last team and cannot afford remaining players at base price.\n\nWallet: ' + onlyTeam.wallet.toLocaleString() + '\nBase cost: ' + totalBaseCost.toLocaleString() + '\n\nAuto-assigning at reduced prices to complete squad...');
+          
+          var pricePerPlayer = Math.floor(onlyTeam.wallet / remainingSlots);
+          
+          playersToAssign.forEach(function(player){
+            onlyTeam.squad.push({name:player.name, amount:pricePerPlayer, photo:player.photo});
+            onlyTeam.wallet -= pricePerPlayer;
+            
+            var originalPlayer = originalPlayers.find(function(op){return op.name === player.name;});
+            var rankToIncrement = originalPlayer ? originalPlayer.rank : player.rank;
+            if(rankToIncrement !== 5 && rankToIncrement <= 4) onlyTeam.groupPicks[rankToIncrement]++;
+            
+            bidLog.push({team:onlyTeam.name, player:player.name, amount:pricePerPlayer, timestamp:new Date().toLocaleTimeString()});
+            
+            var actualIndex = availablePlayers.findIndex(function(p){ return p.name === player.name; });
+            if(actualIndex !== -1) availablePlayers.splice(actualIndex, 1);
+          });
+          
+          updateNewsTicker('🚨 Bankruptcy rescue: ' + onlyTeam.name + ' assigned ' + remainingSlots + ' players at ' + pricePerPlayer.toLocaleString() + ' each');
+          saveAuction();
+        } else {
+          // Normal auto-assignment at base price
+          if(confirm('Only ' + onlyTeam.name + ' needs ' + remainingSlots + ' more players. Auto-assign all remaining players at base price?')) {
+            playersToAssign.forEach(function(player){
+              onlyTeam.wallet -= player.basePrice;
+              onlyTeam.squad.push({name:player.name, amount:player.basePrice, photo:player.photo});
+              
+              var originalPlayer = originalPlayers.find(function(op){return op.name === player.name;});
+              var rankToIncrement = originalPlayer ? originalPlayer.rank : player.rank;
+              if(rankToIncrement !== 5 && rankToIncrement <= 4) onlyTeam.groupPicks[rankToIncrement]++;
+              
+              bidLog.push({team:onlyTeam.name, player:player.name, amount:player.basePrice, timestamp:new Date().toLocaleTimeString()});
+              
+              var actualIndex = availablePlayers.findIndex(function(p){ return p.name === player.name; });
+              if(actualIndex !== -1) availablePlayers.splice(actualIndex, 1);
+            });
+            
+            updateNewsTicker('🎉 Auto-assigned ' + playersToAssign.length + ' players to ' + onlyTeam.name + '!');
+            saveAuction();
+          }
+        }
+      }
+    }
+  }
   
   // Check if any group is complete and show break banner
   var group1Remaining = availablePlayers.filter(function(p){return p.rank === 1 && !p.isUnsold;}).length;
@@ -1905,63 +2600,275 @@ function renderAll(){
       if(p.playerType) badges += '<span class="rank-badge player-type-badge">' + p.playerType + '</span>';
       if(p.rank === 4) badges += '<span class="rank-badge young-badge"><40</span>';
       
-      // Find next player ready for bid - prioritize showing player from next group when current group is finishing
-      var nextPlayerHTML = '';
-      if(sortedPlayers.length > 1) {
-        var currentGroupRemaining = sortedPlayers.filter(function(sp){return sp.rank === p.rank;}).length;
-        var nextPlayers = sortedPlayers.slice(1).filter(function(np){return np.rank !== p.rank;});
-        var nextPlayer = null;
-        
-        // Show next group player only if current player is last in their group
-        if(currentGroupRemaining === 1 && nextPlayers.length > 0) {
-          nextPlayer = nextPlayers[0];
-        } else {
-          nextPlayer = sortedPlayers[1];
-        }
-        
-        if(nextPlayer) {
-          nextPlayerHTML = '<div style="background:linear-gradient(135deg, #fbbf24, #f59e0b);padding:20px;border-radius:16px;margin-bottom:20px;text-align:center;box-shadow:0 8px 32px rgba(251,191,36,0.4);border:3px solid white;animation:pulse-highlight 2s infinite;">' +
-            '<div style="font-size:16px;font-weight:bold;color:#1a202c;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">⏭️ NEXT PLAYER READY ⏭️</div>' +
-            '<div style="font-size:28px;font-weight:bold;color:white;text-shadow:2px 2px 4px rgba(0,0,0,0.3);">' + nextPlayer.name + '</div>' +
-            '<div style="font-size:16px;color:#1a202c;font-weight:600;margin-top:8px;">Group ' + nextPlayer.rank + ' • Base: ' + nextPlayer.basePrice + '</div>' +
-          '</div>';
+      // Show original group for Next Chance players
+      var originalGroup = '';
+      var originalGroupNum = 0;
+      if(p.rank === 5 || p.isUnsold) {
+        var originalPlayer = originalPlayers.find(function(op){return op.name === p.name;});
+        if(originalPlayer && originalPlayer.rank <= 4) {
+          originalGroupNum = originalPlayer.rank;
+          originalGroup = '<div style="background:rgba(239,68,68,0.15);border:2px solid #ef4444;padding:10px;border-radius:8px;margin-top:10px;"><div style="color:#ef4444;font-size:13px;font-weight:700;text-align:center;margin-bottom:6px;">⚠️ ORIGINALLY FROM GROUP ' + originalGroupNum + '</div><div style="color:#64748b;font-size:11px;text-align:center;">Teams with 3/3 in Group ' + originalGroupNum + ' cannot bid</div></div>';
         }
       }
       
-      return '<div style="display:flex;gap:30px;max-width:1200px;margin:20px auto;align-items:flex-start;flex-wrap:wrap;">' +
-        '<div style="flex:1;min-width:350px;max-width:400px;background:linear-gradient(135deg, #2d3748, #1a202c);padding:30px;border-radius:20px;border:4px solid #fbbf24;box-shadow:0 0 40px rgba(251,191,36,0.6);position:relative;">' +
-          '<div style="position:relative;display:inline-block;margin:0 auto 20px;display:block;width:350px;height:350px;">' +
-            '<img class="player-photo" src="' + p.photo + '" style="width:350px;height:350px;display:block;border:6px solid #fbbf24;box-shadow:0 0 40px rgba(251,191,36,1);">' +
-            '<div id="soldStamp_' + i + '" style="display:none;position:absolute;top:65%;left:50%;transform:translate(-50%, -50%) rotate(-15deg);background:linear-gradient(135deg, #10b981, #059669);color:white;padding:40px 80px;border-radius:20px;font-weight:bold;font-size:72px;z-index:100;opacity:0.95;box-shadow:0 12px 48px rgba(0,0,0,0.7), 0 4px 15px rgba(16,185,129,0.5), inset 0 2px 0 rgba(255,255,255,0.3);border:6px solid white;letter-spacing:8px;text-shadow:2px 2px 4px rgba(0,0,0,0.3);">SOLD!</div>' +
+      // Find next player ready for bid - prioritize showing player from next group when current group is finishing
+      var nextPlayerHTML = '';
+      // Removed next player preview to keep it a surprise
+      
+      return '<div style="max-width:1400px;margin:20px auto;padding:0 15px;box-sizing:border-box;">' +
+        '<div class="auction-grid-desktop" style="display:grid;grid-template-columns:500px 450px 1fr;gap:25px;align-items:start;">' +
+          '<div style="background:linear-gradient(135deg, #2d3748, #1a202c);padding:25px;border-radius:16px;border:3px solid #fbbf24;box-shadow:0 0 30px rgba(251,191,36,0.5);">' +
+            '<div style="position:relative;width:100%;max-width:450px;aspect-ratio:1;margin:0 auto 20px;">' +
+              '<img class="player-photo" src="' + p.photo + '" style="width:100%;height:100%;display:block;border:5px solid #fbbf24;box-shadow:0 0 30px rgba(251,191,36,0.8);object-fit:cover;border-radius:12px;">' +
+            '</div>' +
+            '<div style="position:relative;">' +
+              '<h2 style="color:#fbbf24;font-size:28px;margin:0 0 15px 0;text-align:center;text-shadow:0 0 15px rgba(251,191,36,0.8);">' + p.name + '</h2>' +
+              '<div id="soldStamp_' + i + '" style="display:none;position:absolute;top:50%;left:50%;transform:translate(-50%, -50%) rotate(-15deg);background:linear-gradient(135deg, #10b981, #059669);color:white;padding:20px 50px;border-radius:20px;font-weight:900;font-size:64px;z-index:100;opacity:0.98;box-shadow:0 8px 30px rgba(16,185,129,0.8), inset 0 4px 0 rgba(255,255,255,0.4), 0 0 60px rgba(16,185,129,0.6);border:6px solid white;letter-spacing:6px;text-shadow:4px 4px 8px rgba(0,0,0,0.5);white-space:nowrap;animation:soldPulse 1.5s ease-in-out infinite;">SOLD!</div>' +
+            '</div>' +
+            '<div style="text-align:center;margin-bottom:15px;">' + badges + '</div>' +
+            '<div style="background:rgba(251,191,36,0.15);padding:12px;border-radius:10px;margin-bottom:12px;border:2px solid #fbbf24;">' +
+              '<div style="color:#fbbf24;font-size:14px;text-align:center;font-weight:600;margin-bottom:6px;">Base Price</div>' +
+              '<div style="color:white;font-size:24px;text-align:center;font-weight:bold;">' + p.basePrice.toLocaleString() + '</div>' +
+            '</div>' +
+            '<div style="background:rgba(16,185,129,0.15);padding:10px;border-radius:10px;border:2px solid #10b981;margin-bottom:12px;">' +
+              '<div style="color:#10b981;font-size:13px;text-align:center;font-weight:600;">🔥 CURRENT BID 🔥</div>' +
+            '</div>' +
+            '<div style="background:rgba(251,191,36,0.1);padding:12px;border-radius:8px;border:1px solid rgba(251,191,36,0.3);">' +
+              '<div style="color:#fbbf24;font-size:16px;text-align:center;font-weight:700;margin-bottom:6px;">Group ' + currentGroup + ' Bidding</div>' +
+              '<div style="color:white;font-size:15px;text-align:center;font-weight:600;">Max Wallet: ' + (groupWalletLimits[currentGroup] || 0).toLocaleString() + '</div>' +
+              '<div style="color:#64748b;font-size:13px;text-align:center;margin-top:4px;">Remaining: ' + sortedPlayers.length + '</div>' +
+            '</div>' +
+            (function(){
+              if(p.rank === 5 || p.isUnsold) {
+                var origP = originalPlayers.find(function(op){return op.name === p.name;});
+                if(origP) {
+                  var teamsCanBid = teams.filter(function(t){
+                    return t.squad.length < 14 && canPickFromGroup(t, 5, p.name);
+                  });
+                  if(teamsCanBid.length === 1) {
+                    return '<div style="background:rgba(16,185,129,0.15);border:2px solid #10b981;padding:10px;border-radius:8px;margin-top:10px;animation:pulse-hint 2s infinite;"><div style="color:#10b981;font-size:13px;font-weight:700;text-align:center;">💡 ONLY ' + teamsCanBid[0].name.toUpperCase() + ' CAN BID</div><div style="color:#059669;font-size:11px;text-align:center;margin-top:4px;">Group ' + origP.rank + ': ' + (teamsCanBid[0].groupPicks[origP.rank] || 0) + '/3</div></div><style>@keyframes pulse-hint{0%,100%{box-shadow:0 0 0 rgba(16,185,129,0.4)}50%{box-shadow:0 0 20px rgba(16,185,129,0.6)}}</style>';
+                  }
+                }
+              }
+              return '';
+            })() +
           '</div>' +
-          '<h2 style="color:#fbbf24;font-size:32px;margin:15px 0;text-align:center;text-shadow:0 0 20px rgba(251,191,36,0.8);">' + p.name + '</h2>' +
-          '<div style="text-align:center;margin:15px 0;">' + badges + '</div>' +
-          '<div style="color:white;font-size:24px;margin:15px 0;text-align:center;">Base Price: <span style="color:#fbbf24;font-weight:bold;">' + p.basePrice + '</span></div>' +
-          '<div style="color:#10b981;font-size:20px;font-weight:bold;text-align:center;margin:15px 0;">🔥 CURRENT BID 🔥</div>' +
-          '<div style="color:#fbbf24;font-size:16px;text-align:center;">Remaining: ' + sortedPlayers.length + '</div>' +
-        '</div>' +
-        '<div style="flex:1;min-width:400px;">' +
-          nextPlayerHTML +
-          '<div class="player-card" style="padding:20px;">' +
-            '<div class="bid-input-group" style="margin-bottom:15px;">' +
-              '<label style="font-size:16px;font-weight:bold;color:#2d3748;display:block;margin-bottom:8px;">Bid Amount:</label>' +
-              '<input type="number" id="bidAmount_0" min="' + p.basePrice + '" value="' + p.basePrice + '" style="font-size:20px;padding:12px;text-align:center;font-weight:bold;width:100%;box-sizing:border-box;border:3px solid #fbbf24;border-radius:10px;">' +
+          '<div style="background:white;padding:20px;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.1);border:2px solid rgba(251,191,36,0.2);max-width:450px;">' +
+            '<h3 style="color:#2d3748;font-size:18px;margin:0 0 15px 0;text-align:center;border-bottom:3px solid #fbbf24;padding-bottom:10px;">💰 Place Your Bid</h3>' +
+            '<div style="margin-bottom:15px;">' +
+              '<label style="font-size:13px;font-weight:700;color:#2d3748;display:block;margin-bottom:8px;">💵 Bid Amount</label>' +
+              '<input type="number" id="bidAmount_0" min="' + p.basePrice + '" value="' + p.basePrice + '" style="font-size:22px;padding:10px;text-align:center;font-weight:bold;width:100%;box-sizing:border-box;border:3px solid #fbbf24;border-radius:12px;background:linear-gradient(135deg, #fffbeb, #fef3c7);" oninput="var ti=document.getElementById(\'selectedTeam_0\').value; if(ti!==\'\'){var t=teams[parseInt(ti)]; var remainingSlots=14-t.squad.length-1; var walletAfter=t.wallet-parseInt(this.value||0); var minNeeded=remainingSlots*2000; var warning=document.getElementById(\'walletWarning_0\'); if(walletAfter<minNeeded){warning.style.display=\'block\';warning.innerHTML=\'⚠️ Warning: Only \'+walletAfter.toLocaleString()+\' left for \'+remainingSlots+\' players (need \'+minNeeded.toLocaleString()+\')\';warning.style.color=\'#ef4444\';}else{warning.style.display=\'none\';}}">' +
+              '<div id="walletWarning_0" style="display:none;margin-top:8px;padding:8px;background:rgba(239,68,68,0.1);border:2px solid #ef4444;border-radius:8px;font-size:12px;font-weight:600;text-align:center;"></div>' +
             '</div>' +
-            '<div style="font-weight:bold;margin-bottom:12px;color:#2d3748;font-size:16px;text-align:center;">Select Team:</div>' +
-            '<div class="team-select-grid">' +
-              teams.map(function(t,j){
-                if(!t.squad) t.squad = [];
-                var isDisabled = t.squad.length >= 14 || (p.isOwner && !p.ownerPlays && t.ownerName !== p.name);
-                return '<button id="teamBtn_0_' + j + '" class="team-select-btn" style="font-size:13px;padding:12px;" ' + 
-                  (isDisabled ? 'disabled' : 'onclick="selectTeam(0,' + j + ')"') + '>' +
-                  t.name + '<br><small>(' + t.squad.length + '/14)</small>' +
-                '</button>';
-              }).join('') +
+            '<div style="margin-bottom:15px;">' +
+              '<label style="font-size:13px;font-weight:700;color:#2d3748;display:block;margin-bottom:10px;text-align:center;">🏆 Select Team</label>' +
+              '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">' +
+                teams.map(function(t,j){
+                  if(!t.squad) t.squad = [];
+                  if(!t.groupPicks) t.groupPicks = {1:0,2:0,3:0,4:0};
+                  
+                  var checkGroup = p.rank;
+                  var originalPlayer = null;
+                  if(p.rank === 5 || p.isUnsold) {
+                    originalPlayer = originalPlayers.find(function(op){return op.name === p.name;});
+                    if(originalPlayer) checkGroup = originalPlayer.rank;
+                  }
+                  
+                  var groupFull = !canPickFromGroup(t, p.rank, p.name);
+                  var squadFull = t.squad.length >= 14;
+                  var groupCount = t.groupPicks[checkGroup] || 0;
+                  var groupSpent = getGroupWalletSpent(t, checkGroup);
+                  var groupLimit = groupWalletLimits[checkGroup] || 999999;
+                  var groupRemainingBudget = groupLimit - groupSpent;
+                  var groupWalletInsufficient = groupRemainingBudget < p.basePrice;
+                  var remainingSlots = 14 - t.squad.length - 1;
+                  var minReserve = remainingSlots * 2000;
+                  var maxSafeBid = t.wallet - minReserve;
+                  var cannotAffordPlayer = maxSafeBid < p.basePrice;
+                  
+                  var hasPreAssignedBelow40 = t.squad.some(function(sp){
+                    return sp.isPreAssigned && originalPlayers.find(function(op){return op.name === sp.name && op.rank === 4;});
+                  });
+                  var effectiveLimit = (checkGroup === 4 && hasPreAssignedBelow40) ? 2 : 3;
+                  
+                  var isDisabled = squadFull || groupFull || (checkGroup <= 4 && groupWalletInsufficient) || cannotAffordPlayer;
+                  var disabledStyle = isDisabled ? 'opacity:0.4;background:rgba(239,68,68,0.1);border-color:#ef4444;' : '';
+                  
+                  return '<button id="teamBtn_0_' + j + '" class="team-select-btn" style="font-size:13px;padding:12px 8px;min-height:100px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;' + disabledStyle + '" ' + 
+                    (isDisabled ? 'disabled title="' + (squadFull ? 'Squad Full' : groupFull ? 'Group ' + checkGroup + ' Limit (' + groupCount + '/' + effectiveLimit + ')' : groupWalletInsufficient ? 'Group ' + checkGroup + ' Budget Exceeded' : 'Insufficient Wallet') + '"' : 'onclick="selectTeam(0,' + j + ')"') + '>' +
+                    '<div style="font-weight:700;font-size:14px;">' + t.name + '</div>' +
+                    '<div style="font-size:13px;color:#2d3748;font-weight:600;">Squad: ' + t.squad.length + '/14</div>' +
+                    '<div style="font-size:13px;color:' + (groupCount >= effectiveLimit ? '#ef4444' : '#10b981') + ';font-weight:700;">G' + checkGroup + ': ' + groupCount + '/' + effectiveLimit + (groupCount >= effectiveLimit ? ' 🚫' : '') + '</div>' +
+                    '<div style="font-size:13px;color:' + (groupSpent >= groupLimit ? '#ef4444' : '#2d3748') + ';font-weight:600;">' + groupSpent.toLocaleString() + '/' + groupLimit.toLocaleString() + '</div>' +
+                    (cannotAffordPlayer ? '<div style="font-size:11px;color:#ef4444;font-weight:700;">❌ Low Wallet</div>' : groupWalletInsufficient ? '<div style="font-size:11px;color:#ef4444;font-weight:700;">❌ G' + checkGroup + ' Budget</div>' : groupFull ? '<div style="font-size:11px;color:#ef4444;font-weight:700;">❌ Full</div>' : '') +
+                  '</button>';
+                }).join('') +
+              '</div>' +
             '</div>' +
-            '<div id="teamWalletInfo_0" style="text-align:center;color:#64748b;font-size:15px;margin:15px 0;font-weight:bold;">Select a team to see wallet</div>' +
+            '<div id="teamWalletInfo_0" style="text-align:center;color:#64748b;font-size:13px;margin:15px 0;padding:12px;background:rgba(251,191,36,0.05);border-radius:10px;font-weight:600;border:2px dashed #fbbf24;">👆 Select a team to see wallet details</div>' +
+            '<div id="biddingRestrictions_0" style="display:none;" class="bidding-restriction">' +
+              '<div style="color:#ef4444;font-size:12px;font-weight:700;text-align:center;margin-bottom:6px;">⚠️ BIDDING RESTRICTIONS</div>' +
+              '<div id="restrictionDetails_0" style="color:#dc2626;font-size:11px;text-align:center;"></div>' +
+            '</div>' +
             '<input type="hidden" id="selectedTeam_0" value="">' +
-            '<button class="confirm-bid-btn" style="font-size:16px;padding:15px;width:100%;margin-top:8px;" onclick="var ti=document.getElementById(\'selectedTeam_0\').value; if(ti===\'\'){alert(\'Please select a team\');return;} placeBid(ti,0)">✓ Confirm Bid</button>' +
-            '<button class="cancel-bid-btn" style="font-size:14px;padding:12px;width:100%;margin-top:8px;" onclick="markUnsold(0)">🔄 Next Chance</button>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px;">' +
+              (function(){
+                if(p.rank === 5 || p.isUnsold) {
+                  var origP = originalPlayers.find(function(op){return op.name === p.name;});
+                  if(origP) {
+                    var teamsCanBid = teams.filter(function(t){
+                      return t.squad.length < 14 && canPickFromGroup(t, 5, p.name);
+                    });
+                    if(teamsCanBid.length === 1) {
+                      var onlyTeamIdx = teams.indexOf(teamsCanBid[0]);
+                      return '<button class="confirm-bid-btn" style="font-size:15px;padding:12px;border-radius:10px;grid-column:1/-1;" onclick="document.getElementById(\'selectedTeam_0\').value=' + onlyTeamIdx + ';document.getElementById(\'bidAmount_0\').value=' + p.basePrice + ';placeBid(' + onlyTeamIdx + ',0)">✅ Auto-Assign to ' + teamsCanBid[0].name + ' (' + p.basePrice.toLocaleString() + ')</button>';
+                    }
+                  }
+                }
+                return '<button class="confirm-bid-btn" style="font-size:15px;padding:12px;border-radius:10px;" onclick="var ti=document.getElementById(\'selectedTeam_0\').value; if(ti===\'\'){alert(\'Please select a team\');return;} placeBid(ti,0)">✓ Confirm Bid</button>' +
+                  '<button class="cancel-bid-btn" style="font-size:14px;padding:12px;border-radius:10px;" onclick="markUnsold(0)">🔄 Next Chance</button>';
+              })() +
+            '</div>' +
+          '</div>' +
+          '<div style="background:white;padding:20px;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.1);border:2px solid rgba(251,191,36,0.2);">' +
+            '<h3 style="color:#2d3748;font-size:18px;margin:0 0 15px 0;text-align:center;border-bottom:3px solid #fbbf24;padding-bottom:10px;">📊 Group Status</h3>' +
+            '<div style="display:flex;flex-direction:column;gap:10px;">' +
+              '<div onclick="showRankPlayers(1)" style="cursor:pointer;padding:15px;border-radius:12px;background:rgba(255,255,255,0.5);border:2px solid ' + (currentGroup === 1 ? '#fbbf24' : 'transparent') + ';box-shadow:' + (currentGroup === 1 ? '0 0 20px rgba(251,191,36,0.5)' : '0 2px 8px rgba(0,0,0,0.08)') + ';transition:all 0.3s;" onmouseover="this.style.transform=\'translateY(-2px)\';this.style.boxShadow=\'0 4px 12px rgba(0,0,0,0.15)\'" onmouseout="this.style.transform=\'translateY(0)\';this.style.boxShadow=\'' + (currentGroup === 1 ? '0 0 20px rgba(251,191,36,0.5)' : '0 2px 8px rgba(0,0,0,0.08)') + '\'">' +
+                '<div style="text-align:center;"><span class="rank-badge rank-1">Group 1</span>' + (currentGroup === 1 ? '<br><span style="color:#fbbf24;font-size:11px;font-weight:bold;">🎯 ACTIVE</span>' : '') + '</div>' +
+                '<div style="text-align:center;margin-top:8px;"><b style="font-size:18px;">' + rank1 + '/' + totalRank1 + '</b><br><span style="font-size:12px;color:#64748b;">Available</span></div>' +
+                '<div style="text-align:center;margin-top:6px;"><small style="color:#f59e0b;font-weight:600;font-size:13px;">💡 Max 70K</small></div>' +
+              '</div>' +
+              '<div onclick="showRankPlayers(2)" style="cursor:pointer;padding:15px;border-radius:12px;background:rgba(255,255,255,0.5);border:2px solid ' + (currentGroup === 2 ? '#fbbf24' : 'transparent') + ';box-shadow:' + (currentGroup === 2 ? '0 0 20px rgba(251,191,36,0.5)' : '0 2px 8px rgba(0,0,0,0.08)') + ';transition:all 0.3s;" onmouseover="this.style.transform=\'translateY(-2px)\';this.style.boxShadow=\'0 4px 12px rgba(0,0,0,0.15)\'" onmouseout="this.style.transform=\'translateY(0)\';this.style.boxShadow=\'' + (currentGroup === 2 ? '0 0 20px rgba(251,191,36,0.5)' : '0 2px 8px rgba(0,0,0,0.08)') + '\'">' +
+                '<div style="text-align:center;"><span class="rank-badge rank-2">Group 2</span>' + (currentGroup === 2 ? '<br><span style="color:#fbbf24;font-size:11px;font-weight:bold;">🎯 ACTIVE</span>' : '') + '</div>' +
+                '<div style="text-align:center;margin-top:8px;"><b style="font-size:18px;">' + rank2 + '/' + totalRank2 + '</b><br><span style="font-size:12px;color:#64748b;">Available</span></div>' +
+                '<div style="text-align:center;margin-top:6px;"><small style="color:#94a3b8;font-weight:600;font-size:13px;">💡 Max 30K</small></div>' +
+              '</div>' +
+              '<div onclick="showRankPlayers(3)" style="cursor:pointer;padding:15px;border-radius:12px;background:rgba(255,255,255,0.5);border:2px solid ' + (currentGroup === 3 ? '#fbbf24' : 'transparent') + ';box-shadow:' + (currentGroup === 3 ? '0 0 20px rgba(251,191,36,0.5)' : '0 2px 8px rgba(0,0,0,0.08)') + ';transition:all 0.3s;" onmouseover="this.style.transform=\'translateY(-2px)\';this.style.boxShadow=\'0 4px 12px rgba(0,0,0,0.15)\'" onmouseout="this.style.transform=\'translateY(0)\';this.style.boxShadow=\'' + (currentGroup === 3 ? '0 0 20px rgba(251,191,36,0.5)' : '0 2px 8px rgba(0,0,0,0.08)') + '\'">' +
+                '<div style="text-align:center;"><span class="rank-badge rank-3">Group 3</span>' + (currentGroup === 3 ? '<br><span style="color:#fbbf24;font-size:11px;font-weight:bold;">🎯 ACTIVE</span>' : '') + '</div>' +
+                '<div style="text-align:center;margin-top:8px;"><b style="font-size:18px;">' + rank3 + '/' + totalRank3 + '</b><br><span style="font-size:12px;color:#64748b;">Available</span></div>' +
+                '<div style="text-align:center;margin-top:6px;"><small style="color:#fb923c;font-weight:600;font-size:13px;">💡 Max 20K</small></div>' +
+              '</div>' +
+              '<div onclick="showRankPlayers(4)" style="cursor:pointer;padding:15px;border-radius:12px;background:rgba(255,255,255,0.5);border:2px solid ' + (currentGroup === 4 ? '#fbbf24' : 'transparent') + ';box-shadow:' + (currentGroup === 4 ? '0 0 20px rgba(251,191,36,0.5)' : '0 2px 8px rgba(0,0,0,0.08)') + ';transition:all 0.3s;" onmouseover="this.style.transform=\'translateY(-2px)\';this.style.boxShadow=\'0 4px 12px rgba(0,0,0,0.15)\'" onmouseout="this.style.transform=\'translateY(0)\';this.style.boxShadow=\'' + (currentGroup === 4 ? '0 0 20px rgba(251,191,36,0.5)' : '0 2px 8px rgba(0,0,0,0.08)') + '\'">' +
+                '<div style="text-align:center;"><span class="rank-badge rank-4">Group 4</span>' + (currentGroup === 4 ? '<br><span style="color:#fbbf24;font-size:11px;font-weight:bold;">🎯 ACTIVE</span>' : '') + '</div>' +
+                '<div style="text-align:center;margin-top:8px;"><b style="font-size:18px;">' + rank4 + '/' + totalRank4 + '</b><br><span style="font-size:12px;color:#64748b;">Available</span></div>' +
+                '<div style="text-align:center;margin-top:6px;"><small style="color:#10b981;font-weight:600;font-size:13px;">💡 Max 30K</small></div>' +
+              '</div>' +
+              '<div onclick="showUnsoldPlayers()" style="cursor:pointer;padding:15px;border-radius:12px;background:rgba(255,255,255,0.5);border:2px solid ' + (currentGroup === 5 ? '#fbbf24' : 'transparent') + ';box-shadow:' + (currentGroup === 5 ? '0 0 20px rgba(251,191,36,0.5)' : '0 2px 8px rgba(0,0,0,0.08)') + ';transition:all 0.3s;" onmouseover="this.style.transform=\'translateY(-2px)\';this.style.boxShadow=\'0 4px 12px rgba(0,0,0,0.15)\'" onmouseout="this.style.transform=\'translateY(0)\';this.style.boxShadow=\'' + (currentGroup === 5 ? '0 0 20px rgba(251,191,36,0.5)' : '0 2px 8px rgba(0,0,0,0.08)') + '\'">' +
+                '<div style="text-align:center;"><span class="rank-badge" style="background:#6c757d;color:#fff;">Next Chance</span>' + (currentGroup === 5 ? '<br><span style="color:#fbbf24;font-size:11px;font-weight:bold;">🎯 ACTIVE</span>' : '') + '</div>' +
+                '<div style="text-align:center;margin-top:8px;"><b style="font-size:18px;">' + unsoldCount + '</b><br><span style="font-size:12px;color:#64748b;">Players</span></div>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="auction-grid-mobile" style="display:none;">' +
+          '<div id="rankCounter" class="rank-counter"></div>' +
+          '<div style="background:linear-gradient(135deg, #2d3748, #1a202c);padding:25px;border-radius:16px;border:3px solid #fbbf24;box-shadow:0 0 30px rgba(251,191,36,0.5);margin-bottom:15px;">' +
+            '<div style="position:relative;width:100%;max-width:450px;aspect-ratio:1;margin:0 auto 20px;">' +
+              '<img class="player-photo" src="' + p.photo + '" style="width:100%;height:100%;display:block;border:5px solid #fbbf24;box-shadow:0 0 30px rgba(251,191,36,0.8);object-fit:cover;border-radius:12px;">' +
+            '</div>' +
+            '<div style="position:relative;">' +
+              '<h2 style="color:#fbbf24;font-size:28px;margin:0 0 15px 0;text-align:center;text-shadow:0 0 15px rgba(251,191,36,0.8);">' + p.name + '</h2>' +
+              '<div id="soldStamp_mobile" style="display:none;position:absolute;top:50%;left:50%;transform:translate(-50%, -50%) rotate(-15deg);background:linear-gradient(135deg, #10b981, #059669);color:white;padding:15px 35px;border-radius:16px;font-weight:900;font-size:48px;z-index:100;opacity:0.98;box-shadow:0 8px 30px rgba(16,185,129,0.8), inset 0 4px 0 rgba(255,255,255,0.4), 0 0 60px rgba(16,185,129,0.6);border:5px solid white;letter-spacing:4px;text-shadow:4px 4px 8px rgba(0,0,0,0.5);white-space:nowrap;animation:soldPulse 1.5s ease-in-out infinite;">SOLD!</div>' +
+            '</div>' +
+            '<div style="text-align:center;margin-bottom:15px;">' + badges + '</div>' +
+            '<div style="background:rgba(251,191,36,0.15);padding:12px;border-radius:10px;margin-bottom:12px;border:2px solid #fbbf24;">' +
+              '<div style="color:#fbbf24;font-size:14px;text-align:center;font-weight:600;margin-bottom:6px;">Base Price</div>' +
+              '<div style="color:white;font-size:24px;text-align:center;font-weight:bold;">' + p.basePrice.toLocaleString() + '</div>' +
+            '</div>' +
+            '<div style="background:rgba(16,185,129,0.15);padding:10px;border-radius:10px;border:2px solid #10b981;margin-bottom:12px;">' +
+              '<div style="color:#10b981;font-size:13px;text-align:center;font-weight:600;">🔥 CURRENT BID 🔥</div>' +
+            '</div>' +
+            '<div style="background:rgba(251,191,36,0.1);padding:12px;border-radius:8px;border:1px solid rgba(251,191,36,0.3);">' +
+              '<div style="color:#fbbf24;font-size:16px;text-align:center;font-weight:700;margin-bottom:6px;">Group ' + currentGroup + ' Bidding</div>' +
+              '<div style="color:white;font-size:15px;text-align:center;font-weight:600;">Max Wallet: ' + (groupWalletLimits[currentGroup] || 0).toLocaleString() + '</div>' +
+              '<div style="color:#64748b;font-size:13px;text-align:center;margin-top:4px;">Remaining: ' + sortedPlayers.length + '</div>' +
+            '</div>' +
+            (function(){
+              if(p.rank === 5 || p.isUnsold) {
+                var origP = originalPlayers.find(function(op){return op.name === p.name;});
+                if(origP) {
+                  var teamsCanBid = teams.filter(function(t){
+                    return t.squad.length < 14 && canPickFromGroup(t, 5, p.name);
+                  });
+                  if(teamsCanBid.length === 1) {
+                    return '<div style="background:rgba(16,185,129,0.15);border:2px solid #10b981;padding:10px;border-radius:8px;margin-top:10px;animation:pulse-hint 2s infinite;"><div style="color:#10b981;font-size:13px;font-weight:700;text-align:center;">💡 ONLY ' + teamsCanBid[0].name.toUpperCase() + ' CAN BID</div><div style="color:#059669;font-size:11px;text-align:center;margin-top:4px;">Group ' + origP.rank + ': ' + (teamsCanBid[0].groupPicks[origP.rank] || 0) + '/3</div></div>';
+                  }
+                }
+              }
+              return '';
+            })() +
+          '</div>' +
+          '<div style="background:white;padding:20px;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.1);border:2px solid rgba(251,191,36,0.2);max-width:450px;margin:0 auto;">' +
+            '<h3 style="color:#2d3748;font-size:18px;margin:0 0 15px 0;text-align:center;border-bottom:3px solid #fbbf24;padding-bottom:10px;">💰 Place Your Bid</h3>' +
+            '<div style="margin-bottom:15px;">' +
+              '<label style="font-size:13px;font-weight:700;color:#2d3748;display:block;margin-bottom:8px;">💵 Bid Amount</label>' +
+              '<input type="number" id="bidAmount_mobile" min="' + p.basePrice + '" value="' + p.basePrice + '" style="font-size:22px;padding:10px;text-align:center;font-weight:bold;width:100%;box-sizing:border-box;border:3px solid #fbbf24;border-radius:12px;background:linear-gradient(135deg, #fffbeb, #fef3c7);">' +
+              '<div id="walletWarning_mobile" style="display:none;margin-top:8px;padding:8px;background:rgba(239,68,68,0.1);border:2px solid #ef4444;border-radius:8px;font-size:12px;font-weight:600;text-align:center;"></div>' +
+            '</div>' +
+            '<div style="margin-bottom:15px;">' +
+              '<label style="font-size:13px;font-weight:700;color:#2d3748;display:block;margin-bottom:10px;text-align:center;">🏆 Select Team</label>' +
+              '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">' +
+                teams.map(function(t,j){
+                  if(!t.squad) t.squad = [];
+                  if(!t.groupPicks) t.groupPicks = {1:0,2:0,3:0,4:0};
+                  
+                  var checkGroup = p.rank;
+                  var originalPlayer = null;
+                  if(p.rank === 5 || p.isUnsold) {
+                    originalPlayer = originalPlayers.find(function(op){return op.name === p.name;});
+                    if(originalPlayer) checkGroup = originalPlayer.rank;
+                  }
+                  
+                  var groupFull = !canPickFromGroup(t, p.rank, p.name);
+                  var squadFull = t.squad.length >= 14;
+                  var groupCount = t.groupPicks[checkGroup] || 0;
+                  var groupSpent = getGroupWalletSpent(t, checkGroup);
+                  var groupLimit = groupWalletLimits[checkGroup] || 999999;
+                  var groupRemainingBudget = groupLimit - groupSpent;
+                  var groupWalletInsufficient = groupRemainingBudget < p.basePrice;
+                  var remainingSlots = 14 - t.squad.length - 1;
+                  var minReserve = remainingSlots * 2000;
+                  var maxSafeBid = t.wallet - minReserve;
+                  var cannotAffordPlayer = maxSafeBid < p.basePrice;
+                  
+                  var hasPreAssignedBelow40 = t.squad.some(function(sp){
+                    return sp.isPreAssigned && originalPlayers.find(function(op){return op.name === sp.name && op.rank === 4;});
+                  });
+                  var effectiveLimit = (checkGroup === 4 && hasPreAssignedBelow40) ? 2 : 3;
+                  
+                  var isDisabled = squadFull || groupFull || (checkGroup <= 4 && groupWalletInsufficient) || cannotAffordPlayer;
+                  
+                  return '<button id="teamBtn_mobile_' + j + '" class="team-select-btn" style="font-size:13px;padding:12px 8px;min-height:100px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;' + (isDisabled ? 'opacity:0.4;' : '') + '" ' + 
+                    (isDisabled ? 'disabled' : 'onclick="selectTeam(0,' + j + ')"') + '>' +
+                    '<div style="font-weight:700;font-size:14px;">' + t.name + '</div>' +
+                    '<div style="font-size:13px;color:#2d3748;font-weight:600;">Squad: ' + t.squad.length + '/14</div>' +
+                    '<div style="font-size:13px;color:' + (groupCount >= effectiveLimit ? '#ef4444' : '#10b981') + ';font-weight:700;">G' + checkGroup + ': ' + groupCount + '/' + effectiveLimit + (groupCount >= effectiveLimit ? ' 🚫' : '') + '</div>' +
+                    '<div style="font-size:13px;color:' + (groupSpent >= groupLimit ? '#ef4444' : '#2d3748') + ';font-weight:600;">' + groupSpent.toLocaleString() + '/' + groupLimit.toLocaleString() + '</div>' +
+                    (cannotAffordPlayer ? '<div style="font-size:11px;color:#ef4444;font-weight:700;">❌ Low Wallet</div>' : groupWalletInsufficient ? '<div style="font-size:11px;color:#ef4444;font-weight:700;">❌ G' + checkGroup + ' Budget</div>' : groupFull ? '<div style="font-size:11px;color:#ef4444;font-weight:700;">❌ Full</div>' : '') +
+                  '</button>';
+                }).join('') +
+              '</div>' +
+            '</div>' +
+            '<div id="teamWalletInfo_mobile" style="text-align:center;color:#64748b;font-size:13px;margin:15px 0;padding:12px;background:rgba(251,191,36,0.05);border-radius:10px;font-weight:600;border:2px dashed #fbbf24;">👆 Select a team to see wallet details</div>' +
+            '<input type="hidden" id="selectedTeam_mobile" value="">' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px;">' +
+              (function(){
+                if(p.rank === 5 || p.isUnsold) {
+                  var origP = originalPlayers.find(function(op){return op.name === p.name;});
+                  if(origP) {
+                    var teamsCanBid = teams.filter(function(t){
+                      return t.squad.length < 14 && canPickFromGroup(t, 5, p.name);
+                    });
+                    if(teamsCanBid.length === 1) {
+                      var onlyTeamIdx = teams.indexOf(teamsCanBid[0]);
+                      return '<button class="confirm-bid-btn" style="font-size:15px;padding:12px;border-radius:10px;grid-column:1/-1;" onclick="document.getElementById(\'selectedTeam_0\').value=' + onlyTeamIdx + ';document.getElementById(\'bidAmount_0\').value=' + p.basePrice + ';placeBid(' + onlyTeamIdx + ',0)">✅ Auto-Assign to ' + teamsCanBid[0].name + ' (' + p.basePrice.toLocaleString() + ')</button>';
+                    }
+                  }
+                }
+                return '<button class="confirm-bid-btn" style="font-size:15px;padding:12px;border-radius:10px;" onclick="var ti=document.getElementById(\'selectedTeam_0\').value; if(ti===\'\'){alert(\'Please select a team\');return;} placeBid(ti,0)">✓ Confirm Bid</button>' +
+                  '<button class="cancel-bid-btn" style="font-size:14px;padding:12px;border-radius:10px;" onclick="markUnsold(0)">🔄 Next Chance</button>';
+              })() +
+            '</div>' +
           '</div>' +
         '</div>' +
       '</div>';
@@ -1978,11 +2885,13 @@ function renderAll(){
 
   document.getElementById('bidLog').innerHTML = bidLog.slice().reverse().map(function(b, index){
     var newClass = index < 3 ? ' new' : '';
-    return '<div class="bid-log-item' + newClass + '">' +
+    var isSkipped = b.isSkipped || b.team === 'SKIPPED';
+    var bgColor = isSkipped ? 'background:linear-gradient(135deg, #fef3c7, #fde68a);border-left:4px solid #fbbf24;' : 'background:linear-gradient(135deg, #ffffff, #f8fafc);border-left:4px solid #10b981;';
+    return '<div class="bid-log-item' + newClass + '" style="' + bgColor + '">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;">' +
-        '<div><strong style="color:#10b981;font-size:15px;">' + b.team + '</strong> signed <strong style="color:#2d3748;">' + b.player + '</strong></div>' +
+        '<div>' + (isSkipped ? '<strong style="color:#f59e0b;font-size:15px;">⏭️ ' + b.player + '</strong>' : '<strong style="color:#10b981;font-size:15px;">' + b.team + '</strong> signed <strong style="color:#2d3748;">' + b.player + '</strong>') + '</div>' +
         '<div style="display:flex;align-items:center;gap:10px;">' +
-          '<span style="background:#fbbf24;color:#1a202c;padding:4px 12px;border-radius:20px;font-weight:bold;font-size:14px;"> ' + b.amount.toLocaleString() + '</span>' +
+          (isSkipped ? '' : '<span style="background:#fbbf24;color:#1a202c;padding:4px 12px;border-radius:20px;font-weight:bold;font-size:14px;">💰 ' + b.amount.toLocaleString() + '</span>') +
           (b.timestamp ? '<span style="color:#64748b;font-size:12px;">' + b.timestamp + '</span>' : '') +
         '</div>' +
       '</div>' +
@@ -2006,7 +2915,8 @@ function renderAll(){
     var coreTeamMembers = preAssignedNonOwner.slice();
     if(ownerPlayer) coreTeamMembers.unshift(ownerPlayer);
     
-    return '<div class="auction-team-card">' +
+    return '<div class="auction-team-card" style="background-image:url(' + t.logo + ');">' +
+      '<img class="team-logo-watermark" src="' + t.logo + '" alt="' + t.name + '">' +
       '<img class="team-logo-watermark" src="' + t.logo + '" alt="' + t.name + '">' +
       '<div class="team-content">' +
         '<div class="team-name-highlight">' + t.name + '</div>' +
@@ -2033,6 +2943,62 @@ function renderAll(){
           (t.squad.length === 0 && !t.ownerName ? '<div style="color:#999;font-style:italic;text-align:center;">No players yet</div>' : '') +
         '</div>' +
       '</div>' +
+    '</div>';
+  }).join('');
+
+  // Render Team Photos (IPL Style)
+  document.getElementById('teamPhotosList').innerHTML = teams.map(function(t){
+    if(!t.squad) t.squad = [];
+    
+    // Find owner and captain
+    var ownerPlayer = t.squad.find(function(p){return p.isOwner === true;});
+    var ownerName = t.ownerName;
+    var ownerPhoto = ownerPlayer ? ownerPlayer.photo : 'default.png';
+    
+    // Find captain (first ICON player or first player in squad)
+    var captain = t.squad.find(function(p){
+      var origPlayer = originalPlayers.find(function(op){return op.name === p.name;});
+      return origPlayer && origPlayer.isIcon;
+    }) || t.squad[0];
+    
+    // Get all other players (excluding owner if they're also a player, and captain)
+    var otherPlayers = t.squad.filter(function(p){
+      if(captain && p.name === captain.name) return false;
+      if(ownerPlayer && p.name === ownerPlayer.name) return false;
+      return true;
+    });
+    
+    return '<div class="team-photo-container" style="background-image:url(' + t.logo + ');background-size:cover;background-position:center;background-repeat:no-repeat;">' +
+      '<div style="position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg, rgba(255,255,255,0.75), rgba(248,250,252,0.75));border-radius:20px;z-index:0;"></div>' +
+      '<div class="team-photo-header">' +
+        '<div class="team-photo-name">' + t.name + '</div>' +
+        '<div style="color:#64748b;font-size:16px;font-weight:600;">Squad Size: ' + t.squad.length + '/14</div>' +
+      '</div>' +
+      '<div class="leadership-row">' +
+        (ownerName ? 
+          '<div class="leader-card">' +
+            '<div class="leader-badge">👑 OWNER</div>' +
+            '<img class="leader-photo" src="' + ownerPhoto + '" alt="' + ownerName + '">' +
+            '<div class="leader-name">' + ownerName + '</div>' +
+          '</div>' : '') +
+        (captain ? 
+          '<div class="leader-card">' +
+            '<div class="leader-badge">⭐ CAPTAIN</div>' +
+            '<img class="leader-photo" src="' + captain.photo + '" alt="' + captain.name + '">' +
+            '<div class="leader-name">' + captain.name + '</div>' +
+          '</div>' : '') +
+      '</div>' +
+      (otherPlayers.length > 0 ? 
+        '<div class="players-grid">' +
+          otherPlayers.map(function(p){
+            return '<div class="player-item">' +
+              '<img class="player-item-photo" src="' + p.photo + '" alt="' + p.name + '">' +
+              '<div class="player-item-name">' + p.name + '</div>' +
+            '</div>';
+          }).join('') +
+        '</div>' : 
+        '<div style="text-align:center;color:#999;font-style:italic;margin-top:20px;position:relative;z-index:1;">No other players yet</div>'
+      ) +
     '</div>';
   }).join('');
 
@@ -2074,6 +3040,7 @@ db.ref('auctionState').on('value',function(s){
   var d=s.val();
   if(!d) return;
   teams=d.teams||teams;
+  teams.forEach(function(t){ if(!t.groupPicks) t.groupPicks = {1:0,2:0,3:0,4:0}; });
   var syncedPlayers = (d.availablePlayers||[]).filter(function(p){return !p.isPreAssigned && !p.isIcon && !p.isOwner;});
   if(JSON.stringify(syncedPlayers) !== JSON.stringify(availablePlayers)) {
     availablePlayers = syncedPlayers;
@@ -2081,6 +3048,7 @@ db.ref('auctionState').on('value',function(s){
   bidLog=d.bidLog||[];
   unsoldPlayers=d.unsoldPlayers||[];
   completedGroups=d.completedGroups||[];
+  currentGroup=d.currentGroup||1;
   if(d.currentBreak) {
     localStorage.setItem('currentBreak', d.currentBreak);
   } else {
@@ -2111,6 +3079,12 @@ window.addEventListener('DOMContentLoaded', function(){
     btnEl.classList.add('active');
   }
   createFloatingParticles();
+  
+  // Auto-collapse strategy section on mobile
+  if(window.innerWidth < 768) {
+    var strategySection = document.getElementById('strategySection');
+    if(strategySection) strategySection.classList.add('collapsed');
+  }
 });
 
 function createFloatingParticles(){
