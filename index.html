@@ -1578,6 +1578,7 @@ function uploadCSV(){
           });
           if(targetTeam) {
             targetTeam.ownerName = player.name;
+            targetTeam.ownerPhoto = player.photo;
             // Add owner as player to squad and deduct base price
             if(player.ownerPlays) {
               if(!targetTeam.squad) targetTeam.squad = [];
@@ -2946,61 +2947,97 @@ function renderAll(){
     '</div>';
   }).join('');
 
-  // Render Team Photos (IPL Style)
-  document.getElementById('teamPhotosList').innerHTML = teams.map(function(t){
-    if(!t.squad) t.squad = [];
-    
-    // Find owner and captain
-    var ownerPlayer = t.squad.find(function(p){return p.isOwner === true;});
-    var ownerName = t.ownerName;
-    var ownerPhoto = ownerPlayer ? ownerPlayer.photo : 'default.png';
-    
-    // Find captain (first ICON player or first player in squad)
-    var captain = t.squad.find(function(p){
-      var origPlayer = originalPlayers.find(function(op){return op.name === p.name;});
-      return origPlayer && origPlayer.isIcon;
-    }) || t.squad[0];
-    
-    // Get all other players (excluding owner if they're also a player, and captain)
-    var otherPlayers = t.squad.filter(function(p){
-      if(captain && p.name === captain.name) return false;
-      if(ownerPlayer && p.name === ownerPlayer.name) return false;
-      return true;
-    });
-    
-    return '<div class="team-photo-container" style="background-image:url(' + t.logo + ');background-size:cover;background-position:center;background-repeat:no-repeat;">' +
-      '<div style="position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg, rgba(255,255,255,0.75), rgba(248,250,252,0.75));border-radius:20px;z-index:0;"></div>' +
-      '<div class="team-photo-header">' +
-        '<div class="team-photo-name">' + t.name + '</div>' +
-        '<div style="color:#64748b;font-size:16px;font-weight:600;">Squad Size: ' + t.squad.length + '/14</div>' +
-      '</div>' +
-      '<div class="leadership-row">' +
-        (ownerName ? 
-          '<div class="leader-card">' +
-            '<div class="leader-badge">👑 OWNER</div>' +
-            '<img class="leader-photo" src="' + ownerPhoto + '" alt="' + ownerName + '">' +
-            '<div class="leader-name">' + ownerName + '</div>' +
-          '</div>' : '') +
-        (captain ? 
-          '<div class="leader-card">' +
-            '<div class="leader-badge">⭐ CAPTAIN</div>' +
-            '<img class="leader-photo" src="' + captain.photo + '" alt="' + captain.name + '">' +
-            '<div class="leader-name">' + captain.name + '</div>' +
-          '</div>' : '') +
-      '</div>' +
-      (otherPlayers.length > 0 ? 
-        '<div class="players-grid">' +
-          otherPlayers.map(function(p){
-            return '<div class="player-item">' +
-              '<img class="player-item-photo" src="' + p.photo + '" alt="' + p.name + '">' +
-              '<div class="player-item-name">' + p.name + '</div>' +
-            '</div>';
-          }).join('') +
-        '</div>' : 
-        '<div style="text-align:center;color:#999;font-style:italic;margin-top:20px;position:relative;z-index:1;">No other players yet</div>'
-      ) +
-    '</div>';
-  }).join('');
+  // Render Team Photos - Slideshow before auction, Team composition after
+  var currentBreak = localStorage.getItem('currentBreak');
+  if(!currentBreak || currentBreak === '') {
+    // Show slideshow BEFORE auction starts
+    document.getElementById('teamPhotosList').innerHTML = '<audio autoplay loop><source src="background-music.mp3" type="audio/mpeg"></audio>' + teams.map(function(t, idx){
+      if(!t.squad) t.squad = [];
+      var ownerPlayer = t.squad.find(function(p){return p.isOwner === true;});
+      var ownerName = t.ownerName;
+      var ownerPhoto = ownerPlayer ? ownerPlayer.photo : (t.ownerPhoto || 'default.png');
+      
+      return '<div class="owner-slide" style="display:' + (idx === 0 ? 'flex' : 'none') + ';flex-direction:column;align-items:center;justify-content:center;min-height:80vh;background:linear-gradient(135deg, rgba(45,55,72,0.95), rgba(26,32,44,0.95));border-radius:20px;padding:40px;margin:20px auto;max-width:900px;box-shadow:0 0 60px rgba(251,191,36,0.4);border:4px solid #fbbf24;position:relative;overflow:hidden;">' +
+        '<div style="position:absolute;top:0;left:0;width:100%;height:100%;background-image:url(' + t.logo + ');background-size:contain;background-position:center;background-repeat:no-repeat;opacity:0.1;z-index:0;"></div>' +
+        '<div style="position:relative;z-index:1;text-align:center;">' +
+          '<img src="crown.png" style="width:120px;height:120px;margin-bottom:20px;filter:drop-shadow(0 0 20px rgba(251,191,36,0.8));animation:float-crown 3s ease-in-out infinite;" onerror="this.style.display=\'none\'">' +
+          '<div style="font-size:48px;font-weight:900;color:#fbbf24;margin-bottom:30px;text-shadow:0 0 30px rgba(251,191,36,0.8);letter-spacing:3px;">' + t.name + '</div>' +
+          (ownerName ? '<img src="' + ownerPhoto + '" style="width:300px;height:300px;border-radius:50%;border:8px solid #fbbf24;box-shadow:0 0 60px rgba(251,191,36,1);margin-bottom:30px;object-fit:cover;animation:pulse-photo 2s infinite;">' : '') +
+          (ownerName ? '<div style="font-size:36px;font-weight:900;color:white;text-shadow:0 0 20px rgba(251,191,36,0.6);margin-top:20px;">👑 ' + ownerName + ' 👑</div>' : '<div style="font-size:24px;color:#999;font-style:italic;">Owner TBA</div>') +
+          '<img src="' + t.logo + '" style="width:150px;height:150px;margin-top:40px;filter:drop-shadow(0 0 30px rgba(251,191,36,0.6));object-fit:contain;">' +
+        '</div>' +
+      '</div>';
+    }).join('') + '<style>@keyframes float-crown{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}</style>';
+  } else {
+    // Show team composition AFTER auction starts
+    document.getElementById('teamPhotosList').innerHTML = teams.map(function(t){
+      if(!t.squad) t.squad = [];
+      var ownerPlayer = t.squad.find(function(p){return p.isOwner === true;});
+      var ownerName = t.ownerName;
+      var ownerPhoto = ownerPlayer ? ownerPlayer.photo : (t.ownerPhoto || 'default.png');
+      var captain = t.squad.find(function(p){
+        var origPlayer = originalPlayers.find(function(op){return op.name === p.name;});
+        return origPlayer && origPlayer.isIcon;
+      }) || t.squad[0];
+      var otherPlayers = t.squad.filter(function(p){
+        if(captain && p.name === captain.name) return false;
+        if(ownerPlayer && p.name === ownerPlayer.name) return false;
+        return true;
+      });
+      
+      return '<div class="team-photo-container" style="background-image:url(' + t.logo + ');background-size:cover;background-position:center;background-repeat:no-repeat;">' +
+        '<div style="position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg, rgba(255,255,255,0.75), rgba(248,250,252,0.75));border-radius:20px;z-index:0;"></div>' +
+        '<div class="team-photo-header">' +
+          '<div class="team-photo-name">' + t.name + '</div>' +
+          '<div style="color:#64748b;font-size:16px;font-weight:600;">Squad Size: ' + t.squad.length + '/14</div>' +
+        '</div>' +
+        '<div class="leadership-row">' +
+          (ownerName ? 
+            '<div class="leader-card">' +
+              '<div class="leader-badge">👑 OWNER</div>' +
+              '<img class="leader-photo" src="' + ownerPhoto + '" alt="' + ownerName + '">' +
+              '<div class="leader-name">' + ownerName + '</div>' +
+            '</div>' : '') +
+          (captain ? 
+            '<div class="leader-card">' +
+              '<div class="leader-badge">⭐ CAPTAIN</div>' +
+              '<img class="leader-photo" src="' + captain.photo + '" alt="' + captain.name + '">' +
+              '<div class="leader-name">' + captain.name + '</div>' +
+            '</div>' : '') +
+        '</div>' +
+        (otherPlayers.length > 0 ? 
+          '<div class="players-grid">' +
+            otherPlayers.map(function(p){
+              return '<div class="player-item">' +
+                '<img class="player-item-photo" src="' + p.photo + '" alt="' + p.name + '">' +
+                '<div class="player-item-name">' + p.name + '</div>' +
+              '</div>';
+            }).join('') +
+          '</div>' : 
+          '<div style="text-align:center;color:#999;font-style:italic;margin-top:20px;position:relative;z-index:1;">No other players yet</div>'
+        ) +
+      '</div>';
+    }).join('');
+  }
+  
+  // Start slideshow only if auction hasn't started
+  if(!currentBreak || currentBreak === '') {
+    setTimeout(function(){
+      var slides = document.getElementsByClassName('owner-slide');
+      var slideIdx = 0;
+      function showSlides(){
+        if(!document.getElementById('teamPhotos').classList.contains('active') || localStorage.getItem('currentBreak')) {
+          return;
+        }
+        for(var i=0;i<slides.length;i++){slides[i].style.display='none';}
+        slideIdx++;
+        if(slideIdx>slides.length){slideIdx=1;}
+        if(slides[slideIdx-1])slides[slideIdx-1].style.display='flex';
+        setTimeout(showSlides,5000);
+      }
+      if(document.getElementById('teamPhotos').classList.contains('active') && slides.length>0){showSlides();}
+    }, 100);
+  }
 
   // Update stats section
   if(document.getElementById('auctionStats')) {
