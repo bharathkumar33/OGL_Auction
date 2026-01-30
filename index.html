@@ -482,6 +482,8 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   font-weight:bold;
   cursor:pointer;
   color:#999;
+  z-index:1001;
+  position:relative;
 }
 .rank-modal-close:hover {
   color:#000;
@@ -2218,7 +2220,14 @@ function showIconPlayers(){
 }
 
 function showHelp(){
-  window.open('OGL_Auction_Rules.html', '_blank', 'width=900,height=800,scrollbars=yes');
+  if(window.innerWidth <= 767) {
+    var helpWindow = window.open('OGL_Auction_Rules.html', '_blank');
+    if(!helpWindow) {
+      alert('Please allow popups to view the help page');
+    }
+  } else {
+    window.open('OGL_Auction_Rules.html', '_blank', 'width=900,height=800,scrollbars=yes');
+  }
 }
 
 function renderAll(){
