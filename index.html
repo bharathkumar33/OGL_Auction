@@ -1213,42 +1213,6 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
 }
 
 @media (max-width: 767px) {
-  body:not(.admin-mode) #auction .auction-grid-desktop,
-  body:not(.admin-mode) #auction .auction-grid-mobile > div:last-child,
-  body:not(.admin-mode) #auction .wallet-highlight,
-  body:not(.admin-mode) #auction .rank-counter { display:none !important; }
-  body:not(.admin-mode) #auction::before {
-    content:'';
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:rgba(0,0,0,0.95);
-    z-index:9999;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-  }
-  body:not(.admin-mode) #auction::after {
-    content:'🔒 Auction Testing in Progress\A\ADesktop access only for team members\A\AMobile viewing will be enabled soon!';
-    position:fixed;
-    top:50%;
-    left:50%;
-    transform:translate(-50%, -50%);
-    z-index:10000;
-    color:#fbbf24;
-    font-size:18px;
-    font-weight:bold;
-    text-align:center;
-    white-space:pre-wrap;
-    padding:30px;
-    background:linear-gradient(135deg, #2d3748, #1a202c);
-    border:3px solid #fbbf24;
-    border-radius:20px;
-    box-shadow:0 0 40px rgba(251,191,36,0.6);
-    line-height:1.8;
-  }
   .header { padding:15px 10px; }
   .header-logo { width:50px; height:50px; }
   .pulse-ring { width:60px !important; height:60px !important; }
