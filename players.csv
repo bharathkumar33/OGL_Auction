@@ -2,14 +2,14 @@ Photo,FirstName,LastName,BasePrice,Age,PlayerType,Icon,Owner,OwnerPlays,Team,Pre
 players/IMG-20250824-WA0082 - santhosh santhosh.jpg,MUTHU,ROCKERS,7000,Above40,All Rounder,Yes,No,No,Royal Tigers,Yes
 players/IMG_5078 - Bharath Kumar.jpeg,BHARATH,ROCKERS,4000,Above40,Batsman,No,No,No,,No
 players/pavan1_resized - Pavan gujaran.jpg,PAVAN,ROCKERS,4000,Above40,Bowler,No,No,No,,No
-players/IMG-20240605-WA0015 - MANJU MH.jpg,MANJU,ROCKERS,4000,Above40,All Rounder,No,No,No,,No
+players/IMG-20240605-WA0015 - MANJU MH.jpg,MANJU,ROCKERS,6000,Above40,All Rounder,No,No,No,,No
 players/Srinivasan_Chinnaiyan.jpeg,SRINI,ROCKERS,6000,Above40,All Rounder,No,No,No,,No
-players/velu.jpg,VELU,ROCKERS,4000,Above40,Wicket Keeper/Batsman,No,No,No,,No
-players/Screenshot_20260115_180859_WhatsApp - arun kumar.jpg,ARUN.T,ROCKERS,2000,Above40,Batsman,No,No,No,,No
+players/velu.jpg,VELU,ROCKERS,2000,Above40,Wicket Keeper/Batsman,No,No,No,,No
+players/Screenshot_20260115_180859_WhatsApp - arun kumar.jpg,ARUN.T,ROCKERS,3000,Above40,Batsman,No,No,No,Mighty Tuskers,Yes
 players/SateeshKulkarni.jpg,SATEESH,ROCKERS,6000,Above40,Bowler,No,No,No,,No
 players/20251227_112005 - kishore kishore.jpg,KISHORE,ROCKERS,4000,Above40,Bowler,No,No,No,,No
 players/IMG_4689 - muzeeb rahiman.jpeg,MUZEEB,ROCKERS,6000,Below40,All Rounder,No,No,No,,No
-players/20181124_132328_IMG-20181123-WA0033 - Babu.jpeg,BABU,ROCKERS,3000,Above40,Batsman,No,Yes,Yes,Royal Tigers,No
+players/20181124_132328_IMG-20181123-WA0033 - Babu.jpeg,BABU,,3000,Above40,Batsman,No,Yes,Yes,Royal Tigers,No
 players/DeepakDeepu.jpeg,DEEPU,ROCKERS,6000,Above40,All Rounder,No,No,No,,No
 players/IMG_3290 - Sandeep Narayanaswamy.jpeg,SANDEEP,ROCKERS,2000,Below40,Batsman,No,No,No,,No
 players/IMG_7713 - srikanth rajendra.jpeg,SRIKANTH,JK,4000,Above40,All Rounder,No,No,No,,No
@@ -24,8 +24,8 @@ players/image - imran baig.jpg,IMRAN,B'LIONS,6000,Above40,All Rounder,No,No,No,,
 players/20250405_141955 - Prashanth gowda.jpg,PRASHANTH GOWDA,B'LIONS,4000,Above40,Batsman,No,No,No,,No
 players/IMG_6363 - Nagaraj B A.jpeg,NAGARAJ,B'LIONS,2000,Above40,Batsman,No,No,No,,No
 players/IMG_5754 - vinod kumar.jpeg,VINOD,B'LIONS,2000,Above40,Batsman,No,No,No,,No
-players/IMG_0442 - Rohan Gacche.jpg,ROHAN,MCC,7000,Below40,All Rounder,Yes,No,No,Power_Panthers,Yes
-players/Nilesh.jpg,NILESH,MCC,4000,Above40,All Rounder,No,No,No,,No
+players/IMG_0442 - Rohan Gacche.jpg,ROHAN GACCHE,MCC,7000,Below40,All Rounder,Yes,No,No,Power_Panthers,Yes
+players/Nilesh.jpg,NILESH,MCC,6000,Above40,All Rounder,No,No,No,,No
 players/Rakesh.jpg,RAKESH.B,MCC,6000,Above40,All Rounder,No,No,No,,No
 players/IMG_4346 - sachin shirskar.jpeg,SACHIN.S,MCC,2000,Above40,Batsman,No,No,No,,No
 players/1000266465 - Nikhil Awari.jpg,NIKHIL,MCC,4000,Below40,Batsman,No,No,No,,No
@@ -37,20 +37,20 @@ players/IMG_7499 - Abhay Kamble.jpeg,ABHAY,MCC,4000,Above40,Batsman,No,No,No,,No
 players/acb94c3d-f52f-4589-b62a-a9749ec51736 - saravanan s.jpeg,SARO,JAIHIND,2000,Above40,Wicket Keeper/Batsman,No,No,No,,No
 players/b428c833-1312-4f6b-95dc-ab953c860934 - Arunkumar Byralingaiah.jpeg,ARUN GOWDA,JAIHIND,6000,Above40,All Rounder,No,No,No,,No
 players/Shanth.jpeg,SHANTH KUMAR,MELB STRIKERS,2000,Above40,Wicket Keeper/Batsman,No,No,No,,No
-players/RS-Profile - Rudresh S.jpg,RUDRESH,MELB STRIKERS,2000,Above40,Batsman,No,No,No,,No
-players/IMG_2496 - Shashi Natarajan.JPeG,SHASHI KUMAR,MELB STRIKERS,2000,Above40,Batsman,No,No,No,,No
-players/jayabaljoseph_chinnappa.jpeg,JAYBAL,MELB STRIKERS,3000,Above40,Bowler,No,Yes,Yes,Blazing Phoenix,No
+players/RS-Profile - Rudresh S.jpg,RUDRESH,MELB STRIKERS,4000,Above40,Batsman,No,No,No,,No
+players/IMG_2496 - Shashi Natarajan.jpeg,SHASHI KUMAR,MELB STRIKERS,2000,Above40,Batsman,No,No,No,,No
+players/jayabaljoseph_chinnappa.jpeg,JAYBAL,,3000,Above40,Bowler,No,Yes,Yes,Blazing Phoenix,No
 players/Ajit.png,AJITH,MELB STRIKERS,4000,Above40,Wicket Keeper/Batsman,No,No,No,,No
 players/Basha.jpeg,BASHA,MELB STRIKERS,6000,Above40,All Rounder,No,No,No,,No
 players/IMG_7752 - krishnaraj babu.jpeg,KRISH,MELB STRIKERS,6000,Above40,All Rounder,No,No,No,,No
-players/2c43a0ee-ea6f-472b-9660-1900783ad89a - sandesh padiyar.jpeg,SANDESH,TIRANGA,5000,Above40,Wicket Keeper/Batsman,Yes,No,No,Golden Eagle,Yes
-players/612206397_91eca390d3_k - Sandeep Jayaprakash.jpg,SANDEEP ,TIRANGA,4000,Above40,Batsman,No,No,No,,No
+players/2c43a0ee-ea6f-472b-9660-1900783ad89a - sandesh padiyar.jpeg,SANDESH,TIRANGA,5000,Above40,Wicket Keeper/Batsman,No,No,No,,No
+players/612206397_91eca390d3_k - Sandeep Jayaprakash.jpg,SANDEEP ,TIRANGA,5000,Above40,Batsman,Yes,No,No,Golden Eagle,Yes
 players/BEC5F869-46D7-4D6B-985B-92627A1F72D5 - Prakash Pakru.jpeg,PRAKASH,TIRANGA,4000,Above40,Bowler,No,No,No,,No
 players/147a2732-3bf0-45ca-af5a-8fba979bbf3e - girish krish.jpeg,GIRISH,TIRANGA,6000,Above40,All Rounder,No,No,No,,No
 players/89ba32f1-24cc-4597-a4f0-85f7a77a949f - Abhishek K R Shetty.jpeg,ABHISHEK,AVENGERS,7000,Above40,Wicket Keeper/Batsman,Yes,No,No,Mighty Tuskers,Yes
 players/5D0BFB0C-F662-4AB6-A50F-809A077E30A6_1_105_c - Praveen N H.jpeg,PRAVEEN . H,AVENGERS,4000,Above40,Bowler,No,No,No,,No
-players/175A4075 - sharath kumar.jpg,SHARATH,AVENGERS,2000,Above40,Bowler,No,No,No,,No
-players/12ad0efb-b849-4478-8792-a42a1d4ee2b3 - Srikanth Deshpande.jpeg,SRIKANTH,AVENGERS,4000,Above40,Batsman,No,No,No,,No
+players/sharath.JPG,SHARATH,AVENGERS,2000,Above40,Bowler,No,No,No,,No
+players/12ad0efb-b849-4478-8792-a42a1d4ee2b3 - Srikanth Deshpande.jpeg,SRIKANTH,AVENGERS,2000,Above40,Batsman,No,No,No,,No
 players/IMG_1340 - Vishnu Swaroop.jpeg,VISHNU,AVENGERS,4000,Below40,Batsman,No,No,No,,No
 players/20250323222313383 - Mohammed Mohsin.jpg,MOHSIN,JK,6000,Below40,Wicket Keeper/Batsman,No,No,No,,No
 players/5b4cf7d2-635a-4e81-bf3c-32b5e0410947 - Balasubramanian Vaira Mani.jpeg,BALA,TIRANGA,6000,Above40,Batsman,No,No,No,,No
@@ -65,22 +65,22 @@ players/PKN08842 - Praveen Karegowda N.jpg,PRAVEEN .K,TIRANGA,2000,Below40,Batsm
 players/IMG_4309 - Jayanth Devottu.jpeg,JAYANTHA DEVOTTU,MANGALORE FRNDS,2000,Above40,Batsman,No,No,No,,No
 players/Yathiraj_mlr.jpeg,YATHIRAJ,MANGALORE FRNDS,2000,Above40,Batsman,No,No,No,,No
 players/Prakash Salian.jpeg,PRAKASH SALIAN,MANGALORE FRNDS,2000,Above40,Batsman,No,No,No,,No
-players/Photo_1763450066538 - Cyprian Dsouza.jpg,CYPRIAN D'SOUZA,MANGALORE FRNDS,2000,Above40,Bowler,No,No,No,,No
+players/Photo_1763450066538 - Cyprian Dsouza.jpg,CYPRIAN D'SOUZA,MANGALORE FRNDS,4000,Above40,Bowler,No,No,No,,No
 players/20251023_121608 - Pruthvi S.jpg,PRUTHVI ,ROCKERS,6000,Below40,All Rounder,No,No,No,,No
 players/PHOTO-2018-10-30-23-12-20 - Ravi Siror.jpg,RAVI SIROR,ROCKERS,2000,Above40,Batsman,No,No,No,,No
 players/DSC_0474_Original - Krishna Mohan Gannamraju.jpeg,KRISHNA MOHAN,AVENGERS,6000,Below40,All Rounder,No,No,No,,No
 players/Screenshot_20260118-224339 - vikas choudhary.png,VIKAS CHOUDHARY,AVENGERS,6000,Below40,All Rounder,No,No,No,,No
-,DR.RAJ,TIRANGA,7000,Above40,All Rounder,No,Yes,Yes,Golden Eagle,No
+players/DRRaj.jpg,DR.RAJ,,7000,Above40,All Rounder,No,Yes,Yes,Golden Eagle,No
 players/d03a7a50-68e5-48ef-9b0c-180163b8d273 - Ranjith V.jpeg,RANJITH,AVENGERS,6000,Below40,All Rounder,No,No,No,,No
 players/IMG_20260119_201935 - Siva Sankar.jpg,SIVA,AVENGERS,6000,Below40,All Rounder,No,No,No,,No
 players/IMG-20260120-WA0008 - arun gadekar.jpg,ARUN GADEKAR,KING XI,4000,Above40,Bowler,No,No,No,,No
 players/IMG_7897 - Rajshekhar Hiremath.jpeg,RAJ SHEKAR,JK,2000,Below40,Batsman,No,No,No,,No
 players/IMG_0413 - srinivas subramanya.jpeg,SRINIVAS SUBRAMANIA,JAIHIND,2000,Above40,Bowler,No,No,No,,No
 players/TheerthaBV.jpeg,THEERTHA,B'LIONS,4000,Below40,All Rounder,No,No,No,,No
-players/IMG_8824 - prashant hawalgi.jpeg,PRAJWAL,MANGALORE FRNDS,6000,Below40,All Rounder,No,No,No,,No
-players/2024_Year 4 Camp_PDI (133) - naresh shetty.jpg,NARESH,MANGALORE FRNDS,4000,Above40,Batsman,No,No,No,,No
-players/BharathMCC.jpg,BHARATH,MCC,5000,Above40,Batsman,No,Yes,Yes,Power_Panthers,No
-,NISHAKANTH,AVENGERS,0,Above40,Right Hander,No,Yes,No,Mighty Tuskers,No
-players/IMG_4722 - Mohan B Achar.jpeg,MOHAN,JAIHIND,3000,Above40,Batsman,No,Yes,Yes,Charging Bulls,No
+players/naresh.JPG,NARESH,MANGALORE FRNDS,4000,Above40,Batsman,No,No,No,,No
+players/BharathMCC.jpg,BHARAT JADHAV,,5000,Above40,Batsman,No,Yes,Yes,Power_Panthers,No
+players/Nishakanth.jpg,NISHAKANTH,,0,Above40,Right Hander,No,Yes,No,Mighty Tuskers,No
+players/IMG_4722 - Mohan B Achar.jpeg,MOHAN,,3000,Above40,Batsman,No,Yes,Yes,Charging Bulls,No
 players/Suraj_shetty.jpeg,SURAJ,KUNDAPRA,4000,Above40,All Rounder,No,No,No,,No
 players/Prashant Rale.jpg,PRASHANT RALE,MCC,2000,Above40,Batsman,No,No,No,,No
+players/Sachin.jpg,Sachin Shetty,JK,2000,Below40,Batsman,No,No,No,,No
