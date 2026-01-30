@@ -1743,6 +1743,18 @@ function canPickFromGroup(team, groupRank, playerName) {
     }
     return true;
   }
+  
+  // For Group 4, check if team has pre-assigned below40 player
+  if(groupRank === 4) {
+    var hasPreAssignedBelow40 = team.squad.some(function(p){
+      return p.isPreAssigned && originalPlayers.find(function(op){return op.name === p.name && op.rank === 4;});
+    });
+    // If team has pre-assigned below40, limit to 2 more (total 3 including pre-assigned)
+    if(hasPreAssignedBelow40) {
+      return getGroupPickCount(team, 4) < 2;
+    }
+  }
+  
   return getGroupPickCount(team, groupRank) < 3;
 }
 
