@@ -1728,25 +1728,28 @@ function getGroupPickCount(team, groupRank) {
 
 function canPickFromGroup(team, groupRank, playerName) {
   if(groupRank === 5) {
-    // Next Chance: Check original group of the player
     if(playerName) {
       var originalPlayer = originalPlayers.find(function(op){return op.name === playerName;});
       if(originalPlayer) {
         var origGroup = originalPlayer.rank;
-        // Check if team has pre-assigned below40 players
-        var hasPreAssignedBelow40 = team.squad.some(function(p){
-          return p.isPreAssigned && originalPlayers.find(function(op){return op.name === p.name && op.rank === 4;});
-        });
-        
-        // If player is from Group 4 and team has pre-assigned below40, limit to 2 total from Group 4
-        if(origGroup === 4 && hasPreAssignedBelow40) {
-          return getGroupPickCount(team, 4) < 2;
+        if(origGroup === 4) {
+          var totalBelow40 = team.squad.filter(function(p){
+            var op = originalPlayers.find(function(o){return o.name === p.name;});
+            return op && op.rank === 4;
+          }).length;
+          return totalBelow40 < 3;
         }
-        // Otherwise check if original group is full (3/3)
         return getGroupPickCount(team, origGroup) < 3;
       }
     }
     return true;
+  }
+  if(groupRank === 4) {
+    var totalBelow40 = team.squad.filter(function(p){
+      var op = originalPlayers.find(function(o){return o.name === p.name;});
+      return op && op.rank === 4;
+    }).length;
+    return totalBelow40 < 3;
   }
   return getGroupPickCount(team, groupRank) < 3;
 }
