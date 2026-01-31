@@ -1708,6 +1708,7 @@ function markUnsold(pi){
       }
     }
     
+    bidLog.push({team:'SKIPPED', player:player.name, isSkipped:true, timestamp:new Date().toLocaleTimeString()});
     updateNewsTicker(player.name + ' moved to Next Chance - will bid later');
     checkGroupCompletion();
     saveAuction().then(function(){
@@ -2916,7 +2917,7 @@ function renderAll(){
     var bgColor = isSkipped ? 'background:linear-gradient(135deg, #fef3c7, #fde68a);border-left:4px solid #fbbf24;' : 'background:linear-gradient(135deg, #ffffff, #f8fafc);border-left:4px solid #10b981;';
     return '<div class="bid-log-item' + newClass + '" style="' + bgColor + '">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;">' +
-        '<div>' + (isSkipped ? '<strong style="color:#f59e0b;font-size:15px;">⏭️ ' + b.player + '</strong>' : '<strong style="color:#10b981;font-size:15px;">' + b.team + '</strong> signed <strong style="color:#2d3748;">' + b.player + '</strong>') + '</div>' +
+        '<div>' + (isSkipped ? '<strong style="color:#f59e0b;font-size:15px;">⏭️ ' + b.player + ' Moved to NEXT CHANCE</strong>' : '<strong style="color:#10b981;font-size:15px;">' + b.team + '</strong> signed <strong style="color:#2d3748;">' + b.player + '</strong>') + '</div>' +
         '<div style="display:flex;align-items:center;gap:10px;">' +
           (isSkipped ? '' : '<span style="background:#fbbf24;color:#1a202c;padding:4px 12px;border-radius:20px;font-weight:bold;font-size:14px;">💰 ' + b.amount.toLocaleString() + '</span>') +
           (b.timestamp ? '<span style="color:#64748b;font-size:12px;">' + b.timestamp + '</span>' : '') +
