@@ -430,8 +430,8 @@ th { background:#2d3748; color:white; font-weight:600; text-transform:uppercase;
   border:2px solid rgba(251,191,36,0.2);
   flex-wrap:wrap;
 }
-@media (min-width: 768px) {
-  .rank-counter { display:none; }
+.auction-started .rank-counter {
+  display:none;
 }
 .rank-counter > div {
   cursor:pointer;
@@ -2112,6 +2112,7 @@ function selectTeam(pi, ti){
 function startAuction(){
   if(!isAdmin) return alert('Admin access required!');
   localStorage.setItem('currentBreak', 'auctionStarted');
+  document.body.classList.add('auction-started');
   saveAuction().then(function(){
     renderAll();
   });
@@ -3143,6 +3144,11 @@ window.addEventListener('DOMContentLoaded', function(){
     btnEl.classList.add('active');
   }
   createFloatingParticles();
+  
+  // Add auction-started class if auction has started
+  if(localStorage.getItem('currentBreak')) {
+    document.body.classList.add('auction-started');
+  }
   
   // Auto-collapse strategy section on mobile
   if(window.innerWidth < 768) {
