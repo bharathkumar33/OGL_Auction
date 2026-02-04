@@ -1,4 +1,4 @@
-
+  
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1563,6 +1563,7 @@ function uploadCSV(){
         t.ownerName = null;
         t.wallet = 150000;
         t.squad = [];
+        t.groupPicks = {1:0,2:0,3:0,4:0};
       });
       
       // Assign team owners and add owner-players to their squads if OwnerPlays=yes
@@ -1587,7 +1588,7 @@ function uploadCSV(){
               var squadMember = {name:player.name, amount:ownerAmount, photo:player.photo, isPreAssigned:true, isOwner:true};
               targetTeam.squad.push(squadMember);
               targetTeam.wallet -= ownerAmount;
-              console.log('Assigned', player.name, 'to', targetTeam.name, 'as owner and player, amount:', ownerAmount);
+              console.log('Assigned', player.name, 'to', targetTeam.name, 'as owner and player, amount:', ownerAmount, 'wallet now:', targetTeam.wallet);
             } else {
               console.log('Assigned', player.name, 'to', targetTeam.name, 'as owner only');
             }
@@ -1617,7 +1618,7 @@ function uploadCSV(){
               if(!targetTeam.groupPicks) targetTeam.groupPicks = {1:0,2:0,3:0,4:0};
               targetTeam.groupPicks[4]++;
             }
-            console.log('Added to squad:', squadMember, 'Team:', targetTeam.name, 'Wallet deducted:', preAssignedAmount);
+            console.log('Added to squad:', squadMember, 'Team:', targetTeam.name, 'Wallet deducted:', preAssignedAmount, 'wallet now:', targetTeam.wallet);
           } else {
             console.log('WARNING: Could not find team for pre-assigned/ICON player', player.name, 'with team name', player.teamName);
           }
@@ -1769,9 +1770,8 @@ function getGroupWalletSpent(team, groupRank) {
 
 function canAffordInGroup(team, groupRank, amount) {
   if(groupRank === 5) return true;
-  var spent = getGroupWalletSpent(team, groupRank);
-  var limit = groupWalletLimits[groupRank] || 999999;
-  return (spent + amount) <= limit;
+  // Allow teams to use remaining wallet from previous groups
+  return team.wallet >= amount;
 }
 
 function checkGroupCompletion() {
@@ -1849,13 +1849,6 @@ function placeBid(ti,pi){
   }
   if(parseInt(amt) < player.basePrice) {
     alert('Bid must be at least ' + player.basePrice);
-    return;
-  }
-  
-  if(player.rank !== 5 && !canAffordInGroup(team, player.rank, parseInt(amt))) {
-    var spent = getGroupWalletSpent(team, player.rank);
-    var limit = groupWalletLimits[player.rank];
-    alert('⚠️ GROUP WALLET LIMIT\n\nGroup ' + player.rank + ' limit: ' + limit.toLocaleString() + '\nAlready spent: ' + spent.toLocaleString() + '\nThis bid: ' + parseInt(amt).toLocaleString() + '\nWould exceed limit by: ' + ((spent + parseInt(amt)) - limit).toLocaleString());
     return;
   }
   
@@ -2060,14 +2053,6 @@ function selectTeam(pi, ti){
     var groupCount = selectedTeam.groupPicks[currentPlayer.rank] || 0;
     if(groupCount >= 3) {
       restrictions.push('❌ Group ' + currentPlayer.rank + ' limit reached (3/3 players)');
-    }
-    
-    // Check group wallet limits
-    var groupSpent = getGroupWalletSpent(selectedTeam, currentPlayer.rank);
-    var groupLimit = groupWalletLimits[currentPlayer.rank] || 999999;
-    var groupRemaining = groupLimit - groupSpent;
-    if(groupRemaining < currentPlayer.basePrice) {
-      restrictions.push('❌ Group ' + currentPlayer.rank + ' budget exceeded (' + groupSpent.toLocaleString() + '/' + groupLimit.toLocaleString() + ')');
     }
   }
   
@@ -2376,11 +2361,6 @@ function renderAll(){
         if(t.squad.length >= 14) return false;
         if(!canPickFromGroup(t, player.rank, player.name)) return false;
         
-        var groupSpent = getGroupWalletSpent(t, player.rank);
-        var groupLimit = groupWalletLimits[player.rank] || 999999;
-        var groupRemainingBudget = groupLimit - groupSpent;
-        if(groupRemainingBudget < player.basePrice) return false;
-        
         var remainingSlots = 14 - t.squad.length - 1;
         var minReserve = remainingSlots * 2000;
         var maxSafeBid = t.wallet - minReserve;
@@ -2442,9 +2422,8 @@ function renderAll(){
         if(origPlayer) {
           var groupSpent = getGroupWalletSpent(onlyTeam, origPlayer.rank);
           var groupLimit = groupWalletLimits[origPlayer.rank] || 999999;
-          var groupRemainingBudget = groupLimit - groupSpent;
           
-          if(groupRemainingBudget >= player.basePrice && onlyTeam.wallet >= player.basePrice) {
+          if(onlyTeam.wallet >= player.basePrice) {
             var remainingSlots = 14 - onlyTeam.squad.length - 1;
             var minReserve = remainingSlots * 2000;
             var maxSafeBid = onlyTeam.wallet - minReserve;
@@ -2622,7 +2601,50 @@ function renderAll(){
         '</div>' +
       '</div>';
   } else {
-    // Show only the first player (current bid) - side by side layout
+    // Check if auction is complete
+    var auctionComplete = availablePlayers.length === 0 && teams.every(function(t){ return t.squad.length === 14; });
+    
+    // Debug logging
+    console.log('Auction Complete Check:', auctionComplete);
+    console.log('Available Players:', availablePlayers.length);
+    console.log('Teams Full:', teams.map(function(t){ return t.name + ': ' + t.squad.length + '/14'; }));
+    
+    if(auctionComplete) {
+      // Show auction complete summary
+      document.getElementById('availablePlayers').innerHTML = 
+        '<div style="max-width:1200px;margin:20px auto;padding:0 15px;">' +
+          '<div style="background:linear-gradient(135deg, #2d3748, #1a202c);padding:40px 30px;border-radius:20px;box-shadow:0 0 60px rgba(251,191,36,0.8);border:4px solid #fbbf24;text-align:center;">' +
+            '<div style="font-size:80px;margin-bottom:20px;animation:bounce-trophy 2s ease-in-out infinite;">🏆</div>' +
+            '<div style="font-size:48px;font-weight:900;background:linear-gradient(90deg, #fbbf24, #f59e0b, #10b981, #8b5cf6, #fbbf24);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:30px;letter-spacing:4px;text-transform:uppercase;">AUCTION COMPLETE!</div>' +
+            '<div style="color:white;font-size:24px;margin:20px 0;font-weight:600;">🎉 All Teams Finalized! 🎉</div>' +
+            '<div style="margin-top:40px;padding:30px;background:rgba(251,191,36,0.15);border-radius:16px;border:3px solid #fbbf24;position:relative;z-index:1;">' +
+              '<div style="color:#fbbf24;font-size:28px;font-weight:900;margin-bottom:25px;text-shadow:0 0 20px rgba(251,191,36,0.6);">💎 TOP 3 HIGHEST BIDS 💎</div>' +
+              '<div style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap;">' +
+                bidLog.filter(function(b){return b.amount;}).sort(function(a,b){return b.amount - a.amount;}).slice(0,3).map(function(bid, idx){
+                  var medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉';
+                  var borderColor = idx === 0 ? '#fbbf24' : idx === 1 ? '#94a3b8' : '#fb923c';
+                  var player = originalPlayers.find(function(p){return p.name === bid.player;});
+                  var photo = player ? player.photo : 'default.png';
+                  return '<div style="background:rgba(255,255,255,0.95);padding:20px;border-radius:16px;border:3px solid ' + borderColor + ';min-width:200px;box-shadow:0 8px 24px rgba(0,0,0,0.2);position:relative;z-index:2;cursor:pointer;transition:all 0.3s;" onmouseover="this.style.transform=\'scale(1.05)\';this.style.boxShadow=\'0 12px 32px rgba(0,0,0,0.3)\'" onmouseout="this.style.transform=\'scale(1)\';this.style.boxShadow=\'0 8px 24px rgba(0,0,0,0.2)\'">' +
+                    '<div style="font-size:40px;margin-bottom:10px;">' + medal + '</div>' +
+                    '<img src="' + photo + '" style="width:100px;height:100px;border-radius:50%;border:3px solid ' + borderColor + ';margin-bottom:15px;object-fit:cover;pointer-events:none;">' +
+                    '<div style="color:#2d3748;font-size:18px;font-weight:900;margin-bottom:8px;">' + bid.player + '</div>' +
+                    '<div style="color:#10b981;font-size:24px;font-weight:900;margin-bottom:8px;">💰 ' + bid.amount.toLocaleString() + '</div>' +
+                    '<div style="color:#64748b;font-size:14px;font-weight:600;">🏆 ' + bid.team + '</div>' +
+                  '</div>';
+                }).join('') +
+              '</div>' +
+            '</div>' +
+            '<div style="margin-top:30px;text-align:center;">' +
+              '<button onclick="document.querySelector(\'nav button[onclick*=auctioned]\').click()" style="background:linear-gradient(135deg, #10b981, #059669);color:white;border:none;padding:18px 50px;border-radius:12px;font-size:20px;font-weight:bold;cursor:pointer;box-shadow:0 8px 24px rgba(16,185,129,0.4);transition:all 0.3s;text-transform:uppercase;letter-spacing:2px;position:relative;z-index:2;" onmouseover="this.style.transform=\'scale(1.05)\';this.style.boxShadow=\'0 12px 32px rgba(16,185,129,0.6)\'" onmouseout="this.style.transform=\'scale(1)\';this.style.boxShadow=\'0 8px 24px rgba(16,185,129,0.4)\'">📋 View All Teams</button>' +
+              '<button onclick="document.querySelector(\'nav button[onclick*=teamPhotos]\').click()" style="background:linear-gradient(135deg, #8b5cf6, #7c3aed);color:white;border:none;padding:18px 50px;border-radius:12px;font-size:20px;font-weight:bold;cursor:pointer;box-shadow:0 8px 24px rgba(139,92,246,0.4);transition:all 0.3s;text-transform:uppercase;letter-spacing:2px;margin-left:15px;position:relative;z-index:2;" onmouseover="this.style.transform=\'scale(1.05)\';this.style.boxShadow=\'0 12px 32px rgba(139,92,246,0.6)\'" onmouseout="this.style.transform=\'scale(1)\';this.style.boxShadow=\'0 8px 24px rgba(139,92,246,0.4)\'">📸 Team Photos</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    } else {
+    if(sortedPlayers.length === 0) {
+      document.getElementById('availablePlayers').innerHTML = '<div style="padding:40px;text-align:center;"><h2>No players to display</h2><p>Available: ' + availablePlayers.length + ' | Current Group: ' + currentGroup + '</p></div>';
+    } else {
     document.getElementById('availablePlayers').innerHTML = sortedPlayers.slice(0, 1).map(function(p,i){
       var badges = '<span class="rank-badge rank-' + p.rank + '">Group ' + p.rank + '</span>';
       if(p.playerType) badges += '<span class="rank-badge player-type-badge">' + p.playerType + '</span>';
@@ -2708,8 +2730,6 @@ function renderAll(){
                   var groupCount = t.groupPicks[checkGroup] || 0;
                   var groupSpent = getGroupWalletSpent(t, checkGroup);
                   var groupLimit = groupWalletLimits[checkGroup] || 999999;
-                  var groupRemainingBudget = groupLimit - groupSpent;
-                  var groupWalletInsufficient = groupRemainingBudget < p.basePrice;
                   var remainingSlots = 14 - t.squad.length - 1;
                   var minReserve = remainingSlots * 2000;
                   var maxSafeBid = t.wallet - minReserve;
@@ -2720,16 +2740,16 @@ function renderAll(){
                   });
                   var effectiveLimit = (checkGroup === 4 && hasPreAssignedBelow40) ? 2 : 3;
                   
-                  var isDisabled = squadFull || groupFull || (checkGroup <= 4 && groupWalletInsufficient) || cannotAffordPlayer;
+                  var isDisabled = squadFull || groupFull || cannotAffordPlayer;
                   var disabledStyle = isDisabled ? 'opacity:0.4;background:rgba(239,68,68,0.1);border-color:#ef4444;' : '';
                   
                   return '<button id="teamBtn_0_' + j + '" class="team-select-btn" style="font-size:13px;padding:12px 8px;min-height:100px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;' + disabledStyle + '" ' + 
-                    (isDisabled ? 'disabled title="' + (squadFull ? 'Squad Full' : groupFull ? 'Group ' + checkGroup + ' Limit (' + groupCount + '/' + effectiveLimit + ')' : groupWalletInsufficient ? 'Group ' + checkGroup + ' Budget Exceeded' : 'Insufficient Wallet') + '"' : 'onclick="selectTeam(0,' + j + ')"') + '>' +
+                    (isDisabled ? 'disabled title="' + (squadFull ? 'Squad Full' : groupFull ? 'Group ' + checkGroup + ' Limit (' + groupCount + '/' + effectiveLimit + ')' : 'Insufficient Wallet') + '"' : 'onclick="selectTeam(0,' + j + ')"') + '>' +
                     '<div style="font-weight:700;font-size:14px;">' + t.name + '</div>' +
                     '<div style="font-size:13px;color:#2d3748;font-weight:600;">Squad: ' + t.squad.length + '/14</div>' +
                     '<div style="font-size:13px;color:' + (groupCount >= effectiveLimit ? '#ef4444' : '#10b981') + ';font-weight:700;">G' + checkGroup + ': ' + groupCount + '/' + effectiveLimit + (groupCount >= effectiveLimit ? ' 🚫' : '') + '</div>' +
                     '<div style="font-size:13px;color:' + (groupSpent >= groupLimit ? '#ef4444' : '#2d3748') + ';font-weight:600;">' + groupSpent.toLocaleString() + '/' + groupLimit.toLocaleString() + '</div>' +
-                    (cannotAffordPlayer ? '<div style="font-size:11px;color:#ef4444;font-weight:700;">❌ Low Wallet</div>' : groupWalletInsufficient ? '<div style="font-size:11px;color:#ef4444;font-weight:700;">❌ G' + checkGroup + ' Budget</div>' : groupFull ? '<div style="font-size:11px;color:#ef4444;font-weight:700;">❌ Full</div>' : '') +
+                    (cannotAffordPlayer ? '<div style="font-size:11px;color:#ef4444;font-weight:700;">❌ Low Wallet</div>' : groupFull ? '<div style="font-size:11px;color:#ef4444;font-weight:700;">❌ Full</div>' : '') +
                   '</button>';
                 }).join('') +
               '</div>' +
@@ -2853,8 +2873,6 @@ function renderAll(){
                   var groupCount = t.groupPicks[checkGroup] || 0;
                   var groupSpent = getGroupWalletSpent(t, checkGroup);
                   var groupLimit = groupWalletLimits[checkGroup] || 999999;
-                  var groupRemainingBudget = groupLimit - groupSpent;
-                  var groupWalletInsufficient = groupRemainingBudget < p.basePrice;
                   var remainingSlots = 14 - t.squad.length - 1;
                   var minReserve = remainingSlots * 2000;
                   var maxSafeBid = t.wallet - minReserve;
@@ -2865,7 +2883,7 @@ function renderAll(){
                   });
                   var effectiveLimit = (checkGroup === 4 && hasPreAssignedBelow40) ? 2 : 3;
                   
-                  var isDisabled = squadFull || groupFull || (checkGroup <= 4 && groupWalletInsufficient) || cannotAffordPlayer;
+                  var isDisabled = squadFull || groupFull || cannotAffordPlayer;
                   
                   return '<button id="teamBtn_mobile_' + j + '" class="team-select-btn" style="font-size:13px;padding:12px 8px;min-height:100px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;' + (isDisabled ? 'opacity:0.4;' : '') + '" ' + 
                     (isDisabled ? 'disabled' : 'onclick="selectTeam(0,' + j + ')"') + '>' +
@@ -2873,7 +2891,7 @@ function renderAll(){
                     '<div style="font-size:13px;color:#2d3748;font-weight:600;">Squad: ' + t.squad.length + '/14</div>' +
                     '<div style="font-size:13px;color:' + (groupCount >= effectiveLimit ? '#ef4444' : '#10b981') + ';font-weight:700;">G' + checkGroup + ': ' + groupCount + '/' + effectiveLimit + (groupCount >= effectiveLimit ? ' 🚫' : '') + '</div>' +
                     '<div style="font-size:13px;color:' + (groupSpent >= groupLimit ? '#ef4444' : '#2d3748') + ';font-weight:600;">' + groupSpent.toLocaleString() + '/' + groupLimit.toLocaleString() + '</div>' +
-                    (cannotAffordPlayer ? '<div style="font-size:11px;color:#ef4444;font-weight:700;">❌ Low Wallet</div>' : groupWalletInsufficient ? '<div style="font-size:11px;color:#ef4444;font-weight:700;">❌ G' + checkGroup + ' Budget</div>' : groupFull ? '<div style="font-size:11px;color:#ef4444;font-weight:700;">❌ Full</div>' : '') +
+                    (cannotAffordPlayer ? '<div style="font-size:11px;color:#ef4444;font-weight:700;">❌ Low Wallet</div>' : groupFull ? '<div style="font-size:11px;color:#ef4444;font-weight:700;">❌ Full</div>' : '') +
                   '</button>';
                 }).join('') +
               '</div>' +
@@ -2902,6 +2920,7 @@ function renderAll(){
         '</div>' +
       '</div>';
     }).join('');
+    }
   }
   
   // Scroll to current bid player
@@ -2912,7 +2931,21 @@ function renderAll(){
     }
   }, 100);
 
-  document.getElementById('bidLog').innerHTML = bidLog.slice().reverse().map(function(b, index){
+  // Hide bid history section when auction is complete
+  var bidHistorySection = document.querySelector('#auction h3');
+  var bidLogDiv = document.getElementById('bidLog');
+  var resetBtn = document.querySelector('#auction .reset-btn');
+  if(auctionComplete) {
+    if(bidHistorySection) bidHistorySection.style.display = 'none';
+    if(bidLogDiv) bidLogDiv.style.display = 'none';
+    if(resetBtn) resetBtn.style.display = 'none';
+  } else {
+    if(bidHistorySection) bidHistorySection.style.display = '';
+    if(bidLogDiv) bidLogDiv.style.display = '';
+    if(resetBtn) resetBtn.style.display = '';
+  }
+
+  document.getElementById('bidLog').innerHTML = auctionComplete ? '' : bidLog.slice().reverse().map(function(b, index){
     var newClass = index < 3 ? ' new' : '';
     var isSkipped = b.isSkipped || b.team === 'SKIPPED';
     var bgColor = isSkipped ? 'background:linear-gradient(135deg, #fef3c7, #fde68a);border-left:4px solid #fbbf24;' : 'background:linear-gradient(135deg, #ffffff, #f8fafc);border-left:4px solid #10b981;';
@@ -3105,7 +3138,15 @@ db.ref('auctionState').on('value',function(s){
   var d=s.val();
   if(!d) return;
   teams=d.teams||teams;
-  teams.forEach(function(t){ if(!t.groupPicks) t.groupPicks = {1:0,2:0,3:0,4:0}; });
+  teams.forEach(function(t){ 
+    if(!t.groupPicks) t.groupPicks = {1:0,2:0,3:0,4:0};
+    // Recalculate wallet based on pre-assigned players
+    if(t.squad && t.squad.length > 0) {
+      var preAssignedTotal = t.squad.filter(function(p){return p.isPreAssigned;}).reduce(function(sum, p){return sum + (p.amount || 0);}, 0);
+      var auctionedTotal = t.squad.filter(function(p){return !p.isPreAssigned;}).reduce(function(sum, p){return sum + (p.amount || 0);}, 0);
+      t.wallet = 150000 - preAssignedTotal - auctionedTotal;
+    }
+  });
   var syncedPlayers = (d.availablePlayers||[]).filter(function(p){return !p.isPreAssigned && !p.isIcon && !p.isOwner;});
   if(JSON.stringify(syncedPlayers) !== JSON.stringify(availablePlayers)) {
     availablePlayers = syncedPlayers;
